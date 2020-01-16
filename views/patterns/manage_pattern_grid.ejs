@@ -1,0 +1,265 @@
+<% include ../partials/header %> 
+<% include ../partials/leftpart %> 
+
+<!-- Content Wrapper. Contains page content -->
+<div class="content-wrapper">
+		<!-- Content Header (Page header) -->
+		<section class="content-header">
+		  <h1>
+			Pattern Design
+		  </h1>
+		  <ol class="breadcrumb">
+			<li><a href="/"><i class="fa fa-dashboard"></i>Home</a></li>
+			<li class="active">Pattern Design</li>
+		  </ol>
+		</section>
+	
+		<!-- Main content -->
+		<section class="content">
+		
+			<div class="row">
+				<div class="col-md-12">
+	
+			  <!-- general form elements -->
+			  <div class="box box-primary">
+				<!-- /.box-header -->
+				<!-- form start -->
+	
+				<% include ../partials/messagebox %> 
+
+				<div class="box-header">
+					<h3 class="box-title text-red">Pattern Design For <%=patternData.pattern_title%> (<%=patternData.grid_rows%>*<%=patternData.grid_columns%>) </h3>
+				</div>
+					<!-- /.box-header -->
+
+				<form name="gridform" id="gridform" method="post">
+
+					<div class="box-body table-responsive no-padding">
+						<table class="table table-bordered">
+							<tbody class="col-md-12">
+									<div class="modal-body">
+
+										<div class="container">
+										<div class="row">
+											
+											<div class="col-sm-6">
+
+												<div id="popboxmsg"></div>
+
+												<fieldset id="stitche_color">
+													<h4 class="modal-title text-red">Choose Color</h4>
+														<%
+														for(var single_color = 0; single_color < patternDesignColor.length; single_color ++) 
+														{
+														%>
+														<div class="col-sm-2" style="background-color:<%=patternDesignColor[single_color].color_code%>">
+															<input type="radio" name="stitche_color" value="<%=patternDesignColor[single_color]._id%>">
+														</div>
+														<% 
+														}
+														%> 
+												</fieldset>
+												<p>&nbsp;</p>
+												<div class="clearfix"></div>
+
+												<fieldset id="stitche_type">
+												<h4 class="modal-title text-red">Choose Stitche</h4>
+														<%
+														for(var single_type = 0; single_type < patternDesignType.length; single_type ++) 
+														{
+														%>
+														<div class="col-sm-2">
+															<input type="radio" name="stitche_type" value="<%=patternDesignType[single_type]._id%>">&nbsp;
+															
+															<%
+															if(patternDesignType[single_type].stitches_size=='1*1')
+															{
+															%>	
+																<embed src="/stitches_images/<%=patternDesignType[single_type].stitches_image_path%>" title="<%=patternDesignType[single_type].stitches_name%>" width="24" height="24"/>
+
+																
+															<%
+															}
+
+															if(patternDesignType[single_type].stitches_name=='left6' && patternDesignType[single_type].stitches_size=='6*6')
+															{
+															%>	
+																<embed src="/stitches_images/left6/<%=patternDesignType[single_type].stitches_image_path%>" title="<%=patternDesignType[single_type].stitches_name%>" width="24" height="24" />
+															<%
+															}
+
+															if(patternDesignType[single_type].stitches_name== 'right6' && patternDesignType[single_type].stitches_size== '6*6')
+															{
+															%>	
+																<embed src="/stitches_images/right6/<%=patternDesignType[single_type].stitches_image_path%>" title="<%=patternDesignType[single_type].stitches_name%>" width="24" height="24" />	
+															<%
+															}
+
+															if(patternDesignType[single_type].stitches_name== 'left10' && patternDesignType[single_type].stitches_size== '10*10')
+															{
+															%>	
+																<embed src="/stitches_images/left10/<%=patternDesignType[single_type].stitches_image_path%>" title="<%=patternDesignType[single_type].stitches_name%>" width="24" height="24" />
+															<%
+															}
+
+															if(patternDesignType[single_type].stitches_name== 'right10' && patternDesignType[single_type].stitches_size== '10*10')
+															{
+															%>	
+																<embed src="/stitches_images/right10/<%=patternDesignType[single_type].stitches_image_path%>" title="<%=patternDesignType[single_type].stitches_name%>" width="24" height="24" />
+															<%
+															}
+															
+															%>
+														</div>
+														<% 
+														}
+														%>
+												</fieldset>
+
+											</div>
+
+										</div>
+										</div>
+											
+									</div>
+
+									<div class="box-footer">
+										<button type="button" value="" class="btn btn-primary griddatabtn">Save</button>
+									</div>
+
+									<%	
+									for (var row=patternData.grid_rows-1; row >=0 ; row--) 
+									{
+									%>	 
+										<tr>
+											<%
+											for (var col=patternData.grid_columns; col >=0 ; col--) 
+											{ 
+												patternDesignData.forEach(function(element) 
+												{	
+													if((row==element.grid_row_index) && (col==element.grid_column_index))
+													{
+														var colorDetail = customHelper.h_getSingleColor(element.stitches_color_id, patternDesignColor);
+
+														var typeDetail  = customHelper.h_getSingleStitchesType(element.stitches_type_id, patternDesignType);
+											%>
+													
+													<td style="background-color:<%=colorDetail.color_code %>;">
+									
+														<center>
+															<a href="javascript:void(0);" data-toggle="modal" data-target="#modal-default<%=element._id %>">
+																<small><%=row%>*<%=col%></small>
+															</a>
+															<br>
+
+															<%
+															if(typeDetail.stitches_size=='1*1')
+															{
+															%>	
+																<embed src="/stitches_images/<%=typeDetail.stitches_image_path %>" width="24" height="24"/>
+															<%
+															}
+
+															if(typeDetail.stitches_name=='left6' && typeDetail.stitches_size=='6*6')
+															{
+															%>	
+																<embed src="/stitches_images/left6/<%=typeDetail.stitches_image_path %>" width="24" height="24"/>
+															<%
+															}
+
+															if(typeDetail.stitches_name== 'right6' && typeDetail.stitches_size== '6*6')
+															{
+															%>	
+																<embed src="/stitches_images/right6/<%=typeDetail.stitches_image_path %>" width="24" height="24"/>
+															<%
+															}
+
+															if(typeDetail.stitches_name== 'left10' && typeDetail.stitches_size== '10*10')
+															{
+															%>	
+																<embed src="/stitches_images/left10/<%=typeDetail.stitches_image_path %>" width="24" height="24"/>
+															<%
+															}
+
+															if(typeDetail.stitches_name== 'right10' && typeDetail.stitches_size== '10*10')
+															{
+															%>	
+																<embed src="/stitches_images/right10/<%=typeDetail.stitches_image_path %>" width="24" height="24"/>
+															<%
+															}
+															
+															%>
+
+															<input type="checkbox" name="gridbox" value="<%=element._id %>" />
+														</center>
+														
+													</td>
+											<%
+													}
+												});
+											}
+											%>
+											<td>
+												<a href="javascript:void(0);" onclick="openinstruction('<%=JSON.parse(JSON.stringify(patternData._id))%>', '<%=row%>');">
+													Manage instruction for row: <%=row%> 
+												</a>
+											</td>
+											
+										</tr>
+									<%
+									}
+									%>
+							</tbody>
+						</table>
+					</div>
+					<!-- /.box -->
+				</form>
+
+			</div>
+		  </div>
+
+		</section>
+		<!-- /.content -->
+	  </div>
+	  <!-- /.content-wrapper -->
+
+
+	  	<!-- .modal -->
+		<div class="modal fade" id="row-instructions">
+			<div class="modal-dialog">
+				<div class="modal-content">
+
+					<form name="rowinst" id="rowinst" method="post">
+					<input type="hidden" name="pattern_id" id="pattern_id" />
+					<input type="hidden" name="row_id" id="row_id" />
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title text-red">Instruction for row</h4>
+					</div>
+
+					<div class="modal-body">
+
+						<div class="container">
+							<div class="row">
+								<div class="col-sm-6">
+									<div id="rowpopboxmsg"></div>
+									<h4 class="modal-title text-red">Row Instruction </h4>
+									<textarea name="row_instruction" cols="70" rows="5"></textarea>
+								</div>
+
+							</div>
+						</div>
+					</div>
+
+					<div class="modal-footer">
+						<button type="button" value="" class="btn btn-primary rowgriddatabtn">Save</button>
+					</div>
+
+					</form>
+					</div>
+				</div>
+		</div>
+		<!-- /.modal -->
+	
+<% include ../partials/footer %> 

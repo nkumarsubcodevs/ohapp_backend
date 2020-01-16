@@ -1,0 +1,20 @@
+<%if (success_message != '') { %>
+	<div class="alert alert-success">
+		<%= success_message %>
+	</div>
+<% } %>
+<%if (error_message != '') { %>
+	<div class="alert alert-danger">
+		<%= error_message %>
+	</div>
+<% } %>
+<%if (errors != '') { 
+	errors.forEach(function(element) 
+	{
+	%>	
+		<div class="alert alert-danger">
+			<%= element.msg %>
+		</div>
+	<%
+	});
+} %>

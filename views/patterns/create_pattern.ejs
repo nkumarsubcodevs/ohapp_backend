@@ -1,0 +1,83 @@
+<% include ../partials/header %> 
+<% include ../partials/leftpart %> 
+
+<!-- Content Wrapper. Contains page content -->
+<div class="content-wrapper">
+		<!-- Content Header (Page header) -->
+		<section class="content-header">
+		  <h1>
+			Create Pattern
+		  </h1>
+		  <ol class="breadcrumb">
+			<li><a href="/"><i class="fa fa-dashboard"></i>Home</a></li>
+			<li class="active">Create Pattern</li>
+		  </ol>
+		</section>
+	
+		<!-- Main content -->
+		<section class="content">
+		
+			<div class="row">
+				<div class="col-md-12">
+	
+			  <!-- general form elements -->
+			  <div class="box box-primary">
+				<!-- /.box-header -->
+				<!-- form start -->
+	
+				    <% include ../partials/messagebox %> 
+	
+					<form action="/patterns/create_pattern" method="post" name="add_pattern_detail" id="add_pattern_detail">
+
+					<input type="hidden" name="user_id" id="user_id" value="<%=user.id%>">	
+	
+					<div class="box-body">
+	
+						<div class="col-md-3 form-group">
+							<label>Pattern Title: <span class="required-star">*</span></label>
+							<input type="text" name="pattern_title" id="pattern_title" class="form-control textbox required" maxlength="50" aria-required="true">
+						</div>
+
+						<div class="col-md-3 form-group">
+							<label>Pattern Description: <span class="required-star">*</span></label>
+							<input type="text" name="pattern_description" id="pattern_description" class="form-control textbox required" maxlength="50" aria-required="true">
+						</div>
+
+						<div class="col-md-3 form-group">
+							<label>Pattern Rows: <span class="required-star">*</span></label>
+							<input type="text" name="grid_rows" id="grid_rows" class="form-control textbox required" maxlength="50" aria-required="true">
+						</div>
+
+						<div class="col-md-3 form-group">
+							<label>Pattern Columns: <span class="required-star">*</span></label>
+							<input type="text" name="grid_columns" id="grid_columns" class="form-control textbox required" maxlength="50" aria-required="true">
+						</div>
+
+						<div class="col-md-3 form-group">
+							<label>Pattern Status: <span class="required-star">*</span></label>
+							<select name="pattern_status" id="pattern_status" class="form-control select required">
+								<option value="1">Active</option>
+								<option value="0">InActive</option>
+							</select>
+						</div>
+	
+						<div class="clearfix"></div>            
+	
+					</div>
+	
+					<div class="box-footer">
+						<button type="submit" class="btn btn-primary"><i class="fa fa-check"></i> Submit</button>
+					</div>
+					</form>
+				
+			  </div>
+			  <!-- /.box -->
+			</div>
+		  </div>
+
+		</section>
+		<!-- /.content -->
+	  </div>
+	  <!-- /.content-wrapper -->
+			
+<% include ../partials/footer %> 
