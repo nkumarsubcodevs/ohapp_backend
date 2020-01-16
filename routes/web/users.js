@@ -77,6 +77,7 @@ passport.use(new LocalStrategy({
 	  		if (!user) {
 				return done(null, false, req.flash('error_message', 'No email is found'));
 	  		}
+		
 			userSerObject.comparePassword(password, user.password, function(err, isMatch) 
 			{
 				if (err) { return done(err); }

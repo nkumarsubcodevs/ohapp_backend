@@ -5,6 +5,7 @@
   * @file UserService.js
 */
 
+const userObject = require('../models/user');
 const dbObj      = require('../config/database');
 const config     = require('../config/config');
 const bcrypt     = require('bcryptjs');
@@ -33,9 +34,8 @@ class UserService
 
 	// get user by email
 	async getUserByEmail(email, callback){
-		let user_email = email;
-		var response =  await dbObj.one('select * from users where email=$1',[user_email]);
-		callback(null, response);
+		const user = await userObject.findOne({ where: { email: email } });
+		callback(null,user);
 	}
 
 	// compare password
@@ -48,7 +48,7 @@ class UserService
 	
 	// get user by id
 	async getUserById(id, callback) {
-		var response =  await dbObj.one('select * from users where id=$1',[id]);
+		const response = await userObject.findOne({ where: { id: id } });
 		callback(null, response);
 	}
 	

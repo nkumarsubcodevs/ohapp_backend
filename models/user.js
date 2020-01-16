@@ -5,41 +5,65 @@
   * @file user.js
 */
 
-const mongoose = require('mongoose');
+const Sequelize = require('sequelize');
+const database  = require('../config/database');
 
-let UserSchema = mongoose.Schema({
-	name:{
-		type: String,
-		index: true,
-  	},
-  	email:{
-		type: String,
-		required: true
-  	},
-  	password:{
-		type: String,
-		required: true
+const User = database.define('users',
+  {
+    role_id: {
+		type: Sequelize.BIGINT,
+		allowNull: false,
+    },
+	first_name: {
+		type: Sequelize.STRING(100),
+		allowNull: false,
 	},
-	bio:{
-		type: String,
-	}, 
-	website:{
-		type: String,
-	}, 
-	user_image:{
-		type: String,
-	}, 
-	token_key:{
-		type: String,
-	},   
-	role_id:{
-		type: Number,
-		required: true
+	last_name: {
+		type: Sequelize.STRING(100),
+		allowNull: false,
 	},
-	status:{
-		type: Number,
-		required: true
-	}    
-});
+	gender: {
+		type: Sequelize.STRING(50),
+		allowNull: false,
+	},
+	email: {
+		type: Sequelize.STRING(100),
+		allowNull: false,
+		unique: true
+	},
+	password: {
+		type: Sequelize.STRING(100),
+		allowNull: false,
+	},
+	profile_image: {
+		type: Sequelize.STRING(100),
+	},
+	face_id: {
+		type: Sequelize.STRING(150),
+	},
+	touch_id: {
+		type: Sequelize.STRING(150),
+	},
+	access_token: {
+		type: Sequelize.STRING(150),
+	},
+	security_token: {
+		type: Sequelize.STRING(150),
+	},
+	notification_mute_status: {
+		type: Sequelize.BOOLEAN,
+		allowNull: false,
+	},
+	notification_mute_end: {
+		type: Sequelize.DATE,
+		allowNull: false,
+	},
+	status: {
+		type: Sequelize.BOOLEAN,
+		allowNull: false,
+	},
+  },
+  { timestamps: false }
+);
 
-module.exports = mongoose.model('User', UserSchema);
+module.exports = User;
