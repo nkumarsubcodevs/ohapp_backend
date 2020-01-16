@@ -51,15 +51,21 @@ const User = database.define('users',
 		type: Sequelize.STRING(150),
 	},
 	notification_mute_status: {
-		type: Sequelize.BOOLEAN,
-		allowNull: false,
+		type: Sequelize.INTEGER,
 	},
 	notification_mute_end: {
 		type: Sequelize.DATE,
-		allowNull: false,
 	},
 	status: {
-		type: Sequelize.BOOLEAN,
+		type: Sequelize.INTEGER,
+		allowNull: false,
+	},
+	create_time: {
+		type: Sequelize.DATE,
+		allowNull: false,
+	},
+	update_time: {
+		type: Sequelize.DATE,
 		allowNull: false,
 	},
   },

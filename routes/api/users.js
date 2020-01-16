@@ -107,7 +107,10 @@ router.get('/getuserdetail', verifyToken, function(req, res, next) {
 // New user registration
 router.post('/register', function(req, res){
 
-	let email    = req.body.email;
+	let first_name = req.body.first_name;
+	let last_name  = req.body.last_name;
+	let gender     = req.body.gender;
+	let email      = req.body.email;
 	let password = req.body.password;
 	let confirm_password     = req.body.confirm_password;
 	let role_id  = 2;
@@ -154,10 +157,12 @@ router.post('/register', function(req, res){
 	}
 
 	let userData = {
-		// 'name': name,
-		'email': email,
-		'password': password,
 		'role_id': role_id,
+		'first_name': first_name,
+		'last_name': last_name,
+		'gender': gender,
+		'email': email.toLowerCase(),
+		'password': password,
 		'status': status
 	};
 
@@ -192,15 +197,15 @@ router.post('/register', function(req, res){
 					}
 					else
 					{
-						var token = jwt.sign({ id: userData._id }, config.secret, {
+						var token = jwt.sign({ id: userData.id }, config.secret, {
 							expiresIn: 86400 // expires in 24 hours
 						});
 
 						res.send({
 							status: 200,
 							message: 'success',
-							// result: userData,
-							// token: token
+							result: userData,
+							token: token
 						});
 					}
 				});

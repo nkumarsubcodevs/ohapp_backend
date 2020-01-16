@@ -10,24 +10,31 @@ const dbObj      = require('../config/database');
 const config     = require('../config/config');
 const bcrypt     = require('bcryptjs');
 const nodemailer = require('nodemailer');
+const current_datetime = require('date-and-time');
 
 class UserService
 {
 	// Create new user
 	async createUser(newUser, callback){
 
+		const now = new Date();
+
 		let userData = new userObject({
-			// name: newUser.name,
+			role_id: newUser.role_id,
+			first_name: newUser.first_name,
+			last_name: newUser.last_name,
+			gender: newUser.gender,
 			email: newUser.email,
 			password: newUser.password,
-			role_id: newUser.role_id,
-			status: newUser.status
+			status: newUser.status,
+			create_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss'),
+			update_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss')
 		});
 
 		bcrypt.genSalt(10, function(err, salt) {
 			bcrypt.hash(userData.password, salt, function(err, hash) {
 				userData.password = hash;
-				userData.save(callback);
+				callback(null,userData.save());
 			});
 		});
     }
