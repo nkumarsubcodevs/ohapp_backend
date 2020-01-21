@@ -6,6 +6,20 @@
 
 var customHelper = {
 
+	// get current date in timestamp
+	h_getTodayDateInTimeStamp() {
+
+		var current_date = new Date();
+		var dd = String(current_date.getDate()).padStart(2, '0');
+		var mm = String(current_date.getMonth() + 1).padStart(2, '0');
+		var yyyy = current_date.getFullYear();
+		current_date = yyyy + '-' + mm + '-' + dd;
+
+		var current_date    = new Date(current_date).getTime();
+
+		return current_date;
+	}, 
+
 	// get single grid color for pattern
 	 h_getSingleColor(color_id, patternDesignColor) {
 

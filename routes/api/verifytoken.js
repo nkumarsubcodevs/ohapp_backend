@@ -9,7 +9,7 @@ const config   = require('../../config/config');
 
 function verifyToken(req, res, next) 
 {
-	var token = req.headers['x-access-token'];
+	const token = req.body.token || req.query.token || req.headers['x-access-token'];
 	
 	if(!token) 
 	{
@@ -32,7 +32,6 @@ function verifyToken(req, res, next)
 		}
 		else
 		{
-			 // if everything good, save to request for use in other routes
 			 req.id = decoded.id;
 			 next();
 		}

@@ -76,7 +76,7 @@ app.use('/', webRoutes);
 /* API Routing */
 app.use(helmet()); // security
 app.use(cors()); // enabling CORS for all requests
-app.use(morgan('combined')); // adding morgan to log HTTP requests
+// app.use(morgan('combined')); // adding morgan to log HTTP requests
 app.use('/v1.0', apiRoutes); // mount all api routes
 
   

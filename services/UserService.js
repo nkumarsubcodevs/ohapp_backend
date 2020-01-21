@@ -6,11 +6,16 @@
 */
 
 const userObject = require('../models/user');
+const unavailabilityObject = require('../models/unavailabilities');
 const dbObj      = require('../config/database');
 const config     = require('../config/config');
 const bcrypt     = require('bcryptjs');
-const nodemailer = require('nodemailer');
 const current_datetime = require('date-and-time');
+
+const randomstring = require("randomstring");
+const fs = require('fs');
+const nodemailer = require('nodemailer');
+const handlebars = require('handlebars');
 
 class UserService
 {
@@ -34,9 +39,60 @@ class UserService
 		bcrypt.genSalt(10, function(err, salt) {
 			bcrypt.hash(userData.password, salt, function(err, hash) {
 				userData.password = hash;
+
+				//*******  Email Code
+				var readHTMLFile = function(path, callback) {
+					fs.readFile(path, {encoding: 'utf-8'}, function (err, html) {
+						if (err) {
+							throw err;
+							callback(err);
+						}
+						else {
+							callback(null, html);
+						}
+					});
+				};
+		
+				var transporter = nodemailer.createTransport({
+					service: config.email_service,
+					port: 587,
+					secure: false,
+					auth: {
+						user: config.gmail_id,
+						pass: config.gmail_password
+					}
+				});
+		
+				readHTMLFile(config.signup_template, function(err, html) {
+					var template = handlebars.compile(html);
+					var replacements = {
+						username: newUser.first_name,
+						user_email: newUser.email,
+						site_logo: config.site_logo,
+					};
+					var htmlToSend = template(replacements);
+		
+					var mailOptions = {
+						from: '"OH Team" <'+config.from_email+'>',
+						to: newUser.email,
+						subject: 'OH :: SignUp Email',
+						html : htmlToSend
+					}
+		
+					transporter.sendMail(mailOptions, function (error, info) {
+						if (error) {
+						console.log(error);
+						} else {
+						console.log('Email sent: ' + info.response);
+						}
+					});
+				});
+				//*******  Email Code
+
 				callback(null,userData.save());
 			});
 		});
+		
     }
 
 	// get user by email
@@ -60,41 +116,73 @@ class UserService
 	}
 	
 	// send forgot password email
-	async sendForgotEmail(userDataWithtoken, callback){
+	async sendForgotEmail(userData, callback){
+
+		var new_password = randomstring.generate(8);
+		var user_detail = await userObject.findOne({ where: { email: userData.email } });
+
+		var readHTMLFile = function(path, callback) {
+			fs.readFile(path, {encoding: 'utf-8'}, function (err, html) {
+				if (err) {
+					throw err;
+					callback(err);
+				}
+				else {
+					callback(null, html);
+				}
+			});
+		};
 
 		var transporter = nodemailer.createTransport({
 			service: config.email_service,
+			port: 587,
+			secure: false,
 			auth: {
-			  user: config.gmail_id,
-			  pass: config.gmail_password
-			}
-		  });
-
-		var mailOptions = {
-			from: '"Knitrino Support" <navneet.kumar@subcodevs.com>',
-			to: userDataWithtoken.email,
-			subject: 'Knitniro :: Forgot Password Email',
-			html: '<h5>Hello,</h5><p>Please find the security code: <b>'+userDataWithtoken.token_key+'</b></p>'
-		}
-
-		transporter.sendMail(mailOptions, function(error, info){
-			if (error) {
-				console.log(error);
-			} else {
-				console.log('Email sent: ' + info.response);
+				user: config.gmail_id,
+				pass: config.gmail_password
 			}
 		});
 
-		let condition  = {email: userDataWithtoken.email};
-		let updateData = {token_key: userDataWithtoken.token_key};
-		userObject.updateOne(condition, updateData, callback);
+
+		readHTMLFile(config.forgot_password_template, function(err, html) {
+			var template = handlebars.compile(html);
+			var replacements = {
+				username: user_detail.first_name,
+				user_email: user_detail.email,
+				new_password: new_password,
+				site_url: config.site_url,
+				site_logo: config.site_logo,
+			};
+			var htmlToSend = template(replacements);
+
+			var mailOptions = {
+				from: '"OH Team" <'+config.from_email+'>',
+				to: userData.email,
+				subject: 'OH :: Forgot Password Email',
+				html : htmlToSend
+			}
+
+			transporter.sendMail(mailOptions, function (error, info) {
+				if (error) {
+				console.log(error);
+				} else {
+				console.log('Email sent: ' + info.response +' >> '+new_password);
+				}
+			});
+		});
+
+		bcrypt.genSalt(10, function(err, salt) {
+			bcrypt.hash(new_password, salt, function(err, hash) {
+				const now = new Date();
+				callback(null, userObject.update({ password: hash, update_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss') }, { where: { email: userData.email }}));
+			});
+		});
 	}
 
 	// update user profile
 	async updateUserProfile(userData, callback){
-		let condition  = {_id: userData.user_id};
-		let updateData = {name: userData.name, bio: userData.bio, website: userData.website};
-		userObject.updateOne(condition, updateData, callback);
+		const now = new Date();
+		callback(null, userObject.update({ first_name:  userData.first_name, last_name:  userData.last_name, update_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss') }, { where: { id: userData.user_id }}) );
 	}
 
 	// update user profile image
@@ -106,15 +194,29 @@ class UserService
 
 	// update user password
 	async updateUserPassword(userDataUpdate, callback){
-		let condition  = {email: userDataUpdate.email};
-		let updateData = {token_key: ''};
-
 		bcrypt.genSalt(10, function(err, salt) {
 			bcrypt.hash(userDataUpdate.new_password, salt, function(err, hash) {
-				updateData.password = hash;				
-				userObject.updateOne(condition, updateData, callback);
+				const now = new Date();
+				callback(null, userObject.update({ password: hash, update_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss') }, { where: { id: userDataUpdate.user_id }}));
 			});
 		});
+	}
+
+	// add unavailability
+	async addUnavailability(userData, callback){
+
+		const now = new Date();
+
+		let userDataEntry = new unavailabilityObject({
+			user_id: userData.user_id,
+			unavailability_start: userData.unavailability_start,
+			unavailability_end: userData.unavailability_end,
+			status: 1,
+			create_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss'),
+			update_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss')
+		});
+
+		callback(null,userDataEntry.save());
 	}
 }
 

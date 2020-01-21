@@ -8,7 +8,7 @@ const express   = require('express');
 const apiRoutes = express();
 
 const usersRoutes = require('./routes/api/users');
-const noteRoutes = require('./routes/api/notes');
+const pageRoutes = require('./routes/api/pages');
 const patternRoutes = require('./routes/api/patterns');
 const imagesRoutes = require('./routes/api/images');
 
@@ -16,7 +16,7 @@ const imagesRoutes = require('./routes/api/images');
 apiRoutes.use('/users', usersRoutes);
 
 // routes of notes
-apiRoutes.use('/notes', noteRoutes);
+apiRoutes.use('/pages', pageRoutes);
 
 //routes of pattern
 apiRoutes.use('/patterns', patternRoutes);

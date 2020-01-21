@@ -6,11 +6,14 @@
 
 const express = require('express');
 const userService = require('../../services/UserService');
-const emailvalidator = require("email-validator");
+const formValidator = require('validator');
 const path = require('path');
+const customHelper = require('../../helpers/custom_helper');
 
 // JWT web token
 const jwt         = require('jsonwebtoken');
+
+const tokenList = {};
 
 // Get API secret
 const config      = require('../../config/config');
@@ -63,9 +66,27 @@ let router =  express.Router();
 var userSerObject = new userService();
 
 // Get user detail
-router.get('/getuserdetail', verifyToken, function(req, res, next) {
+router.get('/getuserdetail/:user_id', verifyToken, function(req, res, next) {
 
-	userSerObject.getUserById(req.id, function(err, userData)
+	let user_id  = req.params.user_id;
+	
+	if(!user_id) 
+	{
+		return res.send({
+			status: 400,
+			message: 'User Id is required.',
+		});
+	}
+
+	if(!formValidator.isInt(user_id))   
+	{
+		return res.send({
+			status: 400,
+			message: 'Please enter a valid user id.',
+		});
+	}
+
+	userSerObject.getUserById(user_id, function(err, userData)
 	{
 		if(err)
 		{
@@ -79,12 +100,12 @@ router.get('/getuserdetail', verifyToken, function(req, res, next) {
 			if(userData)
 			{
 				let userDetail = {
-					'name': userData.name,
+					'first_name': userData.first_name,
+					'last_name': userData.last_name,
 					'email': userData.email,
 					'role_id': userData.role_id,
-					'image_name': userData.user_image,
-					'bio': userData.bio,
-					'website': userData.website,
+					'gender': userData.gender,
+					'image_profile': userData.image_profile,
 					'status': userData.status
 				};
 
@@ -104,7 +125,7 @@ router.get('/getuserdetail', verifyToken, function(req, res, next) {
 	});
 });
 
-// New user registration
+// New user registration API
 router.post('/register', function(req, res){
 
 	let first_name = req.body.first_name;
@@ -116,6 +137,54 @@ router.post('/register', function(req, res){
 	let role_id  = 2;
 	let status   = 1;
 
+	if(!first_name) 
+	{
+		return res.send({
+			status: 400,
+			message: 'First name is required',
+		});
+	}
+ 
+	if(!formValidator.isAlpha(first_name,['en-US']))
+	{
+		return res.send({
+			status: 400,
+			message: 'Please enter a valid first name',
+		});
+	}
+
+	if(!last_name) 
+	{
+		return res.send({
+			status: 400,
+			message: 'Last name is required',
+		});
+	}
+ 
+	if(!formValidator.isAlpha(last_name,['en-US']))
+	{
+		return res.send({
+			status: 400,
+			message: 'Please enter a valid last name',
+		});
+	}
+
+	if(!gender) 
+	{
+		return res.send({
+			status: 400,
+			message: 'Gender is required.',
+		});
+	}
+ 
+	if(!formValidator.isAlpha(gender,['en-US']))
+	{
+		return res.send({
+			status: 400,
+			message: 'Please enter a valid gender value(Male/Female).',
+		});
+	}
+
 	if(!email) 
 	{
 		return res.send({
@@ -123,8 +192,8 @@ router.post('/register', function(req, res){
 			message: 'Email is required',
 		});
 	}
-
-	if(!emailvalidator.validate(email)) 
+ 
+	if(!formValidator.isEmail(email))
 	{
 		return res.send({
 			status: 400,
@@ -198,15 +267,24 @@ router.post('/register', function(req, res){
 					else
 					{
 						var token = jwt.sign({ id: userData.id }, config.secret, {
-							expiresIn: 86400 // expires in 24 hours
+							expiresIn: 900 // expires in 24 hours (86400)
 						});
 
-						res.send({
+						var refreshToken = jwt.sign({ id: userData.id }, config.refreshsecret, { 
+							expiresIn: 86400 
+						});
+
+						const custom_response = {
 							status: 200,
 							message: 'success',
 							result: userData,
-							token: token
-						});
+							token: token,
+							refreshToken: refreshToken,
+						}
+						
+						tokenList[refreshToken] = custom_response;
+
+						res.send(custom_response);
 					}
 				});
 			}
@@ -214,7 +292,7 @@ router.post('/register', function(req, res){
 	});
 });
 
-// User login
+// User login API
 router.post('/login', function(req, res) {
 
 	let email    = req.body.email;
@@ -227,8 +305,8 @@ router.post('/login', function(req, res) {
 			message: 'Email is required',
 		});
 	}
-
-	if(!emailvalidator.validate(email)) 
+ 
+	if(!formValidator.isEmail(email))
 	{
 		return res.send({
 			status: 400,
@@ -274,15 +352,24 @@ router.post('/login', function(req, res) {
 
 					if(isMatch)
 					{
-						var token = jwt.sign({ id: user._id }, config.secret, {
-							expiresIn: 86400 // expires in 24 hours
+						var token = jwt.sign({ id: user.id }, config.secret, {
+							expiresIn: 900 // expires in 24 hours (86400)
 						});
 
-						res.send({
+						var refreshToken = jwt.sign({ id: user.id }, config.refreshsecret, { 
+							expiresIn: 86400 
+						});
+
+						const custom_response = {
 							status: 200,
 							message: 'success',
-							token: token
-						});
+							token: token,
+							refreshToken: refreshToken,
+						}
+						
+						tokenList[refreshToken] = custom_response;
+
+						res.send(custom_response);
 					}
 					else
 					{
@@ -306,250 +393,65 @@ router.post('/login', function(req, res) {
 	});
 });
 
-// Get Forgot Password Email
-router.post('/forgotpasswordemail', function(req, res) {
-
-	let email    = req.body.email;
-
-	if(!email) 
-	{
-		return res.send({
-			status: 400,
-			message: 'Email is required',
-		});
-	}
-
-	if(!emailvalidator.validate(email)) 
-	{
-		return res.send({
-			status: 400,
-			message: 'Please enter a valid email',
-		});
-	}
-
-	let userData = {
-		'email': email,
-	};
-
-	userSerObject.getUserByEmail(email, function(err, userData) 
-	{
-		if(err)
-		{
-			res.send({
-				status: 500,
-				message: 'something went wrong',
-			});
-		}
-		else
-		{
-			if(userData) 
-			{
-
-				let userDataWithtoken = {
-					'email': email,
-					'token_key': Math.floor(100000 + Math.random() * 900000),
-				};
-
-				userSerObject.sendForgotEmail(userDataWithtoken, function(err, userData) 
-				{
-					if(err)
-					{
-						res.send({
-							status: 500,
-							message: 'something went wrong',
-						});
-					}
-
-					if(userData)
-					{
-						let passwordToken = {
-							'security_code': userDataWithtoken.token_key,
-						};
-						
-						res.send({
-							status: 200,
-							message: 'Email sent successfully.',
-							result: passwordToken,
-						});
-					}
-					else
-					{
-						res.send({
-							status: 404,
-							message: 'No user found.',
-						});
-					}
-				});
-			}
-			else
-			{
-				return res.send({
-					status: 400,
-					message: 'No user found',
-				});
-			}
-		}
-	});
-});
-
-// Get Password Reset
-router.post('/passwordreset', function(req, res) {
-
-	let email         = req.body.email;
-	let security_code = req.body.security_code;
-	let new_password  = req.body.new_password;
-	let confirm_password = req.body.confirm_password;
-
-	if(!email) 
-	{
-		return res.send({
-			status: 400,
-			message: 'Email is required',
-		});
-	}
-
-	if(!emailvalidator.validate(email)) 
-	{
-		return res.send({
-			status: 400,
-			message: 'Please enter a valid email',
-		});
-	}
-
-	if(!security_code) 
-	{
-		return res.send({
-			status: 400,
-			message: 'Security code is required',
-		});
-	}
-
-	if(!new_password) 
-	{
-		return res.send({
-			status: 400,
-			message: 'New password is required',
-		});
-	}
-
-	if(!confirm_password) 
-	{
-		return res.send({
-			status: 400,
-			message: 'Confirm password is required',
-		});
-	}
-
-	if(new_password!=confirm_password) 
-	{
-		return res.send({
-			status: 400,
-			message: 'New password and confirm password should be same.',
-		});
-	}
-
-	let userData = {
-		'email': email,
-		'security_code': security_code,
-		'new_password': new_password,
-		'confirm_password': confirm_password,
-	};
-
-	userSerObject.getUserByEmail(email, function(err, userData) 
-	{
-		if(err)
-		{
-			res.send({
-				status: 500,
-				message: 'something went wrong',
-			});
-		}
-		else
-		{
-			if(userData) 
-			{
-
-				let userDataUpdate = {
-					'email': email,
-					'security_code': security_code,
-					'new_password': new_password,
-					'confirm_password': confirm_password,
-				};
-
-				if(userData.token_key!=userDataUpdate.security_code) 
-				{
-					return res.send({
-						status: 400,
-						message: 'Invalid security code.',
-					});
-				}
-
-				userSerObject.updateUserPassword(userDataUpdate, function(err, userDataUpdate) 
-				{
-					if(err)
-					{
-						res.send({
-							status: 500,
-							message: 'something went wrong in update the password.',
-						});
-					}
-
-					if(userDataUpdate.nModified==1 && userDataUpdate.ok==1)
-					{			
-						res.send({
-							status: 200,
-							message: 'Password updated successfully.',
-						});
-					}
-					else
-					{
-						res.send({
-							status: 404,
-							message: 'No user found.',
-						});
-					}
-				});
-			}
-			else
-			{
-				return res.send({
-					status: 400,
-					message: 'No user found',
-				});
-			}
-		}
-	});
-});
-
-// update user profile
+// update user profile API
 router.post('/profileupdate', verifyToken, function(req, res, next) {
 
-	let user_id  = req.id;
-	let name     = req.body.name;
-	let bio      = req.body.bio;
-	let website  = req.body.website;
+	let user_id  = req.body.user_id;
+	let first_name = req.body.first_name;
+	let last_name = req.body.last_name;
 
-	if(!name) 
+	if(!user_id) 
 	{
 		return res.send({
 			status: 400,
-			message: 'Name is required',
+			message: 'User Id is required.',
 		});
 	}
 
-	if(!bio) 
+	if(!formValidator.isInt(user_id))   
 	{
 		return res.send({
 			status: 400,
-			message: 'Bio is required',
+			message: 'Please enter a valid user id.',
+		});
+	}
+
+	if(!first_name) 
+	{
+		return res.send({
+			status: 400,
+			message: 'First name is required',
+		});
+	}
+ 
+	if(!formValidator.isAlpha(first_name,['en-US']))
+	{
+		return res.send({
+			status: 400,
+			message: 'Please enter a valid first name',
+		});
+	}
+
+	if(!last_name) 
+	{
+		return res.send({
+			status: 400,
+			message: 'Last name is required',
+		});
+	}
+ 
+	if(!formValidator.isAlpha(last_name,['en-US']))
+	{
+		return res.send({
+			status: 400,
+			message: 'Please enter a valid last name',
 		});
 	}
 
 	let userData = {
 		'user_id': user_id,
-		'name': name,
-		'bio': bio,
-		'website': website,
+		'first_name': first_name,
+		'last_name': last_name,
 	};
 
 	userSerObject.updateUserProfile(userData, function(err, userData)
@@ -581,19 +483,367 @@ router.post('/profileupdate', verifyToken, function(req, res, next) {
 	});
 });
 
-/**
- * @swagger
- * /users/logout:
- *   get:
- *     tags:
- *       - Logout
- *     description: Logout user
- *     produces:
- *       - application/json
- *     responses:
- *       200:
- *         description: success
- */
+// JWT Refresh Token API
+router.post('/refreshtoken', (req,res) => {
+    
+	const postData = req.body;
+
+	if(!postData.id) 
+	{
+		return res.send({
+			status: 400,
+			message: 'User Id is required.',
+		});
+	}
+
+	if(!formValidator.isInt(postData.id))   
+	{
+		return res.send({
+			status: 400,
+			message: 'Please enter a valid user id.',
+		});
+	}
+
+	if(!postData.refreshToken) 
+	{
+		return res.send({
+			status: 400,
+			message: 'Please provide a valid refresh token.',
+		});
+	}
+
+    if((postData.refreshToken) && (postData.refreshToken in tokenList)) {
+
+		var token = jwt.sign({ id: postData.id }, config.secret, {
+			expiresIn: 900
+		});
+
+		const custom_response = {
+			status: 200,
+			message: 'success',
+			token: token
+		}
+		
+		tokenList[postData.refreshToken].token = token;
+
+		res.send(custom_response);
+	}
+	else 
+	{	
+		res.send({
+			status: 404,
+			message: 'Invalid request',
+		});
+    }
+});
+
+// Get Forgot Password Email API
+router.post('/forgotpasswordemail', function(req, res) {
+
+	let email    = req.body.email;
+
+	if(!email) 
+	{
+		return res.send({
+			status: 400,
+			message: 'Email is required',
+		});
+	}
+ 
+	if(!formValidator.isEmail(email))
+	{
+		return res.send({
+			status: 400,
+			message: 'Please enter a valid email',
+		});
+	}
+
+	let userData = {
+		'email': email,
+	};
+
+	userSerObject.getUserByEmail(email, function(err, userData) 
+	{
+		if(err)
+		{
+			res.send({
+				status: 500,
+				message: 'something went wrong',
+			});
+		}
+		else
+		{
+			if(userData) 
+			{
+
+				let userDataWithtoken = {
+					'email': email
+				};
+
+				userSerObject.sendForgotEmail(userDataWithtoken, function(err, userData) 
+				{
+					if(err)
+					{
+						res.send({
+							status: 500,
+							message: 'something went wrong',
+						});
+					}
+
+					if(userData)
+					{	
+						res.send({
+							status: 200,
+							message: 'A new password has been sent to your email-id.',
+						});
+					}
+					else
+					{
+						res.send({
+							status: 404,
+							message: 'No user found.',
+						});
+					}
+				});
+			}
+			else
+			{
+				return res.send({
+					status: 400,
+					message: 'No user found',
+				});
+			}
+		}
+	});
+});
+
+// Get Change Password API
+router.post('/changepassword', verifyToken, function(req, res) {
+
+	let user_id  = req.body.user_id;
+	let new_password  = req.body.new_password;
+	let confirm_password = req.body.confirm_password;
+
+	if(!user_id) 
+	{
+		return res.send({
+			status: 400,
+			message: 'User Id is required.',
+		});
+	}
+
+	if(!formValidator.isInt(user_id))   
+	{
+		return res.send({
+			status: 400,
+			message: 'Please enter a valid user id.',
+		});
+	}
+
+	if(!new_password) 
+	{
+		return res.send({
+			status: 400,
+			message: 'New password is required',
+		});
+	}
+
+	if(!confirm_password) 
+	{
+		return res.send({
+			status: 400,
+			message: 'Confirm password is required',
+		});
+	}
+
+	if(new_password!=confirm_password) 
+	{
+		return res.send({
+			status: 400,
+			message: 'New password and confirm password should be same.',
+		});
+	}
+
+	let userData = {
+		'user_id': user_id,
+		'new_password': new_password,
+		'confirm_password': confirm_password,
+	};
+
+	userSerObject.getUserById(user_id, function(err, userData) 
+	{
+		if(err)
+		{
+			res.send({
+				status: 500,
+				message: 'something went wrong',
+			});
+		}
+		else
+		{
+			if(userData) 
+			{
+				let userDataUpdate = {
+					'user_id': user_id,
+					'new_password': new_password,
+					'confirm_password': confirm_password,
+				};
+
+				userSerObject.updateUserPassword(userDataUpdate, function(err, userDataUpdate) 
+				{
+					if(err)
+					{
+						res.send({
+							status: 500,
+							message: 'something went wrong in update the password.',
+						});
+					}
+
+					if(userDataUpdate)
+					{			
+						res.send({
+							status: 200,
+							message: 'Password updated successfully.',
+						});
+					}
+					else
+					{
+						res.send({
+							status: 404,
+							message: 'No user found.',
+						});
+					}
+				});
+			}
+			else
+			{
+				return res.send({
+					status: 400,
+					message: 'No user found',
+				});
+			}
+		}
+	});
+});
+
+// Set Unavailability API
+router.post('/unavailability', verifyToken, function(req, res) {
+
+	let user_id  = req.body.user_id;
+	let unavailability_start  = new Date(req.body.unavailability_start).getTime();
+	let unavailability_end    = new Date(req.body.unavailability_end).getTime();
+
+	if(!user_id) 
+	{
+		return res.send({
+			status: 400,
+			message: 'User Id is required.',
+		});
+	}
+
+	if(!formValidator.isInt(user_id))   
+	{
+		return res.send({
+			status: 400,
+			message: 'Please enter a valid user id.',
+		});
+	}
+
+	if(!unavailability_start) 
+	{
+		return res.send({
+			status: 400,
+			message: 'Unavailability start is required',
+		});
+	}
+
+	if(!unavailability_end) 
+	{
+		return res.send({
+			status: 400,
+			message: 'Unavailability end is required',
+		});
+	}
+
+	if(BigInt(unavailability_start) <= BigInt(customHelper.h_getTodayDateInTimeStamp())) 
+	{
+		return res.send({
+			status: 400,
+			message: 'Unavailability start time should be greater than current time.',
+		});
+	}
+
+	if(BigInt(unavailability_end) <= BigInt(customHelper.h_getTodayDateInTimeStamp())) 
+	{
+		return res.send({
+			status: 400,
+			message: 'Unavailability end time should be greater than current time.',
+		});
+	}
+
+	if(BigInt(unavailability_start) >= BigInt(unavailability_end)) 
+	{
+		return res.send({
+			status: 400,
+			message: 'Unavailability start time should be greater than unavailability end time.',
+		});
+	}
+
+	userSerObject.getUserById(user_id, function(err, userDataResponse) 
+	{
+		if(err)
+		{
+			res.send({
+				status: 500,
+				message: 'something went wrong',
+			});
+		}
+		else
+		{
+			if(userDataResponse) 
+			{
+				let userData = {
+					'user_id': req.body.user_id,
+					'unavailability_start': req.body.unavailability_start,
+					'unavailability_end': req.body.unavailability_end,
+				};
+
+				userSerObject.addUnavailability(userData, function(err, userSaveData) 
+				{
+					if(err)
+					{
+						res.send({
+							status: 500,
+							message: 'something went wrong to add new record.',
+						});
+					}
+
+					if(userSaveData)
+					{			
+						res.send({
+							status: 200,
+							message: 'Record added successfully.',
+						});
+					}
+					else
+					{
+						res.send({
+							status: 404,
+							message: 'something went wrong to add new record.',
+						});
+					}
+				});
+			}
+			else
+			{
+				return res.send({
+					status: 400,
+					message: 'No user found',
+				});
+			}
+		}
+	});
+});
 
 // User logout
 router.get('/logout', function(req, res){
