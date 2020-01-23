@@ -19,85 +19,106 @@ const handlebars = require('handlebars');
 
 class UserService
 {
+	// Generate unique code
+	async generateUniqueCode(){
+
+		var u_code = randomstring.generate({
+			length: 4,
+			charset: 'alphabetic',
+			capitalization: 'uppercase'
+		});
+
+		const user = await userObject.findOne({ where: { unique_code: u_code } });
+
+		if(user)
+		{
+			return this.generateUniqueCode(); 
+		}
+		else
+		{
+			return u_code;    
+		}
+	}
+
 	// Create new user
 	async createUser(newUser, callback){
 
-		const now = new Date();
-		var u_code = randomstring.generate({
-			length: 4,
-			charset: 'numeric'
-		  });
+		const u_code = await this.generateUniqueCode();
 
-		let userData = new userObject({
-			role_id: newUser.role_id,
-			first_name: newUser.first_name,
-			last_name: newUser.last_name,
-			gender: newUser.gender,
-			email: newUser.email,
-			password: newUser.password,
-			unique_code: u_code,
-			status: newUser.status,
-			create_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss'),
-			update_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss')
-		});
+		if(u_code)
+		{
+			const now = new Date();
 
-		bcrypt.genSalt(10, function(err, salt) {
-			bcrypt.hash(userData.password, salt, function(err, hash) {
-				userData.password = hash;
-
-				//*******  Email Code
-				var readHTMLFile = function(path, callback) {
-					fs.readFile(path, {encoding: 'utf-8'}, function (err, html) {
-						if (err) {
-							throw err;
-							callback(err);
-						}
-						else {
-							callback(null, html);
-						}
-					});
-				};
-		
-				var transporter = nodemailer.createTransport({
-					service: config.email_service,
-					port: 587,
-					secure: false,
-					auth: {
-						user: config.gmail_id,
-						pass: config.gmail_password
-					}
-				});
-		
-				readHTMLFile(config.signup_template, function(err, html) {
-					var template = handlebars.compile(html);
-					var replacements = {
-						username: newUser.first_name,
-						user_email: newUser.email,
-						site_logo: config.site_logo,
-					};
-					var htmlToSend = template(replacements);
-		
-					var mailOptions = {
-						from: '"OH Team" <'+config.from_email+'>',
-						to: newUser.email,
-						subject: 'OH :: SignUp Email',
-						html : htmlToSend
-					}
-		
-					transporter.sendMail(mailOptions, function (error, info) {
-						if (error) {
-						console.log(error);
-						} else {
-						console.log('Email sent: ' + info.response);
-						}
-					});
-				});
-				//*******  Email Code
-
-				callback(null,userData.save());
+			let userData = new userObject({
+				role_id: newUser.role_id,
+				first_name: newUser.first_name,
+				last_name: newUser.last_name,
+				gender: newUser.gender,
+				email: newUser.email,
+				password: newUser.password,
+				unique_code: u_code,
+				status: newUser.status,
+				create_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss'),
+				update_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss')
 			});
-		});
-		
+	
+			bcrypt.genSalt(10, function(err, salt) {
+				bcrypt.hash(userData.password, salt, function(err, hash) {
+					userData.password = hash;
+	
+					//*******  Email Code
+					var readHTMLFile = function(path, callback) {
+						fs.readFile(path, {encoding: 'utf-8'}, function (err, html) {
+							if (err) {
+								throw err;
+								callback(err);
+							}
+							else {
+								callback(null, html);
+							}
+						});
+					};
+			
+					var transporter = nodemailer.createTransport({
+						service: config.email_service,
+						port: 587,
+						secure: false,
+						auth: {
+							user: config.gmail_id,
+							pass: config.gmail_password
+						}
+					});
+			
+					readHTMLFile(config.signup_template, function(err, html) {
+						var template = handlebars.compile(html);
+						var replacements = {
+							username: newUser.first_name,
+							user_email: newUser.email,
+							site_logo: config.site_logo,
+						};
+						var htmlToSend = template(replacements);
+			
+						var mailOptions = {
+							from: '"OH Team" <'+config.from_email+'>',
+							to: newUser.email,
+							subject: 'OH :: SignUp Email',
+							html : htmlToSend
+						}
+			
+						transporter.sendMail(mailOptions, function (error, info) {
+							if (error) {
+							console.log(error);
+							} else {
+							console.log('Email sent: ' + info.response);
+							}
+						});
+					});
+					//*******  Email Code
+	
+					callback(null,userData.save());
+				});
+			});
+		}
     }
 
 	// get user by email

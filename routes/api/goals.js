@@ -53,7 +53,6 @@ router.get('/getgoalsettings', verifyToken, function(req, res, next) {
 	});
 });
 
-
 // Save user setting detail
 router.post('/savegoalsettings', verifyToken, function(req, res) {
 
@@ -168,6 +167,119 @@ router.post('/savegoalsettings', verifyToken, function(req, res) {
 				return res.send({
 					status: 400,
 					message: 'No goal found',
+				});
+			}
+		}
+	});
+});
+
+// Compare user security code
+router.post('/checkuseruniquecode', verifyToken, function(req, res) {
+
+	let user_id     = req.body.user_id;
+	let unique_code = req.body.unique_code;
+
+	if(!user_id) 
+	{
+		return res.send({
+			status: 400,
+			message: 'User Id is required.',
+		});
+	}
+
+	if(!formValidator.isInt(user_id))   
+	{
+		return res.send({
+			status: 400,
+			message: 'Please enter a valid user id.',
+		});
+	}
+
+	if(!unique_code) 
+	{
+		return res.send({
+			status: 400,
+			message: 'Unique Id is required.',
+		});
+	}
+
+	if(!formValidator.isInt(unique_code))   
+	{
+		return res.send({
+			status: 400,
+			message: 'Please enter a valid unique id.',
+		});
+	}
+
+	// Check user exists or not
+	userSerObject.getUserById(user_id, function(err, userData) 
+	{
+		if(err)
+		{
+			res.send({
+				status: 500,
+				message: 'something went wrong',
+			});
+		}
+		else
+		{
+			if(userData) 
+			{
+				// Check security code exists or not
+				userSerObject.checkUniqueCode(unique_code, function(err, uniqueCodeData) 
+				{
+					if(err)
+					{
+						res.send({
+							status: 500,
+							message: 'something went wrong',
+						});
+					}
+					else
+					{
+						if(uniqueCodeData) 
+						{
+
+							console.log(uniqueCodeData);
+							// let goalSettingData = {
+							// 	'goal_id': goal_id,
+							// 	'question_id': question_id,
+							// 	'answer': answer
+							// };
+
+							// goalSerObject.saveSettings(goalSettingData, function(err, goalSettingDataSaved)
+							// {
+							// 	if(err)
+							// 	{
+							// 		res.send({
+							// 			status: 500,
+							// 			message: 'something went wrong',
+							// 		});
+							// 	}
+							// 	else
+							// 	{												
+							// 		res.send({
+							// 			status: 200,
+							// 			message: 'Settings Saved',
+							// 		});
+							// 	}
+							// });
+						}
+						else
+						{
+							return res.send({
+								status: 400,
+								message: 'No security code found',
+							});
+						}
+					}
+				});
+			}
+			else
+			{
+				return res.send({
+					status: 400,
+					message: 'No user found',
 				});
 			}
 		}
