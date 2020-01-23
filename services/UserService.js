@@ -23,6 +23,10 @@ class UserService
 	async createUser(newUser, callback){
 
 		const now = new Date();
+		var u_code = randomstring.generate({
+			length: 4,
+			charset: 'numeric'
+		  });
 
 		let userData = new userObject({
 			role_id: newUser.role_id,
@@ -31,6 +35,7 @@ class UserService
 			gender: newUser.gender,
 			email: newUser.email,
 			password: newUser.password,
+			unique_code: u_code,
 			status: newUser.status,
 			create_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss'),
 			update_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss')
@@ -187,9 +192,8 @@ class UserService
 
 	// update user profile image
 	async updateProfileImage(userImage, callback){
-		let condition  = {_id: userImage.user_id};
-		let updateData = {user_image: userImage.upload_file};
-		userObject.updateOne(condition, updateData, callback);
+		const now = new Date();	
+		callback(null, userObject.update({ profile_image: userImage.upload_file, update_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss') }, { where: { id: userImage.user_id }}) );
 	}
 
 	// update user password

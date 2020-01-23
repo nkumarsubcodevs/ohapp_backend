@@ -9,7 +9,7 @@ const apiRoutes = express();
 
 const usersRoutes = require('./routes/api/users');
 const pageRoutes = require('./routes/api/pages');
-const patternRoutes = require('./routes/api/patterns');
+const goalRoutes = require('./routes/api/goals');
 const imagesRoutes = require('./routes/api/images');
 
 // routes of users
@@ -19,7 +19,7 @@ apiRoutes.use('/users', usersRoutes);
 apiRoutes.use('/pages', pageRoutes);
 
 //routes of pattern
-apiRoutes.use('/patterns', patternRoutes);
+apiRoutes.use('/goals', goalRoutes);
 
 //routes of images
 apiRoutes.use('/images', imagesRoutes);

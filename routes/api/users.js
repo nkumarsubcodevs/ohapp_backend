@@ -13,8 +13,6 @@ const customHelper = require('../../helpers/custom_helper');
 // JWT web token
 const jwt         = require('jsonwebtoken');
 
-const tokenList = {};
-
 // Get API secret
 const config      = require('../../config/config');
 
@@ -31,7 +29,7 @@ const multerConf = {
 		},
 		filename: function(req, file, next){
 			const ext = file.mimetype.split("/")[1];
-			next(null, file.fieldname + '-' + Date.now()+'.'+ext);
+			next(null, Date.now()+'.'+ext);
 		}
 	}),
 	limits: {
@@ -124,6 +122,61 @@ router.get('/getuserdetail/:user_id', verifyToken, function(req, res, next) {
 		}
 	});
 });
+
+// Get user unique code
+router.get('/getuniquecode/:user_id', verifyToken, function(req, res, next) {
+
+	let user_id  = req.params.user_id;
+	
+	if(!user_id) 
+	{
+		return res.send({
+			status: 400,
+			message: 'User Id is required.',
+		});
+	}
+
+	if(!formValidator.isInt(user_id))   
+	{
+		return res.send({
+			status: 400,
+			message: 'Please enter a valid user id.',
+		});
+	}
+
+	userSerObject.getUserById(user_id, function(err, userData)
+	{
+		if(err)
+		{
+			res.send({
+				status: 500,
+				message: 'There was a problem finding the user.',
+			});
+		}
+		else
+		{
+			if(userData)
+			{
+				let userDetail = {
+					'unique_code': userData.unique_code,
+				};
+
+				res.send({
+					status: 200,
+					result: userDetail,
+				});
+			}
+			else
+			{
+				res.send({
+					status: 404,
+					message: 'No user found.',
+				});
+			}	
+		}
+	});
+});
+
 
 // New user registration API
 router.post('/register', function(req, res){
@@ -266,25 +319,26 @@ router.post('/register', function(req, res){
 					}
 					else
 					{
-						var token = jwt.sign({ id: userData.id }, config.secret, {
-							expiresIn: 900 // expires in 24 hours (86400)
-						});
 
-						var refreshToken = jwt.sign({ id: userData.id }, config.refreshsecret, { 
-							expiresIn: 86400 
+						var access_token = jwt.sign({ id: userData.id }, config.secret, {
+							expiresIn: 900
 						});
-
-						const custom_response = {
+						
+						var refresh_token = jwt.sign({ id: userData.id }, config.refreshsecret, { 
+							expiresIn: 86400
+						});
+						
+						res.cookie("access_token", access_token, { httpOnly: true });
+						res.cookie("refresh_token", refresh_token, { httpOnly: true });
+						
+						res.send({
 							status: 200,
 							message: 'success',
 							result: userData,
-							token: token,
-							refreshToken: refreshToken,
-						}
-						
-						tokenList[refreshToken] = custom_response;
+							access_token: access_token,
+							refresh_token: refresh_token,
+						});
 
-						res.send(custom_response);
 					}
 				});
 			}
@@ -352,24 +406,23 @@ router.post('/login', function(req, res) {
 
 					if(isMatch)
 					{
-						var token = jwt.sign({ id: user.id }, config.secret, {
-							expiresIn: 900 // expires in 24 hours (86400)
+						var access_token = jwt.sign({ id: user.id }, config.secret, {
+							expiresIn: 900
 						});
 
-						var refreshToken = jwt.sign({ id: user.id }, config.refreshsecret, { 
+						var refresh_token = jwt.sign({ id: user.id }, config.refreshsecret, { 
 							expiresIn: 86400 
 						});
+						
+						res.cookie("access_token", access_token, { httpOnly: true });
+						res.cookie("refresh_token", refresh_token, { httpOnly: true });
 
-						const custom_response = {
+						res.send({
 							status: 200,
 							message: 'success',
-							token: token,
-							refreshToken: refreshToken,
-						}
-						
-						tokenList[refreshToken] = custom_response;
-
-						res.send(custom_response);
+							access_token: access_token,
+							refresh_token: refresh_token,
+						});
 					}
 					else
 					{
@@ -377,7 +430,7 @@ router.post('/login', function(req, res) {
 							status: 401,
 							message: 'Invalid email or password.',
 							auth: false, 
-							token: null
+							access_token: null
 						});
 					}
 				});
@@ -396,9 +449,9 @@ router.post('/login', function(req, res) {
 // update user profile API
 router.post('/profileupdate', verifyToken, function(req, res, next) {
 
-	let user_id  = req.body.user_id;
+	let user_id    = req.body.user_id;
 	let first_name = req.body.first_name;
-	let last_name = req.body.last_name;
+	let last_name  = req.body.last_name;
 
 	if(!user_id) 
 	{
@@ -485,7 +538,8 @@ router.post('/profileupdate', verifyToken, function(req, res, next) {
 
 // JWT Refresh Token API
 router.post('/refreshtoken', (req,res) => {
-    
+
+    const refresh_token = req.cookies.refresh_token || null;
 	const postData = req.body;
 
 	if(!postData.id) 
@@ -512,21 +566,17 @@ router.post('/refreshtoken', (req,res) => {
 		});
 	}
 
-    if((postData.refreshToken) && (postData.refreshToken in tokenList)) {
+    if((postData.refreshToken) && (postData.refreshToken==refresh_token)) {
 
-		var token = jwt.sign({ id: postData.id }, config.secret, {
+		var access_token = jwt.sign({ id: postData.id }, config.secret, {
 			expiresIn: 900
 		});
 
-		const custom_response = {
+		res.send({
 			status: 200,
 			message: 'success',
-			token: token
-		}
-		
-		tokenList[postData.refreshToken].token = token;
-
-		res.send(custom_response);
+			access_token: access_token,
+		});
 	}
 	else 
 	{	
@@ -847,6 +897,10 @@ router.post('/unavailability', verifyToken, function(req, res) {
 
 // User logout
 router.get('/logout', function(req, res){
+
+	res.clearCookie("access_token");
+	res.clearCookie("refresh_token");
+	
 	res.send({
 		status: 200,
 		message: 'success',
@@ -855,9 +909,8 @@ router.get('/logout', function(req, res){
 	});
 });
 
-
 // Update profile image
-router.post('/profileimageupdate', verifyToken, (req, res, next) => {
+router.post('/profileimageupload', verifyToken, (req, res, next) => {
 
 	uploadObject(req, res, function(err) {
 
@@ -871,41 +924,64 @@ router.post('/profileimageupdate', verifyToken, (req, res, next) => {
 		else
 		{
 			let upload_file  = req.file;
-			let user_id  = req.id;
+			let user_id  = req.body.user_id;
 
 			let userImageData = {
 				'user_id': user_id,
 				'upload_file': upload_file.filename,
 			};
-	
-			userSerObject.updateProfileImage(userImageData, function(err, userImageData)
+
+			userSerObject.getUserById(req.body.user_id, function(err, userData)
 			{
 				if(err)
 				{
 					res.send({
 						status: 500,
-						message: 'Error uploading file.',
+						message: 'There was a problem finding the user.',
 					});
 				}
 				else
 				{
-					if(userImageData)
+					if(userData)
 					{
-						res.send({
-							status: 200,
-							message: 'Image uploaded successfully.',
-							image_name: upload_file.filename
+						userSerObject.updateProfileImage(userImageData, function(err, userImageData)
+						{
+							if(err)
+							{
+								res.send({
+									status: 500,
+									message: 'Error uploading file.',
+								});
+							}
+							else
+							{
+								if(userImageData)
+								{
+									res.send({
+										status: 200,
+										message: 'Image uploaded successfully.',
+										image_name: upload_file.filename
+									});
+								}
+								else
+								{
+									res.send({
+										status: 404,
+										message: 'Error occured in image upload.',
+									});
+								}	
+							}
 						});
 					}
 					else
 					{
 						res.send({
 							status: 404,
-							message: 'Error occured in image upload.',
+							message: 'No user found.',
 						});
 					}	
 				}
-			});
+			});	
 		}
 	});
 });

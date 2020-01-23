@@ -9,7 +9,7 @@ const config   = require('../../config/config');
 
 function verifyToken(req, res, next) 
 {
-	const token = req.body.token || req.query.token || req.headers['x-access-token'];
+	const token = req.headers['x-access-token'];
 	
 	if(!token) 
 	{

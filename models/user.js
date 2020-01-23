@@ -39,15 +39,15 @@ const User = database.define('users',
 		type: Sequelize.STRING(100),
 	},
 	face_id: {
-		type: Sequelize.STRING(150),
+		type: Sequelize.STRING(250),
 	},
 	touch_id: {
-		type: Sequelize.STRING(150),
+		type: Sequelize.STRING(250),
 	},
 	access_token: {
 		type: Sequelize.STRING(150),
 	},
-	security_token: {
+	unique_code: {
 		type: Sequelize.STRING(150),
 	},
 	notification_mute_status: {

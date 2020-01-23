@@ -10,7 +10,7 @@ const appRoutes = express();
 
 const indexRoutes = require('./index');
 const userRoutes  = require('./routes/web/users');
-const patternRoutes = require('./routes/web/patterns');
+//const patternRoutes = require('./routes/web/patterns');
 
 // routes of index
 appRoutes.use('/', indexRoutes);
@@ -19,6 +19,6 @@ appRoutes.use('/', indexRoutes);
 appRoutes.use('/users', userRoutes);
 
 // routes of categories
-appRoutes.use('/patterns', patternRoutes);
+//appRoutes.use('/patterns', patternRoutes);
 
 module.exports = appRoutes;

@@ -1,5 +1,5 @@
 /** 
-  * @desc this file will contains the routes for notes api
+  * @desc this file will contains the routes for pages api
   * @author Navneet Kumar navneet.kumar@subcodevs.com
   * @file pages.js
 */
@@ -8,8 +8,6 @@ const express = require('express');
 const pageService = require('../../services/PageService');
 const formValidator = require('validator');
 
-// Get API secret
-const config      = require('../../config/config');
 // verifytoken middleware
 const verifyToken = require('./verifytoken');
 
