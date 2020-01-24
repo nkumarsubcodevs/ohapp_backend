@@ -46,6 +46,22 @@ class GoalService
 
 		callback(null,settingData.save());
 	}
+
+	// Create monthly goal
+	async createMonthlyGoal(monthlyData, callback){
+
+		const now = new Date();
+		
+		let monthlyGoalData = new monthlyGoalObject({
+			partner_one_id: monthlyData.partner_one_id,
+			partner_two_id: monthlyData.partner_two_id,
+			status: 1,
+			create_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss'),
+			update_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss')
+		});
+
+		callback(null,monthlyGoalData.save());
+	}
 }
 
 module.exports = GoalService;

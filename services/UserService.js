@@ -127,6 +127,12 @@ class UserService
 		callback(null,user);
 	}
 
+	// check unique code of the user
+	async checkUniqueCode(u_code, callback){
+		const unique_code = await userObject.findOne({ where: { unique_code: u_code } });
+		callback(null,unique_code);
+	}
+
 	// compare password
 	async comparePassword(password, hash, callback){
 		bcrypt.compare(password, hash, function(err, isMatch){

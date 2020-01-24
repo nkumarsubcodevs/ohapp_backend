@@ -203,7 +203,7 @@ router.post('/checkuseruniquecode', verifyToken, function(req, res) {
 		});
 	}
 
-	if(!formValidator.isInt(unique_code))   
+	if(!formValidator.isAlpha(unique_code))   
 	{
 		return res.send({
 			status: 400,
@@ -239,31 +239,48 @@ router.post('/checkuseruniquecode', verifyToken, function(req, res) {
 					{
 						if(uniqueCodeData) 
 						{
+							if(user_id==uniqueCodeData.id)
+							{
+								return res.send({
+									status: 400,
+									message: 'Partner-Id should be different.',
+								});
+							}
 
-							console.log(uniqueCodeData);
-							// let goalSettingData = {
-							// 	'goal_id': goal_id,
-							// 	'question_id': question_id,
-							// 	'answer': answer
-							// };
+							let monthlyGoalData = {
+								'partner_one_id': user_id,
+								'partner_two_id': uniqueCodeData.id,
+							};
 
-							// goalSerObject.saveSettings(goalSettingData, function(err, goalSettingDataSaved)
-							// {
-							// 	if(err)
-							// 	{
-							// 		res.send({
-							// 			status: 500,
-							// 			message: 'something went wrong',
-							// 		});
-							// 	}
-							// 	else
-							// 	{												
-							// 		res.send({
-							// 			status: 200,
-							// 			message: 'Settings Saved',
-							// 		});
-							// 	}
-							// });
+							goalSerObject.createMonthlyGoal(monthlyGoalData, function(err, createMonthlyData)
+							{
+								if(err)
+								{
+									res.send({
+										status: 500,
+										message: 'something went wrong',
+									});
+								}
+								else
+								{		
+									console.log(createMonthlyData);
+									
+									if(createMonthlyData) 
+						            {
+										res.send({
+											status: 200,
+											message: 'Monthly Goal Saved',
+										});
+									}
+									else
+									{
+										return res.send({
+											status: 400,
+											message: 'Unable to add monthly goal.',
+										});
+									}										
+								}
+							});
 						}
 						else
 						{
