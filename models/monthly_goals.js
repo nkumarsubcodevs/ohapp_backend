@@ -10,14 +10,10 @@ const database  = require('../config/database');
 
 const MonthlyGoal = database.define('monthly_goals',
   {
-    partner_one_id: {
+	partner_id: {
 		type: Sequelize.BIGINT,
 		allowNull: false,
 	},
-	partner_two_id: {
-		type: Sequelize.BIGINT,
-		allowNull: false,
-    },
 	goal_title: {
 		type: Sequelize.STRING(500),
 		allowNull: true,

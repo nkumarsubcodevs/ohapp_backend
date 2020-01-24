@@ -7,6 +7,7 @@
 
 const goalSettingsObject = require('../models/goal_settings');
 const goalSettingAnswerObject  = require('../models/goal_setting_answers');
+const partnerMappingObject   = require('../models/partner_mappings');
 const monthlyGoalObject  = require('../models/monthly_goals');
 const current_datetime = require('date-and-time');
 
@@ -20,7 +21,13 @@ class GoalService
 
 	// get goal by id
 	async getGoalById(id, callback) {
-		const response = await monthlyGoalObject.findOne({ where: { id: id } });
+		const response = await partnerMappingObject.findOne({ where: { id: id } });
+		callback(null, response);
+	}
+
+	// get user combination
+	async checkParterLink(partnerData, callback) {
+		const response = await partnerMappingObject.findOne({ where: { partner_one_id: partnerData.partner_one_id, partner_two_id: partnerData.partner_two_id  } });
 		callback(null, response);
 	}
 
@@ -52,7 +59,7 @@ class GoalService
 
 		const now = new Date();
 		
-		let monthlyGoalData = new monthlyGoalObject({
+		let monthlyGoalData = new partnerMappingObject({
 			partner_one_id: monthlyData.partner_one_id,
 			partner_two_id: monthlyData.partner_two_id,
 			status: 1,

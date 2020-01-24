@@ -252,7 +252,7 @@ router.post('/checkuseruniquecode', verifyToken, function(req, res) {
 								'partner_two_id': uniqueCodeData.id,
 							};
 
-							goalSerObject.createMonthlyGoal(monthlyGoalData, function(err, createMonthlyData)
+							goalSerObject.checkParterLink(monthlyGoalData, function(err, partnerData) 
 							{
 								if(err)
 								{
@@ -262,25 +262,51 @@ router.post('/checkuseruniquecode', verifyToken, function(req, res) {
 									});
 								}
 								else
-								{		
-									console.log(createMonthlyData);
-									
-									if(createMonthlyData) 
+								{
+
+									if(partnerData) 
 						            {
-										res.send({
-											status: 200,
-											message: 'Monthly Goal Saved',
+										return res.send({
+											status: 400,
+											message: 'These users are already linked.',
 										});
 									}
 									else
 									{
-										return res.send({
-											status: 400,
-											message: 'Unable to add monthly goal.',
+										goalSerObject.createMonthlyGoal(monthlyGoalData, function(err, createMonthlyData)
+										{
+											if(err)
+											{
+												res.send({
+													status: 500,
+													message: 'something went wrong',
+												});
+											}
+											else
+											{			
+												if(createMonthlyData) 
+												{
+													userSerObject.freeSecurityCodes(monthlyGoalData, function(err, freeSecurityData){
+
+														res.send({
+															status: 200,
+															message: 'Monthly Goal Saved',
+														});
+
+													});
+												}
+												else
+												{
+													return res.send({
+														status: 400,
+														message: 'Unable to add monthly goal.',
+													});
+												}										
+											}
 										});
-									}										
-								}
-							});
+									}	
+								}										
+							});		
 						}
 						else
 						{

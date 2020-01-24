@@ -249,6 +249,13 @@ class UserService
 
 		callback(null,userDataEntry.save());
 	}
+
+	// free security codes
+	async freeSecurityCodes(freeData, callback){
+		const now = new Date();
+		userObject.update({ unique_code:  ''}, { where: { id: freeData.partner_one_id }});
+		callback(null, userObject.update({ unique_code:  ''}, { where: { id: freeData.partner_two_id }}));
+	}
 }
 
 module.exports = UserService;
