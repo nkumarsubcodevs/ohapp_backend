@@ -3,6 +3,7 @@
   * @author Navneet Kumar navneet.kumar@subcodevs.com
   * @file custom_helper.js
 */
+const current_datetime = require('date-and-time');
 
 var customHelper = {
 
@@ -20,28 +21,20 @@ var customHelper = {
 		return current_date;
 	}, 
 
-	// get single grid color for pattern
-	 h_getSingleColor(color_id, patternDesignColor) {
-
-		for(var single_color = 0; single_color < patternDesignColor.length; single_color ++) 
-		{
-			if(color_id==patternDesignColor[single_color]._id) 
-		    {
-			    return JSON.parse(JSON.stringify(patternDesignColor[single_color]));
-			}
-		}			
+	// get number of times of percentage
+	h_getNumberOfTimesPercentage(connect_number, percentage) {
+		var initiator_count = Math.round((percentage*connect_number) / 100);
+		return initiator_count;
 	}, 
 
-	// get single grid type for pattern
-    h_getSingleStitchesType: function(type_id, patternDesignType) {
-		for(var single_type = 0; single_type < patternDesignType.length; single_type ++) 
-		{
-			if(type_id==patternDesignType[single_type]._id) 
-		    {
-			    return JSON.parse(JSON.stringify(patternDesignType[single_type]));
-			}
-		}	
-	}    
+	// get current date in timestamp
+	h_get30daysAdvanceDate(date_time) {
+		var now = new Date();
+		var today_date = new Date(current_datetime.format(now, 'YYYY-MM-DD'));
+		today_date.setDate(today_date.getDate() + 30); 
+		var final_date = today_date.toISOString().substr(0,10);
+		return final_date;
+	}, 
 };
 
 module.exports = customHelper;

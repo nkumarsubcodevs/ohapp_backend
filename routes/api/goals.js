@@ -7,7 +7,9 @@
 const express = require('express');
 const goalService = require('../../services/GoalService');
 const userService = require('../../services/UserService');
+const customHelper = require('../../helpers/custom_helper');
 const formValidator = require('validator');
+const current_datetime = require('date-and-time');
 
 // verifytoken middleware
 const verifyToken = require('./verifytoken');
@@ -273,7 +275,7 @@ router.post('/checkuseruniquecode', verifyToken, function(req, res) {
 									}
 									else
 									{
-										goalSerObject.createMonthlyGoal(monthlyGoalData, function(err, createMonthlyData)
+										goalSerObject.createPartnerMapping(monthlyGoalData, function(err, createMonthlyData)
 										{
 											if(err)
 											{
@@ -323,6 +325,372 @@ router.post('/checkuseruniquecode', verifyToken, function(req, res) {
 				return res.send({
 					status: 400,
 					message: 'No user found',
+				});
+			}
+		}
+	});
+});
+
+// Get partner mapping
+router.post('/getpartnermapping', verifyToken, function(req, res) {
+
+	let partner_one_id = req.body.partner_one_id;
+	let partner_two_id = req.body.partner_two_id;
+
+	if(!partner_one_id) 
+	{
+		return res.send({
+			status: 400,
+			message: 'First partner id is required.',
+		});
+	}
+
+	if(!formValidator.isInt(partner_one_id))   
+	{
+		return res.send({
+			status: 400,
+			message: 'Please enter a valid first partner id.',
+		});
+	}
+
+	if(!partner_two_id) 
+	{
+		return res.send({
+			status: 400,
+			message: 'Second partner Id is required.',
+		});
+	}
+
+	if(!formValidator.isInt(partner_two_id))   
+	{
+		return res.send({
+			status: 400,
+			message: 'Please enter a valid second partner id.',
+		});
+	}
+	
+	let partneMappingData = {
+		'partner_one_id': partner_one_id,
+		'partner_two_id': partner_two_id
+	};
+
+	goalSerObject.checkParterLink(partneMappingData, function(err, partnersData)
+	{
+		if(partnersData.status)
+		{
+			if(err)
+			{
+				res.send({
+					status: 500,
+					message: 'something went wrong',
+				});
+			}
+			else
+			{												
+				res.send({
+					status: 200,
+					partnerMappingData: partnersData,
+				});
+			}
+		}
+		else
+		{
+			res.send({
+				status: 403,
+				message: 'This mapping has been expired',
+			});
+		}
+	});
+			
+});
+
+// Create monthly goal
+router.post('/createmonthlygoal', verifyToken, function(req, res) {
+
+	let partner_mapping_id = req.body.partner_mapping_id;
+	let user_id            = req.body.user_id;
+	let connect_number     = req.body.connect_number;
+	let percentage         = req.body.percentage;
+
+	if(!partner_mapping_id) 
+	{
+		return res.send({
+			status: 400,
+			message: 'Partner Id is required.',
+		});
+	}
+
+	if(!formValidator.isInt(partner_mapping_id))   
+	{
+		return res.send({
+			status: 400,
+			message: 'Please enter a valid partner mapping id.',
+		});
+	}
+
+	if(!user_id) 
+	{
+		return res.send({
+			status: 400,
+			message: 'User id is required.',
+		});
+	}
+
+	if(!formValidator.isInt(user_id))   
+	{
+		return res.send({
+			status: 400,
+			message: 'Please enter a valid user id.',
+		});
+	}
+
+	if(!connect_number) 
+	{
+		return res.send({
+			status: 400,
+			message: 'Connect number is required.',
+		});
+	}
+
+	if(!formValidator.isInt(connect_number))   
+	{
+		return res.send({
+			status: 400,
+			message: 'Please enter a valid connect number.',
+		});
+	}
+
+	if(!percentage) 
+	{
+		return res.send({
+			status: 400,
+			message: 'Percentage is required.',
+		});
+	}
+
+	if(!formValidator.isInt(percentage))   
+	{
+		return res.send({
+			status: 400,
+			message: 'Please enter a valid percentage.',
+		});
+	}
+
+	// Check goal exists or not
+	goalSerObject.getPartnerById(partner_mapping_id, function(err, partnerMappingData) 
+	{
+		if(err)
+		{
+			res.send({
+				status: 500,
+				message: 'something went wrong',
+			});
+		}
+		else
+		{
+
+			if(partnerMappingData.status) 
+			{
+                // check if user-id is found or not in partner mapping table
+				var user_checker = 0
+				if(partnerMappingData.partner_one_id==user_id) 
+				{
+					user_checker++;
+				}
+
+				if(partnerMappingData.partner_two_id==user_id) 
+				{
+					user_checker++;
+				}
+
+				if(user_checker==0)
+				{
+					res.send({
+						status: 400,
+						message: 'Invalid partner id provided',
+					});
+				}
+				else
+				{
+
+					const now = new Date();
+					var   parter_id = 0; 
+
+					if(partnerMappingData.partner_one_id!=user_id)
+					{
+						parter_id = partnerMappingData.partner_one_id;
+					}
+
+					if(partnerMappingData.partner_two_id!=user_id)
+					{
+						parter_id = partnerMappingData.partner_two_id;
+					}
+
+					var initiator_count = customHelper.h_getNumberOfTimesPercentage(connect_number, percentage);
+					var partner_percentage = 100 - percentage;
+					var partner_initiator_count = connect_number - initiator_count;
+			
+					let monthlyGoalData = {
+						'partner_mapping_id': partner_mapping_id,
+						'user_id': user_id,
+						'month_start': current_datetime.format(now, 'YYYY-MM-DD'),
+						'month_end': customHelper.h_get30daysAdvanceDate(),
+						'connect_number': connect_number,
+						'percentage': percentage,
+						'initiator_count': initiator_count,
+						'status': 1,	
+						'partner_id': parter_id,
+						'partner_percentage': partner_percentage,
+						'partner_initiator_count': partner_initiator_count,	
+					};
+
+					goalSerObject.createMonthlyGoal(monthlyGoalData, function(err, monthlyGoalDataSaved)
+					{
+						if(err)
+						{
+							res.send({
+								status: 500,
+								message: 'something went wrong.',
+							});
+						}
+						else
+						{												
+							res.send({
+								status: 200,
+								message: 'The monthly goal has been created.',
+							});
+						}
+					});
+				}
+			}
+			else
+			{
+				return res.send({
+					status: 400,
+					message: 'This mapping has been expired',
+				});
+			}
+		}
+	});
+});
+
+// Update monthly goal
+router.post('/updatemonthlygoal', verifyToken, function(req, res) {
+
+	let goal_id            = req.body.goal_id;
+	let connect_number     = req.body.connect_number;
+	let percentage         = req.body.percentage;
+
+	if(!goal_id) 
+	{
+		return res.send({
+			status: 400,
+			message: 'Goal Id is required.',
+		});
+	}
+
+	if(!formValidator.isInt(goal_id))   
+	{
+		return res.send({
+			status: 400,
+			message: 'Please enter a valid goal id.',
+		});
+	}
+
+	if(!connect_number) 
+	{
+		return res.send({
+			status: 400,
+			message: 'Connect number is required.',
+		});
+	}
+
+	if(!formValidator.isInt(connect_number))   
+	{
+		return res.send({
+			status: 400,
+			message: 'Please enter a valid connect number.',
+		});
+	}
+
+	if(!percentage) 
+	{
+		return res.send({
+			status: 400,
+			message: 'Percentage is required.',
+		});
+	}
+
+	if(!formValidator.isInt(percentage))   
+	{
+		return res.send({
+			status: 400,
+			message: 'Please enter a valid percentage.',
+		});
+	}
+
+	// Check goal exists or not
+	goalSerObject.getGoalById(goal_id, function(err, goalData) 
+	{
+		if(err)
+		{
+			res.send({
+				status: 500,
+				message: 'something went wrong',
+			});
+		}
+		else
+		{
+			if(goalData)
+			{
+				if(goalData.status)
+			    {
+					const now = new Date();
+
+					var initiator_count = customHelper.h_getNumberOfTimesPercentage(connect_number, percentage);
+					
+					let monthlyGoalData = {
+						'goal_id': goal_id,
+						'partner_mapping_id': goalData.partner_mapping_id,
+						'user_id': goalData.user_id,
+						'month_start': current_datetime.format(now, 'YYYY-MM-DD'),
+						'month_end': customHelper.h_get30daysAdvanceDate(),
+						'connect_number': connect_number,
+						'percentage': percentage,
+						'initiator_count': initiator_count,
+					};
+					
+					goalSerObject.updateMonthlyGoal(monthlyGoalData, function(err, monthlyGoalDataSaved)
+					{
+						if(err)
+						{
+							res.send({
+								status: 500,
+								message: 'something went wrong.',
+							});
+						}
+						else
+						{												
+							res.send({
+								status: 200,
+								message: 'The monthly goal has been updated.',
+							});
+						}
+					});
+				}
+				else
+				{
+					return res.send({
+						status: 400,
+						message: 'This goal is not active',
+					});
+				}
+			}
+			else
+			{
+				return res.send({
+					status: 400,
+					message: 'This goal is not valid',
 				});
 			}
 		}
