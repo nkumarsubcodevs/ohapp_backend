@@ -18,6 +18,10 @@ const MonthlyGoal = database.define('monthly_goals',
 		type: Sequelize.BIGINT,
 		allowNull: false,
 	},
+	goal_identifier: {
+		type: Sequelize.BIGINT,
+		allowNull: false,
+	},
 	month_start: {
 		type: Sequelize.STRING(50),
 		allowNull: true,

@@ -29,6 +29,9 @@ const apiRoutes = require('./apiroutes');
 const config = require('./config/config');
 const dbObj  = require('./config/database');
 
+// system cron job
+// const cronJob  = require('./cron_jobs/cron_jobs');
+
 const app  = express();
 
 // server setup

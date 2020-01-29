@@ -16,6 +16,7 @@
     "connect-flash": "*",
     "cookie-parser": "*",
     "cors": "^2.8.5",
+    "cron": "^1.8.2",
     "date-and-time": "^0.12.0",
     "ejs": "*",
     "email-validator": "^2.0.4",

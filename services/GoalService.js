@@ -9,6 +9,7 @@ const goalSettingsObject = require('../models/goal_settings');
 const goalSettingAnswerObject  = require('../models/goal_setting_answers');
 const partnerMappingObject   = require('../models/partner_mappings');
 const monthlyGoalObject  = require('../models/monthly_goals');
+const userObject  = require('../models/user');
 const current_datetime = require('date-and-time');
 
 class GoalService
@@ -86,11 +87,14 @@ class GoalService
 	async createMonthlyGoal(monthlyGoalData, callback){
 
 		const now = new Date();
+		const random_number = now.getTime()+Math.floor(Math.random() * 1000);
+	    
 
 		callback(null, monthlyGoalObject.bulkCreate([
 			{
 				partner_mapping_id : monthlyGoalData.partner_mapping_id,
 				user_id            : monthlyGoalData.user_id,
+				goal_identifier	   : random_number,
 				month_start        : monthlyGoalData.month_start,
 				month_end          : monthlyGoalData.month_end,
 				connect_number     : monthlyGoalData.connect_number,
@@ -105,6 +109,7 @@ class GoalService
 			{
 				partner_mapping_id : monthlyGoalData.partner_mapping_id,
 				user_id            : monthlyGoalData.partner_id,
+				goal_identifier	   : random_number,
 				month_start        : monthlyGoalData.month_start,
 				month_end          : monthlyGoalData.month_end,
 				connect_number     : monthlyGoalData.connect_number,
@@ -169,6 +174,50 @@ class GoalService
 		}, 
 		{ where: { id: partner_goal_id }}));
 
+	}
+
+	// Update monthly goal
+	async getGoalDetails(partner_mapping_id, callback){
+
+		monthlyGoalObject.belongsTo(userObject, {foreignKey: 'user_id'});
+		const response = await monthlyGoalObject.findAll({
+			where: { partner_mapping_id: partner_mapping_id, status:1 }, 
+			include: [{
+						model: userObject, 
+						attributes: ['id', 'first_name', 'last_name', 'gender', 'email', 'profile_image', 'face_id', 'touch_id', 'notification_mute_status', 'notification_mute_end', 'status', 'update_time']
+					 }]
+		});
+
+		callback(null, response);
+	}
+
+	// get user goal history via user_id
+	async getAllGoalsHistoryByUserID(user_id, callback) {
+
+		var goal_history = [];
+		var partner_data;
+		const response = await monthlyGoalObject.findAll({ 
+			where: { user_id: user_id, status: 0 }
+		});
+		
+		await Promise.all(response.map(async (element) => {
+
+			monthlyGoalObject.belongsTo(userObject, {foreignKey: 'user_id'});
+
+			partner_data = await monthlyGoalObject.findAll({ 
+				where: { goal_identifier: element.goal_identifier, status: 0 },
+				include: [{
+					model: userObject, 
+					attributes: ['id', 'first_name', 'last_name', 'gender', 'email', 'profile_image', 'face_id', 'touch_id', 'notification_mute_status', 'notification_mute_end', 'status', 'update_time']
+				 }],
+			});
+
+			goal_history.push(partner_data);
+
+		}));
+
+		callback(null, goal_history);		
+		
 	}
 }
 

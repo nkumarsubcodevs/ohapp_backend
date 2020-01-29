@@ -17,6 +17,9 @@ const fs = require('fs');
 const nodemailer = require('nodemailer');
 const handlebars = require('handlebars');
 
+const Sequelize = require('sequelize');
+const Op = Sequelize.Op
+
 class UserService
 {
 	// Generate unique code
@@ -255,6 +258,18 @@ class UserService
 		const now = new Date();
 		userObject.update({ unique_code:  ''}, { where: { id: freeData.partner_one_id }});
 		callback(null, userObject.update({ unique_code:  ''}, { where: { id: freeData.partner_two_id }}));
+	}
+
+	// get user list for cron job.
+	async getCronJobUserList(callback){
+		const userlist = await userObject.findAll({ where: { unique_code: { [Op.ne]: ""}, role_id:2, status:1 } });
+		callback(null,userlist);
+	}
+
+	// free security codes for cron
+	async freeSecurityCodesForCron(userData, callback){
+		const now = new Date();
+		callback(null, userObject.update({ unique_code: '', update_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss') }, { where: { id: userData.user_id }}));
 	}
 }
 

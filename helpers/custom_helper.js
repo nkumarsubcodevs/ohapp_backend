@@ -8,6 +8,18 @@ const current_datetime = require('date-and-time');
 var customHelper = {
 
 	// get current date in timestamp
+	h_getTodayDate() {
+
+		var current_date = new Date();
+		var dd = String(current_date.getDate()).padStart(2, '0');
+		var mm = String(current_date.getMonth() + 1).padStart(2, '0');
+		var yyyy = current_date.getFullYear();
+		current_date = yyyy + '-' + mm + '-' + dd;
+
+		return current_date;
+	}, 
+
+	// get current date in timestamp
 	h_getTodayDateInTimeStamp() {
 
 		var current_date = new Date();
@@ -34,6 +46,30 @@ var customHelper = {
 		today_date.setDate(today_date.getDate() + 30); 
 		var final_date = today_date.toISOString().substr(0,10);
 		return final_date;
+	}, 
+
+	// convert date and time in timestamp
+	h_convertDateTimeInTimeStamp(date_time) {
+		
+		if(date_time)
+		{
+			var current_date = new Date(date_time.toISOString().substr(0,22));
+		}
+		else
+		{
+			var current_date = new Date();
+		}
+		
+		var dd = String(current_date.getDate()).padStart(2, '0');
+		var mm = String(current_date.getMonth() + 1).padStart(2, '0');
+		var yyyy = current_date.getFullYear();
+
+		var hour = String(current_date.getHours()).padStart(2, '0');
+		var mins = String(current_date.getMinutes()).padStart(2, '0'); 
+		var sece = String(current_date.getSeconds()).padStart(2, '0');
+
+		current_date = yyyy + '-' + mm + '-' + dd +' '+ hour + ':' + mins + ':' + sece;
+		return current_date;
 	}, 
 };
 

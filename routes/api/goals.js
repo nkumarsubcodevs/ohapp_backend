@@ -697,4 +697,117 @@ router.post('/updatemonthlygoal', verifyToken, function(req, res) {
 	});
 });
 
+// Get monthly goal detail
+router.get('/getmonthlygoaldetail/:partner_mapping_id', verifyToken, function(req, res, next) {
+
+	let partner_mapping_id  = req.params.partner_mapping_id;
+	
+	if(!partner_mapping_id) 
+	{
+		return res.send({
+			status: 400,
+			message: 'Goal Id is required.',
+		});
+	}
+
+	if(!formValidator.isInt(partner_mapping_id))   
+	{
+		return res.send({
+			status: 400,
+			message: 'Please enter a valid goal id.',
+		});
+	}
+
+	goalSerObject.getPartnerById(partner_mapping_id, function(err, partnerData)
+	{
+		if(err)
+		{
+			res.send({
+				status: 500,
+				message: 'There was a problem finding the goal.',
+			});
+		}
+		else
+		{
+			if(partnerData)
+			{	
+				goalSerObject.getGoalDetails(partner_mapping_id, function(err, goalCompleteData)
+				{
+					if(err)
+					{
+						res.send({
+							status: 500,
+							message: 'There was a problem finding the goal.',
+						});
+					}
+					else
+					{		
+						res.send({
+							status: 200,
+							result: goalCompleteData,
+						});	
+					}
+				});		
+			}
+			else
+			{
+				res.send({
+					status: 404,
+					message: 'No goal found.',
+				});
+			}	
+		}
+	});
+});
+
+// Get monthly goal history
+router.get('/getmonthlygoalhistory/:user_id', verifyToken, function(req, res, next) {
+
+	let user_id  = req.params.user_id;
+	
+	if(!user_id) 
+	{
+		return res.send({
+			status: 400,
+			message: 'Goal Id is required.',
+		});
+	}
+
+	if(!formValidator.isInt(user_id))   
+	{
+		return res.send({
+			status: 400,
+			message: 'Please enter a valid goal id.',
+		});
+	}
+
+	goalSerObject.getAllGoalsHistoryByUserID(user_id, function(err, goalHistoryData)
+	{
+		if(err)
+		{
+			res.send({
+				status: 500,
+				message: 'There was a problem finding the goal history.',
+			});
+		}
+		else
+		{			
+			if(goalHistoryData)
+			{	
+				res.send({
+					status: 200,
+					message: goalHistoryData,
+				});
+			}
+			else
+			{
+				res.send({
+					status: 404,
+					message: 'No goal history found.',
+				});
+			}	
+		}
+	});
+});
+
 module.exports = router;
