@@ -98,6 +98,7 @@ router.get('/getuserdetail/:user_id', verifyToken, function(req, res, next) {
 			if(userData)
 			{
 				let userDetail = {
+					'id': userData.id,
 					'first_name': userData.first_name,
 					'last_name': userData.last_name,
 					'email': userData.email,
@@ -122,6 +123,91 @@ router.get('/getuserdetail/:user_id', verifyToken, function(req, res, next) {
 		}
 	});
 });
+
+// Get partner detail
+router.get('/getpartnerdetail/:user_id', verifyToken, function(req, res, next) {
+
+	let user_id  = req.params.user_id;
+	
+	if(!user_id) 
+	{
+		return res.send({
+			status: 400,
+			message: 'User Id is required.',
+		});
+	}
+
+	if(!formValidator.isInt(user_id))   
+	{
+		return res.send({
+			status: 400,
+			message: 'Please enter a valid user id.',
+		});
+	}
+
+	userSerObject.getUserById(user_id, function(err, userData)
+	{
+		if(err)
+		{
+			res.send({
+				status: 500,
+				message: 'There was a problem finding the user.',
+			});
+		}
+		else
+		{
+			if(userData)
+			{
+				userSerObject.getPartnerById(user_id, function(err, partnerData)
+				{
+					if(err)
+					{
+						res.send({
+							status: 500,
+							message: 'There was a problem finding the partner user.',
+						});
+					}
+					else
+					{
+						if(partnerData)
+						{
+							let partnerDetail = {
+								'id': partnerData.id,
+								'first_name': partnerData.first_name,
+								'last_name': partnerData.last_name,
+								'email': partnerData.email,
+								'role_id': partnerData.role_id,
+								'gender': partnerData.gender,
+								'image_profile': partnerData.image_profile,
+								'status': partnerData.status
+							};
+							
+							res.send({
+								status: 200,
+								result: partnerDetail,
+							});		
+						}
+						else
+						{
+							res.send({
+								status: 404,
+								message: 'No partner user found.',
+							});
+						}	
+					}
+				});										
+			}
+			else
+			{
+				res.send({
+					status: 404,
+					message: 'No user found.',
+				});
+			}	
+		}
+	});
+});
+
 
 // Get user unique code
 router.get('/getuniquecode/:user_id', verifyToken, function(req, res, next) {

@@ -7,6 +7,7 @@
 
 const userObject = require('../models/user');
 const unavailabilityObject = require('../models/unavailabilities');
+const partnerMappingObject   = require('../models/partner_mappings');
 const dbObj      = require('../config/database');
 const config     = require('../config/config');
 const bcrypt     = require('bcryptjs');
@@ -147,6 +148,45 @@ class UserService
 	// get user by id
 	async getUserById(id, callback) {
 		const response = await userObject.findOne({ where: { id: id } });
+		callback(null, response);
+	}
+
+	// get partner by id
+	async getPartnerById(id, callback) {
+		var partner_id = 0;
+		const partnerResponse = await partnerMappingObject.findAll({ where: { 
+			    [Op.or]: [
+				  {
+					partner_one_id: {
+						[Op.eq]: id
+					}
+				  },
+				  {
+					partner_two_id: {
+						[Op.eq]: id
+					}
+				  }
+				],
+				[Op.and]: [
+					{
+					  status: {
+						  [Op.eq]: 1
+					  }
+					},
+				]	
+			}});
+
+		if(partnerResponse[0].partner_one_id==id)	
+		{
+			partner_id = partnerResponse[0].partner_two_id;
+		}
+
+		if(partnerResponse[0].partner_two_id==id)	
+		{
+			partner_id = partnerResponse[0].partner_one_id;
+		}
+
+		const response  = await userObject.findOne({ where: { id: partner_id } });
 		callback(null, response);
 	}
 	

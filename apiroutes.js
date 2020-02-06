@@ -10,6 +10,7 @@ const apiRoutes = express();
 const usersRoutes = require('./routes/api/users');
 const pageRoutes = require('./routes/api/pages');
 const goalRoutes = require('./routes/api/goals');
+const messageRoutes = require('./routes/api/messages');
 const imagesRoutes = require('./routes/api/images');
 
 // routes of users
@@ -20,6 +21,9 @@ apiRoutes.use('/pages', pageRoutes);
 
 //routes of pattern
 apiRoutes.use('/goals', goalRoutes);
+
+//routes of chat messages
+apiRoutes.use('/messages', messageRoutes);
 
 //routes of images
 apiRoutes.use('/images', imagesRoutes);

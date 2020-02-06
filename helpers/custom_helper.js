@@ -4,6 +4,7 @@
   * @file custom_helper.js
 */
 const current_datetime = require('date-and-time');
+const { base64encode, base64decode } = require('nodejs-base64');
 
 var customHelper = {
 
@@ -71,6 +72,18 @@ var customHelper = {
 		current_date = yyyy + '-' + mm + '-' + dd +' '+ hour + ':' + mins + ':' + sece;
 		return current_date;
 	}, 
+
+	// encode string to base64
+	h_getChatMsgEncode(chat_message) {
+		let encoded_msg = base64encode(chat_message);
+		return encoded_msg;
+	}, 
+
+	// decode string to base64
+	h_getChatMsgDecode(chat_message) {
+		let decoded_msg = base64decode(chat_message);
+		return decoded_msg;
+	},
 };
 
 module.exports = customHelper;

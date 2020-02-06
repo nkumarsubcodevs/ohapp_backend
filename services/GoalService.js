@@ -184,7 +184,7 @@ class GoalService
 			where: { partner_mapping_id: partner_mapping_id, status:1 }, 
 			include: [{
 						model: userObject, 
-						attributes: ['id', 'first_name', 'last_name', 'gender', 'email', 'profile_image', 'face_id', 'touch_id', 'notification_mute_status', 'notification_mute_end', 'status', 'update_time']
+						attributes: ['id', 'role_id', 'first_name', 'last_name', 'gender', 'email', 'profile_image', 'face_id', 'touch_id', 'notification_mute_status', 'notification_mute_end', 'status', 'update_time']
 					 }]
 		});
 
