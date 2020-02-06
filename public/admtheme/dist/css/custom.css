@@ -320,3 +320,21 @@
   opacity: 0.45;
   font-weight: normal;
 }
+
+.tableStyle {
+  margin-left: 215px;
+}
+
+.customePanel {
+    color: #000 !important;
+    background-color: #fff !important;
+    border-color: #fff !important;
+}
+
+ .panelCustom{
+   height: 100%;
+ }
+
+  .sidebarCustom {
+   height: 562px !important;
+ } 

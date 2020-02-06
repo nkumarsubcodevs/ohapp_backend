@@ -1,0 +1,70 @@
+<% include ../partials/header %>
+<%include  ../partials/leftpart %>
+        
+<div class="content-wrapper">
+  <!-- Content Header (Page header) -->
+  <section class="content-header">
+     <h1>
+      Data Tables
+      <small>advanced tables</small>
+    </h1> 
+    <ol class="breadcrumb">
+      <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
+      <li><a href="#">Tables</a></li>
+      <li class="active">Data tables</li>
+    </ol>
+  </section>
+  <section class="content">
+    <div class="row">
+      <div class="col-xs-12">
+        <div class="box">
+           <div class="box-header">
+            <h3 class="box-title">Hover Data Table</h3>
+          </div>
+          <!-- /.box-header -->
+          <div class="box-body">
+        <div class="panel">
+        <div class="panel-heading ">
+         
+              <table class="table " id="example1">
+                <thead>
+                <tr>
+                    <th>id</th>
+                    <th>title</th>
+                    <th>status</th>
+                    <th>update_time</th> 
+                    <th></th>
+                   </tr>
+                </thead>
+     <% 
+     
+     if(typeof pageDataValue != 'undefined'){ 
+     pageDataValue.forEach(function(item) 
+     {
+        %>
+    <tr>
+            <td><%=item.id%></td>
+            <td><%=item.title%></td>
+            <td><%=item.status%></td>
+            <td><%=item.update_time%></td>
+            <td><a class="btn btn-success" href="page/edit/<%=item.id%>">Edit</a></td>
+    </tr>
+    <%
+     });
+     } 
+     %> 
+    </table>
+    
+   </div>
+</div>
+</div>
+<!-- /.col -->
+</div>
+<!-- /.row -->
+</div>
+</div>
+</section>
+</div>
+<% include ../partials/footer %> 
+
+   

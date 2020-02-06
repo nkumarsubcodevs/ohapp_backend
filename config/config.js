@@ -9,7 +9,7 @@ module.exports = {
   'site_logo': 'http://localhost:5000/images/logosite.png',
 
   'postgres_host': 'localhost',
-  'postgres_database': 'ohhp_app',
+  'postgres_database': 'oh_app',
   'postgres_username': 'postgres',
   'postgres_password': 'postgres',
   'postgres_port': '5432',
