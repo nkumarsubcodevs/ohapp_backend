@@ -233,6 +233,12 @@ class UserService
 		});
 	}
 
+	//to  show list of users
+	async getuserList(callback){
+		const response = await userObject.findAll();
+		callback(null,response);
+		}
+
 	// add unavailability
 	async addUnavailability(userData, callback){
 
