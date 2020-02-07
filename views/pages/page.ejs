@@ -5,7 +5,7 @@
   <!-- Content Header (Page header) -->
   <section class="content-header">
      <h1>
-      User Management :-
+      Page Management
       <!-- <small>advanced tables</small> -->
     </h1> 
     <!-- <ol class="breadcrumb">
@@ -19,20 +19,20 @@
       <div class="col-xs-12">
         <div class="box">
            <div class="box-header">
-            <h3 class="box-title">User Info :-</h3>
+            <h3 class="box-title">Page Info :-</h3>
           </div>
           <!-- /.box-header -->
           <div class="box-body">
         <div class="panel">
-        <div class="panel-heading">
+        <div class="panel-heading ">
          
-              <table class="table " id="example3">
+              <table class="table " id="example1">
                 <thead>
                 <tr>
                     <th>id</th>
-                    <th>first_name</th>
-                    <th>last_name</th>
-                    <th>email</th> 
+                    <th>title</th>
+                    <th>status</th>
+                    <th>update_time</th> 
                     <th></th>
                    </tr>
                 </thead>
@@ -44,10 +44,10 @@
         %>
     <tr>
             <td><%=item.id%></td>
-            <td><%=item.first_name%></td>
-            <td><%=item.last_name%></td>
-            <td><%=item.email%></td>
-            
+            <td><%=item.title%></td>
+            <td><%=item.status%></td>
+            <td><%=item.update_time%></td>
+            <td><a class="btn btn-success" href="page/edit/<%=item.id%>">Edit</a></td>
     </tr>
     <%
      });

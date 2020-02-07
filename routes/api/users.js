@@ -11,16 +11,16 @@ const path = require('path');
 const customHelper = require('../../helpers/custom_helper');
 
 // JWT web token
-const jwt         = require('jsonwebtoken');
+const jwt = require('jsonwebtoken');
 
 // Get API secret
-const config      = require('../../config/config');
+const config = require('../../config/config');
 
 // verifytoken middleware
 const verifyToken = require('./verifytoken');
 
 // Include image upload lib
-const multer  =   require('multer');
+const multer =  require('multer');
 
 const multerConf = {
 	storage : multer.diskStorage({

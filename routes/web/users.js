@@ -13,10 +13,10 @@ let router =  express.Router();
 
 var userSerObject = new userService();
 
-// user listing
-router.get('/', function(req, res){
-	res.render('pages/users');
-});
+// // user listing
+// router.get('/', function(req, res){
+// 	res.render('pages/users');
+// });
 
 // Display new register screen
 router.get('/register', function(req, res){
@@ -119,5 +119,26 @@ router.get('/logout', function(req, res){
 	req.flash('success_message', 'You are logged out');
 	res.redirect('/users/login');
 });
+
+router.get('/',function(err,res){
+	userSerObject.getuserList(function(err,pageData)
+	{
+	if(pageData)
+			{
+				if (err) 
+				{  
+					req.flash('error_message','Error Occured: Unable to fetch patterns list');
+					res.redirect('/pages/users');
+				}
+				else 
+				{
+					res.render('pages/users', {pageDataValue : pageData});
+				}
+			}
+		
+		});
+	});
+	
+
 
 module.exports = router;
