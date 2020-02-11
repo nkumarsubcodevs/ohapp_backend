@@ -29,14 +29,16 @@ const apiRoutes = require('./apiroutes');
 const config = require('./config/config');
 const dbObj  = require('./config/database');
 
-// system cron job
-// const cronJob  = require('./cron_jobs/cron_jobs');
-
 const app  = express();
 
 // Server Setup
 const PORT = config.port_no;
-const CHATPORT = config.chat_port_no;
+
+// app cron job
+// const cronJob  = require('./cron_jobs/cron_jobs');
+
+// chat system job
+const cronJob  = require('./chat_system/chat_handler');
 
 app.use(express.static(__dirname + '/public'));
 
@@ -87,31 +89,4 @@ app.use('/v1.0', apiRoutes); // mount all api routes
 // Print port with application title on console on application startup
 app.listen(PORT, function(){
 	console.log('OH application running on port: ',PORT);
-});
-
-
-// Chat System Setup and Import
-
-const http = require('http').Server(app);
-const io = require('socket.io')(http);
-
-io.sockets.on('connection', function(socket) {
-    
-    socket.on('username', function(username) {
-        socket.username = username;
-        io.emit('is_online', '🔵 <i>' + socket.username + ' join the chat..</i>');
-    });
-
-    socket.on('disconnect', function(username) {
-        io.emit('is_online', '🔴 <i>' + socket.username + ' left the chat..</i>');
-    })
-
-    socket.on('chat_message', function(message) {
-        io.emit('chat_message', '<strong>' + socket.username + '</strong>: ' + message);
-    });
-
-});
-
-const server = http.listen(CHATPORT, function() {
-    console.log('OH chat socket listening on port: ', CHATPORT);
 });

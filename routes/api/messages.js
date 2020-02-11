@@ -5,9 +5,11 @@
 */
 
 const express = require('express');
-const messageService = require('../../services/MessageService');
+const current_datetime = require('date-and-time');
 const formValidator = require('validator');
 const path = require('path');
+
+const messageService = require('../../services/MessageService');
 const customHelper = require('../../helpers/custom_helper');
 
 // Get API secret
@@ -95,6 +97,8 @@ router.post('/sendchatmessages', verifyToken, (req, res, next) => {
 		'sender_id': sender_id,
 		'receiver_id': receiver_id,
 		'message': encoded_msg,
+		'create_time': current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss'),
+		'update_time': current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss'),
 	};
 	
 	msgSerObject.saveChatMessage(messageData, function(err, msgDataSaved)

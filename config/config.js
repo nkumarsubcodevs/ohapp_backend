@@ -9,7 +9,7 @@ module.exports = {
   'site_logo': 'http://localhost:5000/images/logosite.png',
 
   'postgres_host': 'localhost',
-  'postgres_database': 'oh_app',
+  'postgres_database': 'ohhp_app',
   'postgres_username': 'postgres',
   'postgres_password': 'postgres',
   'postgres_port': '5432',
@@ -21,7 +21,7 @@ module.exports = {
   'secret': 'ohapp_api',
   'refreshsecret': 'ohapp_refresh_api',
   'port_no': '5000',
-  'chat_port_no': '6000',
+  'chat_port_no': '8089',
 
   'forgot_password_template': '/var/www/html/oh_app/email_templates/forgot_password.html',
   'signup_template': '/var/www/html/oh_app/email_templates/signup.html',
