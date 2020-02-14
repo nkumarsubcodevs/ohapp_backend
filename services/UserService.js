@@ -277,10 +277,10 @@ class UserService
 	}
 
 	//to  show list of users
-	async getuserList(callback){
-		const response = await userObject.findAll();
+	async getuserList(paginationData ,callback){
+		const response = await userObject.findAndCountAll({offset: paginationData.offset, limit: paginationData.limit});
 		callback(null,response);
-		}
+	}
 
 	// add unavailability
 	async addUnavailability(userData, callback){

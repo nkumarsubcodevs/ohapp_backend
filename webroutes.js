@@ -17,7 +17,6 @@ const pageRoutes  =   require('./routes/web/page');
 
 // routes of index
 appRoutes.use('/', indexRoutes);
-
 // routes of users
 appRoutes.use('/users', userRoutes);
 

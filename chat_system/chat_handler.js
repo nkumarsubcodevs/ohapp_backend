@@ -26,7 +26,15 @@ const http = require('http').Server(app);
 const io = require('socket.io')(http);
 
 io.sockets.on('connection', function(socket) {
-    
+
+    // Get Socket Connection Details
+    console.log("Total Connected Users: ",io.engine.clientsCount);
+   
+    Object.keys(io.sockets.sockets).forEach(function(id) {
+        console.log("ID: ->",id);
+    });
+    // Get Socket Connection Details
+
     socket.on('username', function(userData) {
 
         var error_flag = 0;
@@ -163,23 +171,20 @@ io.sockets.on('connection', function(socket) {
                         {
                             var username = singleUserData.first_name+" "+singleUserData.last_name;
 
+                            console.log('chat_message', 'message saved in db for '+username);
+
                             io.to(messageData.room_id).emit('chat_message', '<strong>' + username + ' ('+crnt_time+')</strong>: ' + messageData.message);
                         }
                     });       
                 }
             });    
         }
-
     });
-            
-    // socket.on('disconnect', function(username) {
 
-    //     Object.keys(io.sockets.sockets).forEach(function(id) {
-    //         console.log("ID: ",id);
-    //     })
-
-    //     io.emit('is_online', '🔴 <i>' + socket.username + ' left the chat..</i>');
-    // });
+    socket.on('disconnect', function(username) {
+        // socket.leave('1580277029598');
+        io.emit('is_online', '🔴 <i>' + socket.username + ' left the chat..</i>');
+    });
 });
 
 const server = http.listen(CHATPORT, function() {

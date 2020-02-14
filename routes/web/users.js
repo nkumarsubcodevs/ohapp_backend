@@ -7,8 +7,8 @@
 const express = require('express');
 const userService = require('../../services/UserService');
 const passport = require('passport');
-
 const LocalStrategy = require('passport-local').Strategy;
+
 let router =  express.Router();
 
 var userSerObject = new userService();
@@ -120,24 +120,39 @@ router.get('/logout', function(req, res){
 	res.redirect('/users/login');
 });
 
-router.get('/',function(err,res){
-	userSerObject.getuserList(function(err,pageData)
+
+router.get('/:page?',function(req, res){
+
+	var perPage = 1;
+	var page = req.params.page || 1;
+	
+	let paginationData = {
+		'offset': (perPage * page) - perPage,
+		'limit' : perPage,
+	};
+
+	userSerObject.getuserList(paginationData ,function(err, pageData)
 	{
-	if(pageData)
-			{
-				if (err) 
-				{  
-					req.flash('error_message','Error Occured: Unable to fetch patterns list');
-					res.redirect('/pages/users');
-				}
-				else 
-				{
-					res.render('pages/users', {pageDataValue : pageData});
-				}
+		if(pageData)
+		{
+			if (err) 
+			{  
+				req.flash('error_message','Error Occured: Unable to fetch users list');
+				res.redirect('/pages/users');
 			}
-		
-		});
+			else 
+			{
+				const itemCount = pageData.count;
+				
+				res.render('pages/users', {
+                    pageDataValue: pageData.rows,
+                    current: page,
+                    pages: Math.ceil(itemCount / perPage)
+                });
+			}
+		}
 	});
+});
 	
 
 
