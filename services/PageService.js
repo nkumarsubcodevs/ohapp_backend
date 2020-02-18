@@ -19,13 +19,13 @@ class PageService
 	}
 
 	// get all pages list
-	async getPageList(callback){
-		const response= await pageObject.findAll();
+	async getPageList(paginationData, callback){
+		const response = await pageObject.findAndCountAll({offset: paginationData.offset, limit: paginationData.limit});
 		callback(null,response);
 	}
 	//get single page record
-	async getSinglePageRecord(mypage_id,callback) {
-		const response = await pageObject.findAll({where:{id:mypage_id}});
+	async getSinglePageRecord(page_id,callback) {
+		const response = await pageObject.findOne({where:{id: page_id}});
 		callback(null,response);
 	}
 	

@@ -10,23 +10,14 @@ const appRoutes = express();
 
 const indexRoutes = require('./index');
 const userRoutes  = require('./routes/web/users');
-const pageRoutes  =   require('./routes/web/page');
+const pageRoutes  =   require('./routes/web/pages');
 
-
-//const patternRoutes = require('./routes/web/patterns');
 
 // routes of index
 appRoutes.use('/', indexRoutes);
 // routes of users
 appRoutes.use('/users', userRoutes);
-
-appRoutes.use('/page', pageRoutes);
-
-
-
-
-
-// routes of categories
-//appRoutes.use('/patterns', patternRoutes);
+// routes of pages
+appRoutes.use('/pages', pageRoutes);
 
 module.exports = appRoutes;

@@ -85,7 +85,6 @@ app.use(cors()); // enabling CORS for all requests
 // app.use(morgan('combined')); // adding morgan to log HTTP requests
 app.use('/v1.0', apiRoutes); // mount all api routes
 
-  
 // Print port with application title on console on application startup
 app.listen(PORT, function(){
 	console.log('OH application running on port: ',PORT);
