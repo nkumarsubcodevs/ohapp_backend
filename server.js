@@ -35,10 +35,10 @@ const app  = express();
 const PORT = config.port_no;
 
 // app cron job
-// const cronJob  = require('./cron_jobs/cron_jobs');
+const cronJob  = require('./cron_jobs/cron_jobs');
 
 // chat system job
-const cronJob  = require('./chat_system/chat_handler');
+const chatHandler  = require('./chat_system/chat_handler');
 
 app.use(express.static(__dirname + '/public'));
 

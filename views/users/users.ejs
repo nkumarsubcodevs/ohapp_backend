@@ -1,0 +1,82 @@
+<% include ../partials/header %>
+<%include  ../partials/leftpart %>
+        
+<div class="content-wrapper">
+  <!-- Content Header (Page header) -->
+  <section class="content-header">
+     <h1>
+      User List
+    </h1> 
+    <ol class="breadcrumb">
+			<li><a href="/"><i class="fa fa-dashboard"></i>Home</a></li>
+			<li class="active">User List</li>
+		  </ol>
+  </section>
+  <section class="content">
+    <div class="row">
+      <div class="col-xs-12">
+
+
+          <div class="box">
+              <div class="box-header with-border">
+                <h3 class="box-title">User List</h3>
+              </div>
+              <!-- /.box-header -->
+              <div class="box-body">
+                <table class="table table-bordered">
+                  <tbody><tr>
+                    <th style="width: 10px">ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Status</th>
+                  </tr>
+
+                  <% 
+                  if(typeof pageDataValue != 'undefined')
+                  { 
+                      pageDataValue.forEach(function(item) 
+                      {
+                          %>
+                      <tr>
+                          <td><%=item.id%></td>
+                          <td><%=item.first_name%></td>
+                          <td><%=item.last_name%></td>
+                          <td><%=item.email%></td> 
+                          <td>
+                            <%
+                               if(item.status==1)
+                               {
+                            %>
+                               <span class="badge bg-green">Active</span>
+                            <%
+                               }
+                               else
+                               {
+                            %>
+                               <span class="badge bg-red">Inactive</span>
+                            <%
+                               }
+                            %>   
+                          </td> 
+                      </tr>
+                      <%
+                      });
+                  } 
+                  %> 
+                                   
+                </tbody></table>
+              </div>
+              <!-- /.box-body -->
+              <div class="box-footer clearfix">
+                  <% include ../partials/paginate %> 
+              </div>
+            </div>
+
+</div>
+<!-- /.row -->
+</div>
+</div>
+</section>
+</div>
+<% include ../partials/footer %> 

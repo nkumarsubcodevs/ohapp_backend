@@ -71,8 +71,34 @@
 							  <span class="hidden-xs">Admin</span>
 							</a>
 							<ul class="dropdown-menu">
-							  <!-- User image -->
-							  
+							   <!-- User image -->
+							   <li class="user-header" style="height:75px;">
+								<p>
+									<%
+									/*
+									if(typeof user.first_name != 'undefined')
+                                    {  */
+									%>
+									   <%= // user.first_name%>
+									<%
+									// }
+									%>
+									&nbsp;
+									<%
+									/*
+									if(typeof user.last_name != 'undefined')
+                                    { 
+										*/
+									%>
+									   <%=// user.last_name%>
+									<%
+									/*
+									}
+									*/
+									%>
+								  <small>Administrator</small>
+								</p>
+							  </li>
 							  <!-- Menu Body -->
 							 
 							  <!-- Menu Footer-->

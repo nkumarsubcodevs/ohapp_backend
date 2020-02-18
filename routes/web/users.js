@@ -40,7 +40,7 @@ router.post('/register', function(req, res){
 	let errors = req.validationErrors();
 	if(errors)
 	{
-		res.render('pages/register',{errors: errors});
+		res.render('users/register',{errors: errors});
 	}
 	else
 	{
@@ -60,7 +60,7 @@ router.post('/register', function(req, res){
 
 // Display login screen to the user
 router.get('/login', function(req, res){
-  	res.render('pages/login');
+  	res.render('users/login');
 });
 
 // Compare user password
@@ -123,7 +123,7 @@ router.get('/logout', function(req, res){
 
 router.get('/:page?',function(req, res){
 
-	var perPage = 1;
+	var perPage = 2;
 	var page = req.params.page || 1;
 	
 	let paginationData = {
@@ -138,15 +138,16 @@ router.get('/:page?',function(req, res){
 			if (err) 
 			{  
 				req.flash('error_message','Error Occured: Unable to fetch users list');
-				res.redirect('/pages/users');
+				res.redirect('/users/users');
 			}
 			else 
 			{
 				const itemCount = pageData.count;
 				
-				res.render('pages/users', {
+				res.render('users/users', {
                     pageDataValue: pageData.rows,
-                    current: page,
+					current: page,
+					route_page: '/users',
                     pages: Math.ceil(itemCount / perPage)
                 });
 			}

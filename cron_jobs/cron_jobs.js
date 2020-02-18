@@ -73,3 +73,12 @@ var job = new CronJob('* * * * * *', function() {
 
 job.start();
 
+
+var job2 = new CronJob('* * * * * *', function() {
+  
+ // console.log('sdadas');
+
+}, null, true, 'America/Los_Angeles');
+
+job2.start();
+
