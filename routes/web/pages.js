@@ -52,7 +52,7 @@ router.get('/:page?', function(req, res){
 		
 		pageSerObject.getSinglePageRecord(page_id,function(err,pageData)
 			{
-				if (!err) 
+				if (err) 
 				{  
 					req.flash('error_message', 'Unable to fetch page detail');
 					
