@@ -10,13 +10,7 @@ const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 
 let router =  express.Router();
-
 var userSerObject = new userService();
-
-// // user listing
-// router.get('/', function(req, res){
-// 	res.render('pages/users');
-// });
 
 // Display new register screen
 router.get('/register', function(req, res){
@@ -139,8 +133,7 @@ router.get('/:page?',function(req, res){
 			{  
 				req.flash('error_message','Error Occured: Unable to fetch users list');
 				res.redirect('/users/users');
-			}
-			else 
+			}else 
 			{
 				const itemCount = pageData.count;
 				
