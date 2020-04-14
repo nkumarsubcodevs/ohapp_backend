@@ -53,13 +53,15 @@ class UserService
 		{
 			const now = new Date();
 
+			var user_password = randomstring.generate(8);
+
 			let userData = new userObject({
 				role_id: newUser.role_id,
 				first_name: newUser.first_name,
 				last_name: newUser.last_name,
 				gender: newUser.gender,
-				email: newUser.email,
-				password: newUser.password,
+				email: newUser.email.toLowerCase(),
+				password: user_password,
 				unique_code: u_code,
 				status: newUser.status,
 				create_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss'),
@@ -98,6 +100,7 @@ class UserService
 						var replacements = {
 							username: newUser.first_name,
 							user_email: newUser.email,
+							user_password: user_password,
 							site_logo: config.site_logo,
 						};
 						var htmlToSend = template(replacements);
@@ -127,7 +130,7 @@ class UserService
 
 	// get user by email
 	async getUserByEmail(email, callback){
-		const user = await userObject.findOne({ where: { email: email } });
+		const user = await userObject.findOne({ where: { email: email.toLowerCase() } });
 		callback(null,user);
 	}
 

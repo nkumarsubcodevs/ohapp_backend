@@ -271,8 +271,8 @@ router.post('/register', function(req, res){
 	let last_name  = req.body.last_name;
 	let gender     = req.body.gender;
 	let email      = req.body.email;
-	let password = req.body.password;
-	let confirm_password     = req.body.confirm_password;
+	// let password = req.body.password;
+	// let confirm_password     = req.body.confirm_password;
 	let role_id  = 2;
 	let status   = 1;
 
@@ -340,29 +340,29 @@ router.post('/register', function(req, res){
 		});
 	}
 
-	if(!password) 
-	{
-		return res.send({
-			status: 400,
-			message: 'Password is required',
-		});
-	}
+	// if(!password) 
+	// {
+	// 	return res.send({
+	// 		status: 400,
+	// 		message: 'Password is required',
+	// 	});
+	// }
 
-	if(!confirm_password) 
-	{
-		return res.send({
-			status: 400,
-			message: 'Confirm password is required',
-		});
-	}
+	// if(!confirm_password) 
+	// {
+	// 	return res.send({
+	// 		status: 400,
+	// 		message: 'Confirm password is required',
+	// 	});
+	// }
 
-	if(password!=confirm_password) 
-	{
-		return res.send({
-			status: 400,
-			message: 'Password and confirm password should be same.',
-		});
-	}
+	// if(password!=confirm_password) 
+	// {
+	// 	return res.send({
+	// 		status: 400,
+	// 		message: 'Password and confirm password should be same.',
+	// 	});
+	// }
 
 	let userData = {
 		'role_id': role_id,
@@ -370,7 +370,7 @@ router.post('/register', function(req, res){
 		'last_name': last_name,
 		'gender': gender,
 		'email': email.toLowerCase(),
-		'password': password,
+		// 'password': password,
 		'status': status
 	};
 

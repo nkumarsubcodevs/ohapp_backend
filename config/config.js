@@ -17,7 +17,7 @@ module.exports = {
   'from_email': 'navneet.kumar@subcodevs.com',
   'email_service': 'gmail',
   'gmail_id': 'subcodevsd@gmail.com',
-  'gmail_password': 'xingzing',
+  'gmail_password': 'subcodevs@1234',
   'secret': 'ohapp_api',
   'refreshsecret': 'ohapp_refresh_api',
   'port_no': '5000',
