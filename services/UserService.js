@@ -122,7 +122,11 @@ class UserService
 					});
 					//*******  Email Code
 	
-					callback(null,userData.save());
+					userData.save().then(function(saveData) {
+						callback(null,saveData);
+					})
+
+					// callback(null,userData.save());
 				});
 			});
 		}

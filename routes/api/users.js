@@ -394,7 +394,7 @@ router.post('/register', function(req, res){
 			}
 			else
 			{
-				userSerObject.createUser(userData, function(err, userData)
+				userSerObject.createUser(userData, function(err, userResultData)
 				{
 					if(err)
 					{
@@ -406,11 +406,11 @@ router.post('/register', function(req, res){
 					else
 					{
 
-						var access_token = jwt.sign({ id: userData.id }, config.secret, {
+						var access_token = jwt.sign({ id: userResultData.id }, config.secret, {
 							expiresIn: 900
 						});
 						
-						var refresh_token = jwt.sign({ id: userData.id }, config.refreshsecret, { 
+						var refresh_token = jwt.sign({ id: userResultData.id }, config.refreshsecret, { 
 							expiresIn: 86400
 						});
 						
@@ -420,7 +420,7 @@ router.post('/register', function(req, res){
 						res.send({
 							status: 200,
 							message: 'success',
-							result: userData,
+							result: userResultData.id,
 							access_token: access_token,
 							refresh_token: refresh_token,
 						});
