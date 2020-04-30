@@ -12,6 +12,9 @@ const monthlyGoalObject  = require('../models/monthly_goals');
 const userObject  = require('../models/user');
 const current_datetime = require('date-and-time');
 
+const Sequelize = require('sequelize');
+const Op = Sequelize.Op
+
 class GoalService
 {
 	// get goal setting
@@ -79,8 +82,32 @@ class GoalService
 
 	// get partner mapping by id
 	async getPartnerById(id, callback) {
-		const response = await partnerMappingObject.findOne({ where: { id: id } });
-		callback(null, response);
+		// const response = await partnerMappingObject.findOne({ where: { id: id } });
+
+		var partner_id = 0;
+		const partnerResponse = await partnerMappingObject.findOne({ where: { 
+			    [Op.or]: [
+				  {
+					partner_one_id: {
+						[Op.eq]: id
+					}
+				  },
+				  {
+					partner_two_id: {
+						[Op.eq]: id
+					}
+				  }
+				],
+				[Op.and]: [
+					{
+					  status: {
+						  [Op.eq]: 1
+					  }
+					},
+				]	
+			}});
+
+		callback(null, partnerResponse);
 	}
 
 	// Create monthly goal

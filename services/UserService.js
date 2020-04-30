@@ -267,6 +267,12 @@ class UserService
 		callback(null, userObject.update({ first_name:  userData.first_name, last_name:  userData.last_name, update_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss') }, { where: { id: userData.user_id }}) );
 	}
 
+	// update user fcmid
+	async updateUserFcmID(userFcmIDData, callback){
+		const now = new Date();
+		callback(null, userObject.update({ fcmid: userFcmIDData.fcmid, update_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss') }, { where: { id: userFcmIDData.user_id }}) );
+	}
+
 	// update user profile image
 	async updateProfileImage(userImage, callback){
 		const now = new Date();	

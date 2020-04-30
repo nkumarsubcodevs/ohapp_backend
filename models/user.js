@@ -50,6 +50,9 @@ const User = database.define('users',
 	unique_code: {
 		type: Sequelize.STRING(150),
 	},
+	fcmid: {
+		type: Sequelize.STRING(250),
+	},
 	notification_mute_status: {
 		type: Sequelize.INTEGER,
 	},

@@ -275,6 +275,7 @@ router.post('/checkuseruniquecode', verifyToken, function(req, res) {
 									}
 									else
 									{
+
 										goalSerObject.createPartnerMapping(monthlyGoalData, function(err, createMonthlyData)
 										{
 											if(err)
@@ -293,6 +294,7 @@ router.post('/checkuseruniquecode', verifyToken, function(req, res) {
 														res.send({
 															status: 200,
 															message: 'Monthly Goal Saved',
+															partner_fcmid: uniqueCodeData.fcmid,
 														});
 
 													});
@@ -487,8 +489,7 @@ router.post('/createmonthlygoal', verifyToken, function(req, res) {
 			});
 		}
 		else
-		{
-
+		{			
 			if(partnerMappingData.status) 
 			{
                 // check if user-id is found or not in partner mapping table

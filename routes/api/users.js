@@ -437,6 +437,7 @@ router.post('/login', function(req, res) {
 
 	let email    = req.body.email;
 	let password = req.body.password;
+	let fcmid    = req.body.fcmid;
 
 	if(!email) 
 	{
@@ -462,9 +463,18 @@ router.post('/login', function(req, res) {
 		});
 	}
 
+	if(!fcmid) 
+	{
+		return res.send({
+			status: 400,
+			message: 'FcmID is required',
+		});
+	}
+
 	let userData = {
 		'email': email,
 		'password': password,
+		'fcmid': fcmid,
 	};
 
 	userSerObject.getUserByEmail(email, function(err, user) 
@@ -492,23 +502,52 @@ router.post('/login', function(req, res) {
 
 					if(isMatch)
 					{
-						var access_token = jwt.sign({ id: user.id }, config.secret, {
-							expiresIn: 900
-						});
 
-						var refresh_token = jwt.sign({ id: user.id }, config.refreshsecret, { 
-							expiresIn: 86400 
-						});
-						
-						res.cookie("access_token", access_token, { httpOnly: true });
-						res.cookie("refresh_token", refresh_token, { httpOnly: true });
-
-						res.send({
-							status: 200,
-							message: 'success',
-							access_token: access_token,
-							refresh_token: refresh_token,
-							user_id: user.id,
+						let userFcmidData = {
+							'user_id': user.id,
+							'fcmid': fcmid,
+						};
+					
+						userSerObject.updateUserFcmID(userFcmidData, function(err, userFcmIDRespone)
+						{
+							if(err)
+							{
+								res.send({
+									status: 500,
+									message: 'There was a problem in update user fcid record.',
+								});
+							}
+							else
+							{
+								if(userFcmIDRespone)
+								{
+									var access_token = jwt.sign({ id: user.id }, config.secret, {
+										expiresIn: 900
+									});
+			
+									var refresh_token = jwt.sign({ id: user.id }, config.refreshsecret, { 
+										expiresIn: 86400 
+									});
+									
+									res.cookie("access_token", access_token, { httpOnly: true });
+									res.cookie("refresh_token", refresh_token, { httpOnly: true });
+			
+									res.send({
+										status: 200,
+										message: 'success',
+										access_token: access_token,
+										refresh_token: refresh_token,
+										user_id: user.id,
+									});
+								}
+								else
+								{
+									res.send({
+										status: 404,
+										message: 'There was a problem in update user fcid.',
+									});
+								}	
+							}
 						});
 					}
 					else
@@ -1013,6 +1052,22 @@ router.post('/profileimageupload', verifyToken, (req, res, next) => {
 			let upload_file  = req.file;
 			let user_id  = req.body.user_id;
 
+			if(!user_id) 
+			{
+				return res.send({
+					status: 400,
+					message: 'user id is required',
+				});
+			}
+
+			if(!upload_file.filename) 
+			{
+				return res.send({
+					status: 400,
+					message: 'upload file is required',
+				});
+			}
+	
 			let userImageData = {
 				'user_id': user_id,
 				'upload_file': upload_file.filename,
