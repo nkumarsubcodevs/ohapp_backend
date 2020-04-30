@@ -289,7 +289,7 @@ router.post('/checkuseruniquecode', verifyToken, function(req, res) {
 											{			
 												if(createMonthlyData) 
 												{
-													userSerObject.freeSecurityCodes(monthlyGoalData, function(err, freeSecurityData){
+													// userSerObject.freeSecurityCodes(monthlyGoalData, function(err, freeSecurityData){
 
 														res.send({
 															status: 200,
@@ -297,7 +297,7 @@ router.post('/checkuseruniquecode', verifyToken, function(req, res) {
 															partner_fcmid: uniqueCodeData.fcmid,
 														});
 
-													});
+													// });
 												}
 												else
 												{
