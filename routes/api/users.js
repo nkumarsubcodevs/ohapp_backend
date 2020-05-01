@@ -243,6 +243,63 @@ router.get('/getuniquecode/:user_id', verifyToken, function(req, res, next) {
 		{
 			if(userData)
 			{
+				userSerObject.updateUserStage(2, user_id, function(err, userStageData) {
+					if(userStageData) {
+						let userDetail = {
+							'unique_code': userStageData.unique_code,
+							'stage': userStageData.stage
+						};
+						res.send({
+							status: 200,
+							result: userDetail,
+						});
+					}
+				})
+			}
+			else
+			{
+				res.send({
+					status: 404,
+					message: 'No user found.',
+				});
+			}
+		}
+	});
+});
+
+// Create unique code
+router.post('/createuniquecode/:user_id', verifyToken, function(req, res, next) {
+	let user_id  = req.params.user_id;
+
+	if(!user_id)
+	{
+		return res.send({
+			status: 400,
+			message: 'User Id is required.',
+		});
+	}
+
+	if(!formValidator.isInt(user_id))
+	{
+		return res.send({
+			status: 400,
+			message: 'Please enter a valid user id.',
+		});
+	}
+
+	userSerObject.reGenerateUniqueCode(user_id, function(err, userData)
+	{
+		if(err)
+		{
+			res.send({
+				status: 500,
+				message: 'There was a problem finding the user.',
+			});
+		}
+		else
+		{
+			if(userData)
+			{
 				let userDetail = {
 					'unique_code': userData.unique_code,
 				};
@@ -258,10 +315,10 @@ router.get('/getuniquecode/:user_id', verifyToken, function(req, res, next) {
 					status: 404,
 					message: 'No user found.',
 				});
-			}	
+			}
 		}
 	});
-});
+})
 
 
 // New user registration API
@@ -438,7 +495,6 @@ router.post('/login', function(req, res) {
 	let email    = req.body.email;
 	let password = req.body.password;
 	let fcmid    = req.body.fcmid;
-
 	if(!email) 
 	{
 		return res.send({

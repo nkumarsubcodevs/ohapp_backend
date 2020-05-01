@@ -110,6 +110,12 @@ class GoalService
 		callback(null, partnerResponse);
 	}
 
+		// get partner data by id
+		async getPartnerData(id, callback) {
+			const partnerResponse = await partnerMappingObject.findOne({ where: { partner_one_id: id } });
+			callback(null, partnerResponse);
+		}
+
 	// Create monthly goal
 	async createMonthlyGoal(monthlyGoalData, callback){
 

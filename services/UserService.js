@@ -24,7 +24,7 @@ const Op = Sequelize.Op
 class UserService
 {
 	// Generate unique code
-	async generateUniqueCode(){
+	async generateUniqueCode() {
 
 		var u_code = randomstring.generate({
 			length: 4,
@@ -36,11 +36,31 @@ class UserService
 
 		if(user)
 		{
-			return this.generateUniqueCode(); 
+			return this.generateUniqueCode();
 		}
 		else
 		{
-			return u_code;    
+			return u_code;
+		}
+	}
+
+	// ReGenerate unique code
+	async reGenerateUniqueCode(user_id, callback) {
+
+		var u_code = randomstring.generate({
+			length: 4,
+			charset: 'alphabetic',
+			capitalization: 'uppercase'
+		});
+		const user = await userObject.findOne({ where: { unique_code: u_code } });
+		if(user)
+		{
+			return this.reGenerateUniqueCode(user_id);
+		}
+		else
+		{
+			const users = await userObject.update({ unique_code: u_code } , { where: { id: user_id } });
+			callback(null, users);
 		}
 	}
 
@@ -293,6 +313,10 @@ class UserService
 	async getuserList(paginationData ,callback){
 		const response = await userObject.findAndCountAll({offset: paginationData.offset, limit: paginationData.limit});
 		callback(null,response);
+	}
+
+	async updateUserStage(stage, id, callback){
+		await userObject.update({ stage: stage }, { where: { id: id}});
 	}
 
 	// add unavailability

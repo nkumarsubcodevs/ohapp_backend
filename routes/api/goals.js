@@ -253,7 +253,6 @@ router.post('/checkuseruniquecode', verifyToken, function(req, res) {
 								'partner_one_id': user_id,
 								'partner_two_id': uniqueCodeData.id,
 							};
-
 							goalSerObject.checkParterLink(monthlyGoalData, function(err, partnerData) 
 							{
 								if(err)
@@ -268,6 +267,7 @@ router.post('/checkuseruniquecode', verifyToken, function(req, res) {
 
 									if(partnerData) 
 						            {
+
 										return res.send({
 											status: 400,
 											message: 'These users are already linked.',
@@ -275,7 +275,7 @@ router.post('/checkuseruniquecode', verifyToken, function(req, res) {
 									}
 									else
 									{
-
+										userSerObject.updateUserStage(3, user_id);
 										goalSerObject.createPartnerMapping(monthlyGoalData, function(err, createMonthlyData)
 										{
 											if(err)
@@ -289,15 +289,35 @@ router.post('/checkuseruniquecode', verifyToken, function(req, res) {
 											{			
 												if(createMonthlyData) 
 												{
-													// userSerObject.freeSecurityCodes(monthlyGoalData, function(err, freeSecurityData){
-
-														res.send({
-															status: 200,
-															message: 'Monthly Goal Saved',
-															partner_fcmid: uniqueCodeData.fcmid,
-														});
-
-													// });
+													goalSerObject.getPartnerData(user_id, function(err,paternData) {
+														if(paternData) {
+															userSerObject.getUserById(paternData.partner_two_id, function(err, response) {
+																if(err) {
+																	return res.send({
+																		status: 400,
+																		message: 'Your patner is not found',
+																	});
+																}
+																if(response) {
+																	if(response.stage !== 3) {
+																		return res.send({
+																			status: 400,
+																			message: 'Please Wait, Your parten is not entered code!'
+																		})
+																	} 
+																	if(response.stage === 3) {
+																		// userSerObject.freeSecurityCodes(monthlyGoalData, function(err, freeSecurityData){
+																			res.send({
+																				status: 200,
+																				message: 'Monthly Goal Saved',
+																				partner_fcmid: uniqueCodeData.fcmid,
+																			});
+																		// }
+																	}
+																}
+															});
+														}
+													})
 												}
 												else
 												{
