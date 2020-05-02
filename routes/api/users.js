@@ -594,6 +594,7 @@ router.post('/login', function(req, res) {
 										access_token: access_token,
 										refresh_token: refresh_token,
 										user_id: user.id,
+										stage: user.stage
 									});
 								}
 								else

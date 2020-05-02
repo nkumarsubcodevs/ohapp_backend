@@ -267,15 +267,34 @@ router.post('/checkuseruniquecode', verifyToken, function(req, res) {
 
 									if(partnerData) 
 						            {
-
-										return res.send({
-											status: 400,
-											message: 'These users are already linked.',
+										userSerObject.getUserById(uniqueCodeData.id, function(err, response) {
+											if(err) {
+												return res.send({
+													status: 400,
+													message: 'Your patner is not found',
+												});
+											}
+											if(response) {
+												if(response.stage !== 3) {
+													return res.send({
+														status: 400,
+														message: 'Please Wait, Your parten is not entered code!'
+													})
+												}
+												if(response.stage === 3) {
+													// userSerObject.freeSecurityCodes(monthlyGoalData, function(err, freeSecurityData){
+														return res.send({
+															status: 400,
+															message: 'These users are already linked.',
+														});
+													// }
+												}
+											}
 										});
 									}
 									else
 									{
-										userSerObject.updateUserStage(3, user_id);
+										userSerObject.updateUserStage(3, user_id, function(err, userStageupdatedata) {});
 										goalSerObject.createPartnerMapping(monthlyGoalData, function(err, createMonthlyData)
 										{
 											if(err)
@@ -286,38 +305,34 @@ router.post('/checkuseruniquecode', verifyToken, function(req, res) {
 												});
 											}
 											else
-											{			
+											{
 												if(createMonthlyData) 
 												{
-													goalSerObject.getPartnerData(user_id, function(err,paternData) {
-														if(paternData) {
-															userSerObject.getUserById(paternData.partner_two_id, function(err, response) {
-																if(err) {
-																	return res.send({
-																		status: 400,
-																		message: 'Your patner is not found',
-																	});
-																}
-																if(response) {
-																	if(response.stage !== 3) {
-																		return res.send({
-																			status: 400,
-																			message: 'Please Wait, Your parten is not entered code!'
-																		})
-																	} 
-																	if(response.stage === 3) {
-																		// userSerObject.freeSecurityCodes(monthlyGoalData, function(err, freeSecurityData){
-																			res.send({
-																				status: 200,
-																				message: 'Monthly Goal Saved',
-																				partner_fcmid: uniqueCodeData.fcmid,
-																			});
-																		// }
-																	}
-																}
+													userSerObject.getUserById(uniqueCodeData.id, function(err, response) {
+														if(err) {
+															return res.send({
+																status: 400,
+																message: 'Your patner is not found',
 															});
 														}
-													})
+														if(response) {
+															if(response.stage !== 3) {
+																return res.send({
+																	status: 400,
+																	message: 'Please Wait, Your parten is not entered code!'
+																})
+															}
+															if(response.stage === 3) {
+																// userSerObject.freeSecurityCodes(monthlyGoalData, function(err, freeSecurityData){
+																	res.send({
+																		status: 200,
+																		message: 'Monthly Goal Saved',
+																		partner_fcmid: uniqueCodeData.fcmid,
+																	});
+																// }
+															}
+														}
+													});
 												}
 												else
 												{
@@ -325,12 +340,12 @@ router.post('/checkuseruniquecode', verifyToken, function(req, res) {
 														status: 400,
 														message: 'Unable to add monthly goal.',
 													});
-												}										
+												}
 											}
 										});
-									}	
-								}										
-							});		
+									}
+								}
+							});
 						}
 						else
 						{
