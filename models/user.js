@@ -65,7 +65,7 @@ const User = database.define('users',
 	},
 	stage: {
 		type: Sequelize.INTEGER,
-		allowNull: false,
+		allowNull: true,
 		default: 1
 	},
 	create_time: {
