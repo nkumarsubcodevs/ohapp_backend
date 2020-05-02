@@ -146,7 +146,7 @@ router.post('/savegoalsettings', verifyToken, function(req, res) {
 									});
 								}
 								else
-								{												
+								{
 									res.send({
 										status: 200,
 										message: 'Settings Saved',
@@ -283,9 +283,14 @@ router.post('/checkuseruniquecode', verifyToken, function(req, res) {
 												}
 												if(response.stage === 3) {
 													// userSerObject.freeSecurityCodes(monthlyGoalData, function(err, freeSecurityData){
-														return res.send({
-															status: 400,
-															message: 'These users are already linked.',
+														userSerObject.updateUserStage(4, user_id, function(err, userStageupdatedata) {
+															if(userStageupdatedata) {
+																return res.send({
+																	status: 400,
+																	message: 'These users are already linked.',
+																	stage: userStageupdatedata.stage
+																})
+															}
 														});
 													// }
 												}
@@ -324,11 +329,15 @@ router.post('/checkuseruniquecode', verifyToken, function(req, res) {
 															}
 															if(response.stage === 3) {
 																// userSerObject.freeSecurityCodes(monthlyGoalData, function(err, freeSecurityData){
-																	res.send({
-																		status: 200,
-																		message: 'Monthly Goal Saved',
-																		partner_fcmid: uniqueCodeData.fcmid,
-																	});
+																userSerObject.updateUserStage(4, user_id, function(err, userStageupdatedata) {
+																	if(userStageupdatedata) {
+																		return res.send({
+																			status: 200,
+																			message: 'Paring sucessfully',
+																			stage: userStageupdatedata.stage
+																		})
+																	}
+																});
 																// }
 															}
 														}
@@ -565,7 +574,7 @@ router.post('/createmonthlygoal', verifyToken, function(req, res) {
 					var initiator_count = customHelper.h_getNumberOfTimesPercentage(connect_number, percentage);
 					var partner_percentage = 100 - percentage;
 					var partner_initiator_count = connect_number - initiator_count;
-			
+
 					let monthlyGoalData = {
 						'partner_mapping_id': partner_mapping_id,
 						'user_id': user_id,
@@ -590,7 +599,7 @@ router.post('/createmonthlygoal', verifyToken, function(req, res) {
 							});
 						}
 						else
-						{												
+						{
 							res.send({
 								status: 200,
 								message: 'The monthly goal has been created.',

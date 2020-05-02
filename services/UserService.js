@@ -59,8 +59,12 @@ class UserService
 		}
 		else
 		{
-			const users = await userObject.update({ unique_code: u_code } , { where: { id: user_id } });
-			callback(null, users);
+			await userObject.update({ unique_code: u_code } , { where: { id: user_id } });
+			this.getUserById(user_id, function(err, updatedData) {
+				if(updatedData) {
+					callback(null, updatedData);
+				}
+			})
 		}
 	}
 

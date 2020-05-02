@@ -9,7 +9,6 @@ const userService = require('../../services/UserService');
 const formValidator = require('validator');
 const path = require('path');
 const customHelper = require('../../helpers/custom_helper');
-
 // JWT web token
 const jwt = require('jsonwebtoken');
 
@@ -125,11 +124,11 @@ router.get('/getuserdetail/:user_id', verifyToken, function(req, res, next) {
 });
 
 // Get partner detail
-router.get('/getpartnerdetail/:user_id', verifyToken, function(req, res, next) {
+router.get('/getpartnerdetail', verifyToken, function(req, res, next) {
 
-	let user_id  = req.params.user_id;
-	
-	if(!user_id) 
+	let user_id  = jwt.decode(req.headers['x-access-token']).id;
+
+	if(!user_id)
 	{
 		return res.send({
 			status: 400,
@@ -137,7 +136,7 @@ router.get('/getpartnerdetail/:user_id', verifyToken, function(req, res, next) {
 		});
 	}
 
-	if(!formValidator.isInt(user_id))   
+	if(!formValidator.isInt(user_id))
 	{
 		return res.send({
 			status: 400,
@@ -179,13 +178,13 @@ router.get('/getpartnerdetail/:user_id', verifyToken, function(req, res, next) {
 								'role_id': partnerData.role_id,
 								'gender': partnerData.gender,
 								'image_profile': partnerData.image_profile,
-								'status': partnerData.status
+								'status': partnerData.status,
+								'stage': partnerData.stage
 							};
-							
 							res.send({
 								status: 200,
 								result: partnerDetail,
-							});		
+							});
 						}
 						else
 						{
@@ -193,9 +192,9 @@ router.get('/getpartnerdetail/:user_id', verifyToken, function(req, res, next) {
 								status: 404,
 								message: 'No partner user found.',
 							});
-						}	
+						}
 					}
-				});										
+				});
 			}
 			else
 			{
@@ -268,8 +267,8 @@ router.get('/getuniquecode/:user_id', verifyToken, function(req, res, next) {
 });
 
 // Create unique code
-router.post('/createuniquecode/:user_id', verifyToken, function(req, res, next) {
-	let user_id  = req.params.user_id;
+router.get('/createuniquecode', verifyToken, function(req, res, next) {
+	let user_id  = jwt.decode(req.headers['x-access-token']).id;
 
 	if(!user_id)
 	{
