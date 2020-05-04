@@ -277,7 +277,7 @@ router.post('/checkuseruniquecode', verifyToken, function(req, res) {
 											if(response) {
 												if(response.stage !== 3) {
 													return res.send({
-														status: 400,
+														status: 200,
 														message: 'Please Wait, Your parten is not entered code!'
 													})
 												}
@@ -323,8 +323,9 @@ router.post('/checkuseruniquecode', verifyToken, function(req, res) {
 														if(response) {
 															if(response.stage !== 3) {
 																return res.send({
-																	status: 400,
-																	message: 'Please Wait, Your parten is not entered code!'
+																	status: 200,
+																	message: 'Please Wait, Your parten is not entered code!',
+																	FCMID: uniqueCodeData.fcmid
 																})
 															}
 															if(response.stage === 3) {
@@ -334,7 +335,8 @@ router.post('/checkuseruniquecode', verifyToken, function(req, res) {
 																		return res.send({
 																			status: 200,
 																			message: 'Paring sucessfully',
-																			stage: userStageupdatedata.stage
+																			stage: userStageupdatedata.stage,
+																			FCMID: uniqueCodeData.fcmid
 																		})
 																	}
 																});

@@ -181,10 +181,17 @@ router.get('/getpartnerdetail', verifyToken, function(req, res, next) {
 								'status': partnerData.status,
 								'stage': partnerData.stage
 							};
-							res.send({
-								status: 200,
-								result: partnerDetail,
-							});
+							if(partnerData.stage >= 4) {
+								res.send({
+									status: 200,
+									result: partnerDetail,
+								});
+							} else {
+								res.send({
+									status: 400,
+									message: "Your partern is not entered code!",
+								});
+							}
 						}
 						else
 						{
@@ -212,7 +219,7 @@ router.get('/getpartnerdetail', verifyToken, function(req, res, next) {
 router.get('/getuniquecode/:user_id', verifyToken, function(req, res, next) {
 
 	let user_id  = req.params.user_id;
-	
+
 	if(!user_id) 
 	{
 		return res.send({
@@ -220,8 +227,7 @@ router.get('/getuniquecode/:user_id', verifyToken, function(req, res, next) {
 			message: 'User Id is required.',
 		});
 	}
-
-	if(!formValidator.isInt(user_id))   
+	if(!formValidator.isInt(user_id))
 	{
 		return res.send({
 			status: 400,
@@ -1184,4 +1190,26 @@ router.post('/profileimageupload', verifyToken, (req, res, next) => {
 	});
 });
 
+router.delete('/unparring', verifyToken, function(req, res) {
+	let user_id  = jwt.decode(req.headers['x-access-token']).id;
+
+	if(!user_id)
+	{
+		return res.send({
+			status: 400,
+			message: 'User Id is required.',
+		});
+	}
+
+	if(!formValidator.isInt(user_id))
+	{
+		return res.send({
+			status: 400,
+			message: 'Please enter a valid user id.',
+		});
+	}
+	userSerObject.RemoveParring(user_id, function(err, response) {
+		console.log(response)
+	});
+})
 module.exports = router;

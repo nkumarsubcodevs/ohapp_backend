@@ -145,7 +145,6 @@ class UserService
 						});
 					});
 					//*******  Email Code
-	
 					userData.save().then(function(saveData) {
 						callback(null,saveData);
 					})
@@ -206,7 +205,6 @@ class UserService
 					},
 				]	
 			}});
-
 		if(partnerResponse[0].partner_one_id==id)	
 		{
 			partner_id = partnerResponse[0].partner_two_id;
@@ -216,7 +214,6 @@ class UserService
 		{
 			partner_id = partnerResponse[0].partner_one_id;
 		}
-
 		const response  = await userObject.findOne({ where: { id: partner_id } });
 		callback(null, response);
 	}
@@ -360,6 +357,17 @@ class UserService
 	async freeSecurityCodesForCron(userData, callback){
 		const now = new Date();
 		callback(null, userObject.update({ unique_code: '', update_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss') }, { where: { id: userData.user_id }}));
+	}
+
+	// Remove Parring
+	async RemoveParring(userId, callback) {
+		userSerObject.destory({
+			where: { id: userId }
+		  }).then(res => {
+			  console.log('hello', res)
+		  }).catch(err => {
+			  console.log('error', err)
+		  })
 	}
 }
 
