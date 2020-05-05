@@ -106,7 +106,6 @@ class GoalService
 					},
 				]	
 			}});
-
 		callback(null, partnerResponse);
 	}
 
@@ -121,7 +120,6 @@ class GoalService
 
 		const now = new Date();
 		const random_number = now.getTime()+Math.floor(Math.random() * 1000);
-	    
 
 		callback(null, monthlyGoalObject.bulkCreate([
 			{
@@ -132,13 +130,17 @@ class GoalService
 				month_end          : monthlyGoalData.month_end,
 				connect_number     : monthlyGoalData.connect_number,
 				initiator_count    : monthlyGoalData.initiator_count,
+				initiator_count1   : monthlyGoalData.initiator_count1,
+				intimate_time      : monthlyGoalData.intimate_time,
+				intimate_request_time : monthlyGoalData.intimate_request_time,
+				intimate_account_time : monthlyGoalData.intimate_account_time,
 				percentage         : monthlyGoalData.percentage,
 				complete_count     : 0,
 				complete_percentage: 0,
 				status: 1,
 				create_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss'),
 				update_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss')
-			}, 
+			},
 			{
 				partner_mapping_id : monthlyGoalData.partner_mapping_id,
 				user_id            : monthlyGoalData.partner_id,
@@ -147,6 +149,10 @@ class GoalService
 				month_end          : monthlyGoalData.month_end,
 				connect_number     : monthlyGoalData.connect_number,
 				initiator_count    : monthlyGoalData.partner_initiator_count,
+				initiator_count1   : monthlyGoalData.initiator_count1,
+				intimate_time      : monthlyGoalData.intimate_time,
+				intimate_request_time : monthlyGoalData.intimate_request_time,
+				intimate_account_time : monthlyGoalData.intimate_account_time,
 				percentage         : monthlyGoalData.partner_percentage,
 				complete_count     : 0,
 				complete_percentage: 0,
@@ -157,6 +163,20 @@ class GoalService
 		]));
 	}
 
+	// check Monthly Goal created or not
+	async checkGoalCreated(partner_mapping_id, callback) {
+		const now = new Date();
+		const today = current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss')
+		monthlyGoalObject.belongsTo(userObject, {foreignKey: 'user_id'});
+		const response = await monthlyGoalObject.findAll({
+			where: { partner_mapping_id: partner_mapping_id, status:1 , month_end: {[Op.gt]: today}}, 
+			include: [{
+						model: userObject, 
+						attributes: ['id', 'role_id', 'first_name', 'last_name', 'gender', 'email', 'profile_image', 'face_id', 'touch_id', 'notification_mute_status', 'notification_mute_end', 'status', 'update_time']
+					 }]
+		});
+		callback(null, response)
+	}
 	// Update monthly goal
 	async updateMonthlyGoal(monthlyGoalData, callback){
 

@@ -10,7 +10,7 @@ const userService = require('../../services/UserService');
 const customHelper = require('../../helpers/custom_helper');
 const formValidator = require('validator');
 const current_datetime = require('date-and-time');
-
+const jwt = require('jsonwebtoken')
 // verifytoken middleware
 const verifyToken = require('./verifytoken');
 
@@ -331,6 +331,7 @@ router.post('/checkuseruniquecode', verifyToken, function(req, res) {
 															if(response.stage === 3) {
 																// userSerObject.freeSecurityCodes(monthlyGoalData, function(err, freeSecurityData){
 																userSerObject.updateUserStage(4, user_id, function(err, userStageupdatedata) {
+																	userSerObject.updateUserStage(4, monthlyGoalData.partner_two_id, function(err, responses){})
 																	if(userStageupdatedata) {
 																		return res.send({
 																			status: 200,
@@ -455,26 +456,16 @@ router.post('/getpartnermapping', verifyToken, function(req, res) {
 // Create monthly goal
 router.post('/createmonthlygoal', verifyToken, function(req, res) {
 
-	let partner_mapping_id = req.body.partner_mapping_id;
-	let user_id            = req.body.user_id;
+	// let partner_mapping_id = req.body.partner_mapping_id;
+	let user_id  = jwt.decode(req.headers['x-access-token']).id;
 	let connect_number     = req.body.connect_number;
-	let percentage         = req.body.percentage;
+	// let percentage         = req.body.percentage;/
+	let intimate_account_time = req.body.intimate_account_time;
+	let intimate_request_time = req.body.intimate_request_time;
+	let intimate_time = req.body.intimate_time;
+	let initiator_count = req.body.initiator_count;
+	let initiator_count1 = req.body.initiator_count1;
 
-	if(!partner_mapping_id) 
-	{
-		return res.send({
-			status: 400,
-			message: 'Partner Id is required.',
-		});
-	}
-
-	if(!formValidator.isInt(partner_mapping_id))   
-	{
-		return res.send({
-			status: 400,
-			message: 'Please enter a valid partner mapping id.',
-		});
-	}
 
 	if(!user_id) 
 	{
@@ -508,24 +499,63 @@ router.post('/createmonthlygoal', verifyToken, function(req, res) {
 		});
 	}
 
-	if(!percentage) 
+	if(!intimate_account_time) 
 	{
 		return res.send({
 			status: 400,
-			message: 'Percentage is required.',
+			message: 'Intimate Account Time is required.',
 		});
 	}
 
-	if(!formValidator.isInt(percentage))   
+	if(!intimate_request_time) 
 	{
 		return res.send({
 			status: 400,
-			message: 'Please enter a valid percentage.',
+			message: 'Intimate Request Time is required.',
 		});
 	}
+
+	if(!intimate_time) 
+	{
+		return res.send({
+			status: 400,
+			message: 'Intimate time is required.',
+		});
+	}
+
+	if(!initiator_count) 
+	{
+		return res.send({
+			status: 400,
+			message: 'Initiator count is required.',
+		});
+	}
+
+	if(!initiator_count1) 
+	{
+		return res.send({
+			status: 400,
+			message: 'Initiator count 1 is required.',
+		});
+	}
+	// if(!percentage) 
+	// {
+	// 	return res.send({
+	// 		status: 400,
+	// 		message: 'Percentage is required.',
+	// 	});
+	// }
+
+	// if(!formValidator.isInt(percentage))   
+	// {
+	// 	return res.send({
+	// 		status: 400,
+	// 		message: 'Please enter a valid percentage.',
+	// 	});
+	// }
 
 	// Check goal exists or not
-	goalSerObject.getPartnerById(partner_mapping_id, function(err, partnerMappingData) 
+	goalSerObject.getPartnerById(user_id, function(err, partnerMappingData) 
 	{
 		if(err)
 		{
@@ -535,80 +565,99 @@ router.post('/createmonthlygoal', verifyToken, function(req, res) {
 			});
 		}
 		else
-		{			
+		{
 			if(partnerMappingData.status) 
 			{
+				userSerObject.getUserById(partnerMappingData.partner_two_id, function(err, partenerData) {
+					if(err) {
+						res.send({
+							status: 400,
+							message: 'Invalid partner id provided',
+						});
+					}
+					if(partenerData) {
+						if(partenerData.stage === 5) {
+							res.send({
+								status: 400,
+								message: 'Please Wait, Your partner is already setting goal',
+							});
+						} else {
+							var user_checker = 0
+							if(partnerMappingData.partner_one_id==user_id) 
+							{
+								user_checker++;
+							}
+			
+							if(partnerMappingData.partner_two_id==user_id) 
+							{
+								user_checker++;
+							}
+			
+							if(user_checker==0)
+							{
+								res.send({
+									status: 400,
+									message: 'Invalid partner id provided',
+								});
+							}
+							else
+							{
+								userSerObject.updateUserStage(5, user_id, function(er, updateedstage){})
+								const now = new Date();
+								var   parter_id = 0;
+								if(partnerMappingData.partner_one_id!=user_id)
+								{
+									parter_id = partnerMappingData.partner_one_id;
+								}
+								if(partnerMappingData.partner_two_id!=user_id)
+								{
+									parter_id = partnerMappingData.partner_two_id;
+								}
+								// var initiator_count = customHelper.h_getNumberOfTimesPercentage(connect_number, percentage);
+								// var partner_percentage = 100 - percentage;
+								var partner_initiator_count = connect_number - initiator_count;
+								let monthlyGoalData = {
+									'partner_mapping_id': partnerMappingData.id,
+									'user_id': user_id,
+									'month_start': current_datetime.format(now, 'YYYY-MM-DD'),
+									'month_end': customHelper.h_get30daysAdvanceDate(),
+									'connect_number': connect_number,
+									// 'percentage': percentage,
+									'initiator_count': initiator_count,
+									'initiator_count1': initiator_count1,
+									'status': 1,
+									'intimate_time': intimate_time,
+									'intimate_request_time': intimate_request_time,
+									'intimate_account_time': intimate_account_time,
+									'partner_id': parter_id,
+									// 'partner_percentage': partner_percentage,
+									// 'partner_initiator_count': partner_initiator_count,
+								};
+								goalSerObject.createMonthlyGoal(monthlyGoalData, function(err, monthlyGoalDataSaved)
+								{
+									if(err)
+									{
+										userSerObject.updateUserStage(4, parter_id, function(er, updateedstage){})
+										res.send({
+											status: 500,
+											message: 'something went wrong.',
+										});
+									}
+									else
+									{
+										userSerObject.updateUserStage(6, parter_id, function(er, updateedstage){})
+										userSerObject.updateUserStage(6, parter_id, function(er, updateedstage){})
+										res.send({
+											status: 200,
+											message: 'The monthly goal has been created.',
+										});
+									}
+								});
+							}
+						}
+					}
+				})
                 // check if user-id is found or not in partner mapping table
-				var user_checker = 0
-				if(partnerMappingData.partner_one_id==user_id) 
-				{
-					user_checker++;
-				}
-
-				if(partnerMappingData.partner_two_id==user_id) 
-				{
-					user_checker++;
-				}
-
-				if(user_checker==0)
-				{
-					res.send({
-						status: 400,
-						message: 'Invalid partner id provided',
-					});
-				}
-				else
-				{
-
-					const now = new Date();
-					var   parter_id = 0; 
-
-					if(partnerMappingData.partner_one_id!=user_id)
-					{
-						parter_id = partnerMappingData.partner_one_id;
-					}
-
-					if(partnerMappingData.partner_two_id!=user_id)
-					{
-						parter_id = partnerMappingData.partner_two_id;
-					}
-
-					var initiator_count = customHelper.h_getNumberOfTimesPercentage(connect_number, percentage);
-					var partner_percentage = 100 - percentage;
-					var partner_initiator_count = connect_number - initiator_count;
-
-					let monthlyGoalData = {
-						'partner_mapping_id': partner_mapping_id,
-						'user_id': user_id,
-						'month_start': current_datetime.format(now, 'YYYY-MM-DD'),
-						'month_end': customHelper.h_get30daysAdvanceDate(),
-						'connect_number': connect_number,
-						'percentage': percentage,
-						'initiator_count': initiator_count,
-						'status': 1,	
-						'partner_id': parter_id,
-						'partner_percentage': partner_percentage,
-						'partner_initiator_count': partner_initiator_count,	
-					};
-
-					goalSerObject.createMonthlyGoal(monthlyGoalData, function(err, monthlyGoalDataSaved)
-					{
-						if(err)
-						{
-							res.send({
-								status: 500,
-								message: 'something went wrong.',
-							});
-						}
-						else
-						{
-							res.send({
-								status: 200,
-								message: 'The monthly goal has been created.',
-							});
-						}
-					});
-				}
 			}
 			else
 			{
@@ -620,6 +669,56 @@ router.post('/createmonthlygoal', verifyToken, function(req, res) {
 		}
 	});
 });
+
+// Checking user enter goal page or not
+router.post('/CheckingStage', verifyToken, function(req, res) {
+	let user_id  = jwt.decode(req.headers['x-access-token']).id;
+	if(!user_id) {
+		return res.send({
+			status: 400,
+			message: 'User id is required.',
+		});
+	}
+	goalSerObject.getPartnerById(user_id, function(err, partnerMappingData) 
+	{
+		if(err) {
+			res.send({
+				status: 500,
+				message: 'something went wrong',
+			});
+		} else {
+			if(partnerMappingData) {
+				userSerObject.getUserById(partnerMappingData.partner_two_id, function(err, partenerData) {
+					if(err) {
+						res.send({
+							status: 400,
+							message: 'Invalid partner id provided',
+						});
+					}
+					if(partenerData) {
+						if(partenerData.stage === 5) {
+							res.send({
+								status: 400,
+								message: 'Please Wait, Your partner is already setting goal',
+							});
+						} else {
+							userSerObject.updateUserStage(5, user_id, function(err, updatestageData) {
+								if(updatestageData) {
+									res.send({
+										status: 200,
+										message: 'Sucessfully enter goal page',
+										stage: updatestageData.stage
+									})
+								}
+							})
+						}
+					}
+				});
+			}
+
+		}
+	});
+})
 
 // Update monthly goal
 router.post('/updatemonthlygoal', verifyToken, function(req, res) {

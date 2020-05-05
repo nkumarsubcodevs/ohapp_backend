@@ -38,10 +38,26 @@ const MonthlyGoal = database.define('monthly_goals',
 		type: Sequelize.STRING(50),
 		allowNull: true,
 	},
-	percentage: {
+	initiator_count1: {
 		type: Sequelize.STRING(50),
 		allowNull: true,
 	},
+	intimate_time: {
+		type: Sequelize.STRING(50),
+		allowNull: true,
+	},
+	intimate_request_time: {
+		type: Sequelize.STRING(50),
+		allowNull: true,
+	},
+	intimate_account_time: {
+		type: Sequelize.STRING(50),
+		allowNull: true,
+	},
+	// percentage: {
+	// 	type: Sequelize.STRING(50),
+	// 	allowNull: true,
+	// },
 	complete_count: {
 		type: Sequelize.STRING(50),
 		allowNull: true,
