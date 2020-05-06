@@ -645,15 +645,17 @@ router.post('/createmonthlygoal', verifyToken, function(req, res) {
 									}
 									else
 									{
-										userSerObject.updateUserStage(6, parter_id, function(er, updateedstage){})
-										userSerObject.updateUserStage(6, user_id, function(er, updateedstage){
-											if(updateedstage) {
-												res.send({
-													status: 200,
-													message: 'The monthly goal has been created.',
-													stage: updateedstage.stage
-												});
-											}
+										userSerObject.updateUserStage(6, parter_id, function(er, updateedpartnerstage){
+											userSerObject.updateUserStage(6, user_id, function(er, updateedstage){
+												if(updateedstage) {
+													res.send({
+														status: 200,
+														message: 'The monthly goal has been created.',
+														stage: updateedstage.stage,
+														fcmid: updateedpartnerstage.fcmid
+													});
+												}
+											})
 										})
 									}
 								});
