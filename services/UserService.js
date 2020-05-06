@@ -8,6 +8,7 @@
 const userObject = require('../models/user');
 const unavailabilityObject = require('../models/unavailabilities');
 const partnerMappingObject   = require('../models/partner_mappings');
+const monthlyGoalObject  = require('../models/monthly_goals');
 const dbObj      = require('../config/database');
 const config     = require('../config/config');
 const bcrypt     = require('bcryptjs');
@@ -215,7 +216,7 @@ class UserService
 			partner_id = partnerResponse[0].partner_one_id;
 		}
 		const response  = await userObject.findOne({ where: { id: partner_id } });
-		callback(null, response);
+		callback(null, response, partnerResponse[0].id);
 	}
 	
 	// send forgot password email
@@ -361,14 +362,42 @@ class UserService
 
 	// Remove Parring
 	async RemoveParring(userId, callback) {
-		userSerObject.destory({
-			where: { id: userId }
-		  }).then(res => {
-			  console.log('hello', res)
-		  }).catch(err => {
-			  console.log('error', err)
-		  })
+		const unparing = await partnerMappingObject.destroy({ where: { 
+			[Op.or]: [
+			  {
+				partner_one_id: {
+					[Op.eq]: userId
+				}
+			  },
+			  {
+				partner_two_id: {
+					[Op.eq]: userId
+				}
+			  }
+			]
+		}});
+		callback(null, unparing)
 	}
+
+	async RemoveMonthlyGoal(userID, patner_id, callback) {
+		const unparing = await monthlyGoalObject.destroy({ where: { 
+			[Op.or]: [
+			  {
+				user_id: {
+					[Op.eq]: userID
+				}
+			  },
+			  {
+				user_id: {
+					[Op.eq]: patner_id
+				}
+			  }
+			]
+		}});
+		callback(null, unparing)
+	}
+
+	async RemoveAccount(userId, callback) {}
 }
 
 module.exports = UserService;

@@ -108,6 +108,25 @@ class GoalService
 			}});
 		callback(null, partnerResponse);
 	}
+	async checkParternstage(id, callback) {
+		const partnerResponse = await partnerMappingObject.findOne({ where: { 
+			    [Op.or]: [
+				  {
+					partner_one_id: {
+						[Op.eq]: id
+					}
+				  }
+				],
+				[Op.and]: [
+					{
+					  status: {
+						  [Op.eq]: 1
+					  }
+					},
+				]	
+			}});
+		callback(null, partnerResponse);
+	}
 
 	// get partner data by id
 	async getPartnerData(id, callback) {

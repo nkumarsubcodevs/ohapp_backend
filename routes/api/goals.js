@@ -555,7 +555,7 @@ router.post('/createmonthlygoal', verifyToken, function(req, res) {
 	// }
 
 	// Check goal exists or not
-	goalSerObject.getPartnerById(user_id, function(err, partnerMappingData) 
+	goalSerObject.checkParternstage(user_id, function(err, partnerMappingData) 
 	{
 		if(err)
 		{
@@ -587,12 +587,12 @@ router.post('/createmonthlygoal', verifyToken, function(req, res) {
 							{
 								user_checker++;
 							}
-			
+
 							if(partnerMappingData.partner_two_id==user_id) 
 							{
 								user_checker++;
 							}
-			
+
 							if(user_checker==0)
 							{
 								res.send({
@@ -646,11 +646,15 @@ router.post('/createmonthlygoal', verifyToken, function(req, res) {
 									else
 									{
 										userSerObject.updateUserStage(6, parter_id, function(er, updateedstage){})
-										userSerObject.updateUserStage(6, parter_id, function(er, updateedstage){})
-										res.send({
-											status: 200,
-											message: 'The monthly goal has been created.',
-										});
+										userSerObject.updateUserStage(6, user_id, function(er, updateedstage){
+											if(updateedstage) {
+												res.send({
+													status: 200,
+													message: 'The monthly goal has been created.',
+													stage: updateedstage.stage
+												});
+											}
+										})
 									}
 								});
 							}

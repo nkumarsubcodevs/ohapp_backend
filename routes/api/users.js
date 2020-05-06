@@ -6,6 +6,8 @@
 
 const express = require('express');
 const userService = require('../../services/UserService');
+const goalService = require('../../services/GoalService');
+
 const formValidator = require('validator');
 const path = require('path');
 const customHelper = require('../../helpers/custom_helper');
@@ -61,6 +63,9 @@ let router =  express.Router();
 
 // Create user model object
 var userSerObject = new userService();
+
+// Create goal model object
+var goalObject = new goalService();
 
 // Get user detail
 router.get('/getuserdetail/:user_id', verifyToken, function(req, res, next) {
@@ -157,7 +162,7 @@ router.get('/getpartnerdetail', verifyToken, function(req, res, next) {
 		{
 			if(userData)
 			{
-				userSerObject.getPartnerById(user_id, function(err, partnerData)
+				userSerObject.getPartnerById(user_id, function(err, partnerData, patner_mapping_id)
 				{
 					if(err)
 					{
@@ -185,6 +190,7 @@ router.get('/getpartnerdetail', verifyToken, function(req, res, next) {
 								res.send({
 									status: 200,
 									result: partnerDetail,
+									patner_mapping_id: patner_mapping_id
 								});
 							} else {
 								res.send({
@@ -585,22 +591,49 @@ router.post('/login', function(req, res) {
 									var access_token = jwt.sign({ id: user.id }, config.secret, {
 										expiresIn: 900
 									});
-			
+
 									var refresh_token = jwt.sign({ id: user.id }, config.refreshsecret, { 
 										expiresIn: 86400 
 									});
-									
 									res.cookie("access_token", access_token, { httpOnly: true });
 									res.cookie("refresh_token", refresh_token, { httpOnly: true });
-			
-									res.send({
-										status: 200,
-										message: 'success',
-										access_token: access_token,
-										refresh_token: refresh_token,
-										user_id: user.id,
-										stage: user.stage
-									});
+
+									if(user.stage > 3) {
+										goalObject.checkParternstage(user.id, function(err, partnerData)
+										{
+											if(err)
+											{
+												res.send({
+													status: 500,
+													message: 'There was a problem finding the partner user.',
+												});
+											}
+											else
+											{
+												if(partnerData)
+												{
+													res.send({
+														status: 200,
+														message: 'success',
+														access_token: access_token,
+														refresh_token: refresh_token,
+														user_id: user.id,
+														stage: user.stage,
+														patner_mapping_id: partnerData.id
+													});
+												}
+											}
+										});
+									} else {
+										res.send({
+											status: 200,
+											message: 'success',
+											access_token: access_token,
+											refresh_token: refresh_token,
+											user_id: user.id,
+											stage: user.stage
+										});
+									}
 								}
 								else
 								{
@@ -1192,7 +1225,6 @@ router.post('/profileimageupload', verifyToken, (req, res, next) => {
 
 router.delete('/unparring', verifyToken, function(req, res) {
 	let user_id  = jwt.decode(req.headers['x-access-token']).id;
-
 	if(!user_id)
 	{
 		return res.send({
@@ -1208,8 +1240,88 @@ router.delete('/unparring', verifyToken, function(req, res) {
 			message: 'Please enter a valid user id.',
 		});
 	}
-	userSerObject.RemoveParring(user_id, function(err, response) {
-		console.log(response)
-	});
+	userSerObject.getUserById(user_id, function(err, GetuserDetail) {
+		if(err) {
+			res.send({
+				status:400,
+				message: "Users is not found.",
+				stage:1
+			})
+		}
+		if(GetuserDetail.stage < 4) {
+			res.send({
+				status:400,
+				message: "Paring is not avalibale",
+				stage:1
+			})
+		} else {
+			userSerObject.getPartnerById(user_id, function(err, partnerData, patner_mapping_id)
+			{
+				if(err)
+				{
+					res.send({
+						status: 500,
+						message: 'There was a problem finding the partner user.',
+					});
+				}
+				else
+				{	if(partnerData) {
+					userSerObject.RemoveParring(user_id, function(err, response) {
+						if(response) {
+							userSerObject.RemoveMonthlyGoal(user_id, partnerData.id,function(err, removeableData) {
+								if(removeableData) {
+									userSerObject.updateUserStage(1, partnerData.id, function(err, updatedStage){})
+									userSerObject.updateUserStage(1, user_id, function(err, updatedStage){
+										res.send({
+											status:200,
+											message: "Paring Remove Sucessfully!",
+											stage: updatedStage.stage
+										})
+									})
+								}
+							})
+						}
+						if(err) {
+							console.log('hello')
+						}
+					});
+				}
+				}
+			});
+		}
+	})
+})
+
+router.delete('/removeAccount', verifyToken, function(req, res) {
+	let user_id  = jwt.decode(req.headers['x-access-token']).id;
+	if(!user_id)
+	{
+		return res.send({
+			status: 400,
+			message: 'User Id is required.',
+		});
+	}
+
+	if(!formValidator.isInt(user_id))
+	{
+		return res.send({
+			status: 400,
+			message: 'Please enter a valid user id.',
+		});
+	}
+	userSerObject.RemoveAccount(user_id, function(err, removeAccountData) {
+		if(err) {
+			res.send({
+				status: 400,
+				message: 'User Account is not avaliable'
+			})
+		}
+		if(removeAccountData) {
+			res.send({
+				status: 200,
+				message: 'User Account remove sucessfully'
+			})
+		}
+	})
 })
 module.exports = router;
