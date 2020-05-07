@@ -184,7 +184,7 @@ router.get('/getpartnerdetail', verifyToken, function(req, res, next) {
 								'gender': partnerData.gender,
 								'image_profile': partnerData.image_profile,
 								'status': partnerData.status,
-								'stage': partnerData.stage
+								'stage': partnerData.stage,
 							};
 							if(partnerData.stage >= 4) {
 								res.send({
@@ -612,6 +612,7 @@ router.post('/login', function(req, res) {
 											{
 												if(partnerData)
 												{
+													user.profile_image = user.profile_image ? `http://159.65.13.12:5000/profile_images/`+ user.profile_image: null
 													res.send({
 														status: 200,
 														message: 'success',
@@ -619,6 +620,7 @@ router.post('/login', function(req, res) {
 														refresh_token: refresh_token,
 														user_id: user.id,
 														stage: user.stage,
+														result: user,
 														patner_mapping_id: partnerData.id
 													});
 												}
@@ -1324,4 +1326,99 @@ router.delete('/removeAccount', verifyToken, function(req, res) {
 		}
 	})
 })
+
+router.get('/getProfile', verifyToken, function(req,res) {
+	let user_id  = jwt.decode(req.headers['x-access-token']).id;
+	if(!user_id) {
+		return res.send({
+			status: 400,
+			message: 'User id is required.',
+		});
+	}
+	userSerObject.getUserById(user_id, function(err, profileData) {
+		if(err) {
+			res.send({
+				status: 400,
+				message: "User does not found"
+			})
+		}
+		if(profileData) {
+			let profiles = {
+				id: profileData.id,
+				first_name: profileData.first_name,
+				last_name: profileData.last_name,
+				gender: profileData.gender,
+				email: profileData.email,
+				profile_image: profileData.profile_image ? `http://159.65.13.12:5000/profile_images/`+ profileData.profile_image: null,
+				notification_mute_status: profileData.notification_mute_status,
+				notification_mute_end: profileData.notification_mute_end,
+				stage: profileData.stage,
+				fcmid: profileData.fcmid,
+				unique_code: profileData.unique_code,
+			}
+			res.send({
+				status:200,
+				result: profiles
+			})
+		}
+	})
+})
+
+router.get('/dashboard', verifyToken, function(req, res) {
+	let user_id  = jwt.decode(req.headers['x-access-token']).id;
+	if(!user_id) {
+		return res.send({
+			status: 400,
+			message: 'User id is required.',
+		});
+	}
+	goalObject.getGoalByUserId(user_id, function(err, GoalData) {
+		if(err) {
+			res.send({
+				status:400,
+				message: "Goal is not found"
+			})
+		}
+		if(GoalData) {
+			console.log(GoalData)
+			userSerObject.getUserById(user_id, function(err, userdata) {
+				if(err) {
+					res.send({
+						status:400,
+						message: "User is not found."
+					})
+				}
+				if(userdata) {
+					userSerObject.getPartnerById(user_id, function(err, patnerData) {
+						if(patnerData) {
+							let dashboard = {
+								connect_number: GoalData[0].connect_number,
+								initiator_count1: GoalData[0].initiator_count,
+								initiator_count2: GoalData[0].initiator_count1,
+								complete_count: GoalData[0].complete_count,
+								patner1_first_name:userdata.first_name,
+								patner1_last_name:userdata.last_name,
+								patner1_gender: userdata.gender,
+								patner2_first_name:patnerData.first_name,
+								patner2_last_name:patnerData.last_name,
+								patner2_gender: patnerData.gender
+							}
+							res.send({
+								status:200,
+								result:dashboard
+							})
+						}
+						if(err) {
+							res.send({
+								status:400,
+								messgae: "patner is not found"
+							})
+						}
+					})
+				}
+			})
+		}
+	})
+})
 module.exports = router;
+

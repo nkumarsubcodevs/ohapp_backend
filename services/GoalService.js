@@ -35,6 +35,11 @@ class GoalService
 		callback(null, response);
 	}
 
+	async getGoalByUserId(user_id, callback) {
+		const response = await monthlyGoalObject.findAll({ where: { user_id: user_id, status: 1 } });
+		callback(null, response);
+	}
+
 	// get user combination
 	async checkParterLink(partnerData, callback) {
 		const response = await partnerMappingObject.findOne({ where: { partner_one_id: partnerData.partner_one_id, partner_two_id: partnerData.partner_two_id  } });
@@ -167,7 +172,7 @@ class GoalService
 				month_start        : monthlyGoalData.month_start,
 				month_end          : monthlyGoalData.month_end,
 				connect_number     : monthlyGoalData.connect_number,
-				initiator_count    : monthlyGoalData.partner_initiator_count,
+				initiator_count    : monthlyGoalData.initiator_count,
 				initiator_count1   : monthlyGoalData.initiator_count1,
 				intimate_time      : monthlyGoalData.intimate_time,
 				intimate_request_time : monthlyGoalData.intimate_request_time,

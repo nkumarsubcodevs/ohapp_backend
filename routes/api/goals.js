@@ -615,7 +615,7 @@ router.post('/createmonthlygoal', verifyToken, function(req, res) {
 								}
 								// var initiator_count = customHelper.h_getNumberOfTimesPercentage(connect_number, percentage);
 								// var partner_percentage = 100 - percentage;
-								var partner_initiator_count = connect_number - initiator_count;
+								// var partner_initiator_count = connect_number - initiator_count;
 								let monthlyGoalData = {
 									'partner_mapping_id': partnerMappingData.id,
 									'user_id': user_id,
@@ -631,7 +631,7 @@ router.post('/createmonthlygoal', verifyToken, function(req, res) {
 									'intimate_account_time': intimate_account_time,
 									'partner_id': parter_id,
 									// 'partner_percentage': partner_percentage,
-									// 'partner_initiator_count': partner_initiator_count,
+									'partner_initiator_count': initiator_count,
 								};
 								goalSerObject.createMonthlyGoal(monthlyGoalData, function(err, monthlyGoalDataSaved)
 								{
@@ -645,8 +645,8 @@ router.post('/createmonthlygoal', verifyToken, function(req, res) {
 									}
 									else
 									{
-										userSerObject.updateUserStage(6, parter_id, function(er, updateedpartnerstage){
-											userSerObject.updateUserStage(6, user_id, function(er, updateedstage){
+										userSerObject.updateUserStage(6, parter_id, function(err, updateedpartnerstage){
+											userSerObject.updateUserStage(6, user_id, function(err, updateedstage){
 												if(updateedstage) {
 													res.send({
 														status: 200,
@@ -961,5 +961,6 @@ router.get('/getmonthlygoalhistory/:user_id', verifyToken, function(req, res, ne
 		}
 	});
 });
+
 
 module.exports = router;
