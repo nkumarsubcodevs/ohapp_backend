@@ -10,7 +10,15 @@ const database  = require('../config/database');
 
 const GoalSetting = database.define('goal_settings',
 {
-    question: {
+    question_descripation: {
+		type: Sequelize.STRING(500),
+		allowNull: false,
+	},
+	question_title: {
+		type: Sequelize.STRING(500),
+		allowNull: false,
+	},
+	iscustom: {
 		type: Sequelize.STRING(500),
 		allowNull: false,
 	},

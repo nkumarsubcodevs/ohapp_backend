@@ -9,6 +9,7 @@ const goalSettingsObject = require('../models/goal_settings');
 const goalSettingAnswerObject  = require('../models/goal_setting_answers');
 const partnerMappingObject   = require('../models/partner_mappings');
 const monthlyGoalObject  = require('../models/monthly_goals');
+const questionOptionsObject  = require('../models/question_options');
 const userObject  = require('../models/user');
 const current_datetime = require('date-and-time');
 
@@ -52,15 +53,39 @@ class GoalService
 		callback(null, response);
 	}
 
+	// Get setting question by patner mapping id
+	async getGoalSettingByPatnerMappingId(id, callback) {
+		const response = await goalSettingAnswerObject.findOne({ where: { patner_mapping_id: id } });
+		callback(null, response);
+	}
+
+	// update setting answer quetion
+	async updatesetting(updatedData, callback) {
+		const now = new Date();
+		await goalSettingAnswerObject.update({
+			goal_id: updatedData.goal_id,
+			question_id: updatedData.question_id,
+			answer: updatedData.answer,
+			user_id: updatedData.user_id,
+			patner_mapping_id: updatedData.patner_mapping_id,
+			status: 1,
+			update_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss')
+		},
+		{ where: { id: updatedData.id }})
+		const response = await goalSettingAnswerObject.findOne({ where: { patner_mapping_id:  updatedData.patner_mapping_id } });
+		callback(null, response);
+	}
 	// Save Goal Setting
 	async saveSettings(goalSettingData, callback){
 
 		const now = new Date();
-		
+		console.log(goalSettingData)
 		let settingData = new goalSettingAnswerObject({
 			goal_id: goalSettingData.goal_id,
 			question_id: goalSettingData.question_id,
 			answer: goalSettingData.answer,
+			user_id: goalSettingData.user_id,
+			patner_mapping_id: goalSettingData.patner_mapping_id,
 			status: 1,
 			create_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss'),
 			update_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss')
@@ -172,8 +197,8 @@ class GoalService
 				month_start        : monthlyGoalData.month_start,
 				month_end          : monthlyGoalData.month_end,
 				connect_number     : monthlyGoalData.connect_number,
-				initiator_count    : monthlyGoalData.initiator_count,
-				initiator_count1   : monthlyGoalData.initiator_count1,
+				initiator_count    : monthlyGoalData.initiator_count1,
+				initiator_count1   : monthlyGoalData.initiator_count,
 				intimate_time      : monthlyGoalData.intimate_time,
 				intimate_request_time : monthlyGoalData.intimate_request_time,
 				intimate_account_time : monthlyGoalData.intimate_account_time,
@@ -296,6 +321,40 @@ class GoalService
 		callback(null, goal_history);		
 		
 	}
+
+	// Set Question Options
+	async setQuestionOptions(title, callback) {
+		const now = new Date();
+		let Questiona_option = new questionOptionsObject({
+			title: title,
+			status: 1,
+			create_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss'),
+			update_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss')
+		});
+		callback(null,await Questiona_option.save())
+	}
+
+	// Get Question option
+	async GetQuestionOption(callback) {
+		const GetOption = await questionOptionsObject.findAll();
+		callback(null,GetOption);
+	}
+
+	// Save Questionaries from Admin panel
+	async saveQuestionaries(questionData, callback) {
+		const now = new Date();
+		let Questiona = new goalSettingsObject({
+			question_descripation: questionData.question_descripation,
+			question_title:questionData.question_title,
+			iscustom:questionData.iscustom ? questionData.iscustom : false,
+			status: 1,
+			create_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss'),
+			update_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss')
+		});
+		const data = await Questiona.save();
+		callback(null,data)
+	}
+
 }
 
 module.exports = GoalService;

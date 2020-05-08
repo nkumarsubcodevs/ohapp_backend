@@ -18,6 +18,14 @@ const GoalSettingAnswer = database.define('goal_setting_answers',
 		type: Sequelize.BIGINT,
 		allowNull: false,
 	},
+	user_id: {
+		type: Sequelize.BIGINT,
+		allowNull: false,
+	},
+	patner_mapping_id: {
+		type: Sequelize.BIGINT,
+		allowNull: false,
+	},
     answer: {
 		type: Sequelize.TEXT,
 		allowNull: false,

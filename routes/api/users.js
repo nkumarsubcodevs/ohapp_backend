@@ -612,7 +612,7 @@ router.post('/login', function(req, res) {
 											{
 												if(partnerData)
 												{
-													user.profile_image = user.profile_image ? `http://159.65.13.12:5000/profile_images/`+ user.profile_image: null
+													user.profile_image = user.profile_image ? `${config.site_url}profile_images/${user.profile_image}`: null
 													res.send({
 														status: 200,
 														message: 'success',
@@ -633,7 +633,8 @@ router.post('/login', function(req, res) {
 											access_token: access_token,
 											refresh_token: refresh_token,
 											user_id: user.id,
-											stage: user.stage
+											stage: user.stage,
+											result:user
 										});
 									}
 								}
@@ -643,7 +644,7 @@ router.post('/login', function(req, res) {
 										status: 404,
 										message: 'There was a problem in update user fcid.',
 									});
-								}	
+								}
 							}
 						});
 					}
@@ -1349,7 +1350,7 @@ router.get('/getProfile', verifyToken, function(req,res) {
 				last_name: profileData.last_name,
 				gender: profileData.gender,
 				email: profileData.email,
-				profile_image: profileData.profile_image ? `http://159.65.13.12:5000/profile_images/`+ profileData.profile_image: null,
+				profile_image: profileData.profile_image ? `${config.site_url}profile_images/${profileData.profile_image}` : null,
 				notification_mute_status: profileData.notification_mute_status,
 				notification_mute_end: profileData.notification_mute_end,
 				stage: profileData.stage,
@@ -1396,12 +1397,15 @@ router.get('/dashboard', verifyToken, function(req, res) {
 								initiator_count1: GoalData[0].initiator_count,
 								initiator_count2: GoalData[0].initiator_count1,
 								complete_count: GoalData[0].complete_count,
+								patner1_user_id: userdata.id,
 								patner1_first_name:userdata.first_name,
 								patner1_last_name:userdata.last_name,
 								patner1_gender: userdata.gender,
+								patner2_user_id: patnerData.id,
 								patner2_first_name:patnerData.first_name,
 								patner2_last_name:patnerData.last_name,
 								patner2_gender: patnerData.gender
+
 							}
 							res.send({
 								status:200,

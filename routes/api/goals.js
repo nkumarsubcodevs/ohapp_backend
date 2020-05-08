@@ -58,25 +58,9 @@ router.get('/getgoalsettings', verifyToken, function(req, res, next) {
 // Save user setting detail
 router.post('/savegoalsettings', verifyToken, function(req, res) {
 
-	let goal_id     = req.body.goal_id;
 	let question_id = req.body.question_id;
 	let answer      = req.body.answer;
-
-	if(!goal_id) 
-	{
-		return res.send({
-			status: 400,
-			message: 'Goal Id is required.',
-		});
-	}
-
-	if(!formValidator.isInt(goal_id))   
-	{
-		return res.send({
-			status: 400,
-			message: 'Please enter a valid goal id.',
-		});
-	}
+	let user_id     = jwt.decode(req.headers['x-access-token']).id
 
 	if(!question_id) 
 	{
@@ -101,9 +85,19 @@ router.post('/savegoalsettings', verifyToken, function(req, res) {
 			message: 'Answer is required',
 		});
 	}
-
-	// Check goal exists or not
-	goalSerObject.getGoalById(goal_id, function(err, goalGetData) 
+	goalSerObject.getGoalByUserId(user_id, function(err, GetGoaldata) {
+		if(err) {
+			res.send({
+				status: 500,
+				messgae: 'something went wrong'
+			})
+		}
+		if(GetGoaldata) {
+			
+		}
+	})
+	//Check goal exists or not
+	goalSerObject.getGoalByUserId(user_id, function(err, goalGetData) 
 	{
 		if(err)
 		{
@@ -130,13 +124,7 @@ router.post('/savegoalsettings', verifyToken, function(req, res) {
 					{
 						if(goalQuestionData) 
 						{
-							let goalSettingData = {
-								'goal_id': goal_id,
-								'question_id': question_id,
-								'answer': answer
-							};
-
-							goalSerObject.saveSettings(goalSettingData, function(err, goalSettingDataSaved)
+							goalSerObject.getGoalSettingByPatnerMappingId(goalGetData[0].partner_mapping_id, function(err, goalQuestionAnswerData) 
 							{
 								if(err)
 								{
@@ -147,10 +135,60 @@ router.post('/savegoalsettings', verifyToken, function(req, res) {
 								}
 								else
 								{
-									res.send({
-										status: 200,
-										message: 'Settings Saved',
-									});
+									if(goalQuestionAnswerData) 
+									{
+										let goalSettingData = {
+											'goal_id': goalGetData[0].id,
+											'question_id': question_id,
+											'answer': answer,
+											'patner_mapping_id': goalGetData[0].partner_mapping_id,
+											'user_id': user_id,
+											'id': goalQuestionAnswerData.id
+										};
+										goalSerObject.updatesetting(goalSettingData, function(err, goalSettingDataupdated)
+										{
+											if(err)
+											{
+												res.send({
+													status: 500,
+													message: 'something went wrong',
+												});
+											}
+											else
+											{
+												res.send({
+													status: 200,
+													message: 'update Saved',
+													result: goalSettingDataupdated
+												});
+											}
+										});
+									} else {
+										let goalSettingData = {
+											'goal_id': goalGetData[0].id,
+											'question_id': question_id,
+											'answer': answer,
+											'patner_mapping_id': goalGetData[0].partner_mapping_id,
+											'user_id': user_id
+										};
+										goalSerObject.saveSettings(goalSettingData, function(err, goalSettingDataSaved)
+										{
+											if(err)
+											{
+												res.send({
+													status: 500,
+													message: 'something went wrong',
+												});
+											}
+											else
+											{
+												res.send({
+													status: 200,
+													message: 'Settings Saved',
+												});
+											}
+										});
+									}
 								}
 							});
 						}
@@ -646,16 +684,22 @@ router.post('/createmonthlygoal', verifyToken, function(req, res) {
 									else
 									{
 										userSerObject.updateUserStage(6, parter_id, function(err, updateedpartnerstage){
-											userSerObject.updateUserStage(6, user_id, function(err, updateedstage){
-												if(updateedstage) {
-													res.send({
-														status: 200,
-														message: 'The monthly goal has been created.',
-														stage: updateedstage.stage,
-														fcmid: updateedpartnerstage.fcmid
-													});
-												}
-											})
+											if(updateedpartnerstage) {
+												userSerObject.updateUserStage(6, user_id, function(err, updateedstage){
+													if(updateedstage) {
+														res.send({
+															status: 200,
+															message: 'The monthly goal has been created.',
+															stage: updateedstage.stage,
+															fcmid: updateedpartnerstage.fcmid,
+															Patner1_first_name: updateedstage.first_name,
+															Patner1_last_name: updateedstage.last_name,
+															Patner2_first_name:updateedpartnerstage.first_name,
+															Patner2_last_name:updateedpartnerstage.last_name
+														});
+													}
+												})
+											}
 										})
 									}
 								});
@@ -714,6 +758,11 @@ router.post('/CheckingStage', verifyToken, function(req, res) {
 										status: 200,
 										message: 'Sucessfully enter goal page',
 										stage: updatestageData.stage
+									})
+								} else {
+									res.send({
+										status: 400,
+										message: 'Something Went wrong',
 									})
 								}
 							})
@@ -962,5 +1011,80 @@ router.get('/getmonthlygoalhistory/:user_id', verifyToken, function(req, res, ne
 	});
 });
 
+// Add Questionalries option from admin panel
+router.post('/saveOptions', verifyToken, function(req, res) {
+	let title = req.body.title;
+	goalSerObject.setQuestionOptions(title, function(err, Options) {
+		if(Options) {
+			res.send({
+				status: 200,
+				message: "Options save successfully",
+				result: Options
+			})
+		}
+		if(err) {
+			res.send({
+				status: 400,
+				messgae: "Something went wrong!"
+			})
+		}
+	})
+})
+
+// Get Questionaries option
+router.get('/getOption', verifyToken, function(req, res) {
+	goalSerObject.GetQuestionOption(function(err, GetOptions) {
+		if(GetOptions) {
+			res.send({
+				status: 200,
+				result: GetOptions
+			})
+		}
+		if(err) {
+			res.send({
+				status: 400,
+				messgae: "Something went wrong!"
+			})
+		}
+	})
+})
+
+router.post('/saveQuestionaries', verifyToken, function(req, res) {
+	let question_title = req.body.question_title;
+	let question_descripation = req.body.question_descripation;
+	let iscustom = req.body.iscustom;
+	if(!question_title) {
+		res.send({
+			status: 400,
+			message: "Question Title is required"
+		})
+	}
+	if(!question_descripation) {
+		res.send({
+			status: 400,
+			message: "Quetion descripation is required"
+		})
+	}
+	let questions = {
+		question_title: question_title,
+		question_descripation: question_descripation,
+		iscustom: iscustom
+	}
+	goalSerObject.saveQuestionaries(questions, function(err, response) {
+		if(err) {
+			res.send({
+				status: 400,
+				messgae: "Something went Wrong!"
+			})
+		}
+		if(response) {
+			res.send({
+				status:200,
+				message: "Question save successfully",
+				result: response
+			})
+		}
+	})
+})
 
 module.exports = router;
