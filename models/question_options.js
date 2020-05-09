@@ -13,6 +13,10 @@ const question_options = database.define('Options',
 		type: Sequelize.STRING(250),
 		allowNull: false,
 	},
+	question_id: {
+		type: Sequelize.BIGINT,
+		allowNull: false,
+	},
 	create_time: {
 		type: Sequelize.DATE,
 		allowNull: false,

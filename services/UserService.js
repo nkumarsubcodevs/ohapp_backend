@@ -320,8 +320,10 @@ class UserService
 	// Update stage value
 	async updateUserStage(stage, id, callback){
 		await userObject.update({ stage: stage }, { where: { id: id}});
-		const response = await userObject.findOne({ where: { id: id } });
-		callback(null, response);
+		setTimeout(async () => {
+			const response = await userObject.findOne({ where: { id: id } });
+			callback(null, response);
+		}, 1000)
 	}
 
 	// add unavailability
