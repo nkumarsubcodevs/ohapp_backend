@@ -12,15 +12,20 @@ const monthlyGoalObject  = require('../models/monthly_goals');
 const questionOptionsObject  = require('../models/question_options');
 const userObject  = require('../models/user');
 const current_datetime = require('date-and-time');
-
+const db = require('../config/database');
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op
-
+goalSettingsObject.belongsTo
 class GoalService
 {
 	// get goal setting
 	async getGoalSettings(callback){
-		const goal_settings = await goalSettingsObject.findAll();
+		goalSettingsObject.hasMany(questionOptionsObject, {foreignKey: 'question_id'});
+		const goal_settings = await goalSettingsObject.findAll({
+			include: [{
+				model: questionOptionsObject
+			}]
+		});
 		callback(null,goal_settings);
 	}
 
@@ -54,8 +59,8 @@ class GoalService
 	}
 
 	// Get setting question by patner mapping id
-	async getGoalSettingByPatnerMappingId(id, callback) {
-		const response = await goalSettingAnswerObject.findOne({ where: { patner_mapping_id: id } });
+	async getGoalSettingByPatnerMappingId(id, question_id, callback) {
+		const response = await goalSettingAnswerObject.findOne({ where: { patner_mapping_id: id, question_id: question_id } });
 		callback(null, response);
 	}
 
@@ -68,6 +73,7 @@ class GoalService
 			answer: updatedData.answer,
 			user_id: updatedData.user_id,
 			patner_mapping_id: updatedData.patner_mapping_id,
+			custom_answer: updatedData.custom_answer,
 			status: 1,
 			update_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss')
 		},
@@ -79,13 +85,13 @@ class GoalService
 	async saveSettings(goalSettingData, callback){
 
 		const now = new Date();
-		console.log(goalSettingData)
 		let settingData = new goalSettingAnswerObject({
 			goal_id: goalSettingData.goal_id,
 			question_id: goalSettingData.question_id,
 			answer: goalSettingData.answer,
 			user_id: goalSettingData.user_id,
 			patner_mapping_id: goalSettingData.patner_mapping_id,
+			custom_answer: goalSettingData.custom_answer,
 			status: 1,
 			create_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss'),
 			update_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss')
@@ -138,6 +144,8 @@ class GoalService
 			}});
 		callback(null, partnerResponse);
 	}
+
+	// Check for patner stage
 	async checkParternstage(id, callback) {
 		const partnerResponse = await partnerMappingObject.findOne({ where: { 
 			    [Op.or]: [
@@ -323,11 +331,12 @@ class GoalService
 	}
 
 	// Set Question Options
-	async setQuestionOptions(title, callback) {
+	async setQuestionOptions(title, question_id, callback) {
 		const now = new Date();
 		let Questiona_option = new questionOptionsObject({
 			title: title,
 			status: 1,
+			question_id: question_id,
 			create_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss'),
 			update_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss')
 		});

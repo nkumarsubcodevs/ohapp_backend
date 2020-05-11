@@ -23,6 +23,8 @@ module.exports = {
   'port_no': '5000',
   'chat_port_no': '8089',
 
+  'firebase_server_key': "AAAANoLOdrc:APA91bEyYqIWV8aMAzw3s6hDijw0rW3FZMUxjW_mn1x9rGx2JptwqhwXpWKxrFUI9W3SH3DqdNbZNMlvKtYrHwVXBNk8b6NfdZLE78KI7dYIKogISqf-3btDCaAoL_3JERMkNIMvFrVP",
+
   'forgot_password_template': '/var/www/html/oh_app/email_templates/forgot_password.html',
   'signup_template': '/var/www/html/oh_app/email_templates/signup.html',
 }; 

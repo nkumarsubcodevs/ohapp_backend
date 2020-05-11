@@ -30,6 +30,10 @@ const GoalSettingAnswer = database.define('goal_setting_answers',
 		type: Sequelize.TEXT,
 		allowNull: false,
 	},
+	custom_answer: {
+		type: Sequelize.TEXT,
+		allowNull:true
+	},
 	status: {
 		type: Sequelize.INTEGER,
 		allowNull: false,
