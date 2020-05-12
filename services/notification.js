@@ -8,13 +8,33 @@
 var FCM = require('fcm-node');
 // Get API secret
 const config = require('../config/config');
+const GoalNotification = require('../models/goal_notification');
+const current_datetime = require('date-and-time');
 
 var fcm = new FCM(config.firebase_server_key);
 class NotificationService
 {
-	async notification(userid, callback) {
+
+	async saveNotification(data, callback) {
+		const now = new Date();
+
+		let response = new GoalNotification({
+			goal_id:data.goal_id,
+			user_id:data.user_id,
+			device_id: data.device_id,
+			status:1,
+			stage:1,
+			notification_id:data.notification_id,
+			create_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss'),
+			update_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss')
+		})
+		callback(null, await response.save())
+	}
+
+	async notification(notificationData, callback) {
+		let re = notificationData
 		var message = { //this may vary according to the message type (single recipient, multicast, topic, et cetera)
-			to: userid, 
+			to: re, 
 			notification: {
 				title: 'Dating reminder', 
 				body: 'Do you want to set plan of dating for tonight' 
@@ -28,9 +48,19 @@ class NotificationService
 			if (err) {
 				console.log("Something has gone wrong!", err);
 			} else {
-				console.log("Successfully sent with response: ", response);
+				callback(null, JSON.parse(response));
 			}
 		});
+	}
+
+	async updateNotification(id, answer, callback) {
+		const now = new Date();
+		callback(null, GoalNotification.update({answer:  answer, update_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss') }, { where: { notification_id: id }}) );
+	}
+
+	async getNotification(id, callback) {
+		let response = await GoalNotification.findOne({where: { user_id: id, status: 1}});
+		callback(null, response)
 	}
 }
 

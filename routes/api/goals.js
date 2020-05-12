@@ -720,8 +720,43 @@ router.post('/createmonthlygoal', verifyToken, function(req, res) {
 											}
 											if(GetpatnerData) {
 												userSerObject.updateUserStage(6, user_id, function(err, updateedstage){
-													cron.schedule('*,*,4,5 * * * *', () => {
-														notificationObject.notification(updateedstage.fcmid, function(err, response) {})
+													const [time, modifier] = monthlyGoalDataSaved[0].intimate_request_time.split(' ');
+													let [hours, minutes] = time.split(':');
+													if (hours === '12') {
+													  hours = '00';
+													}
+													if (modifier === 'PM') {
+													  hours = parseInt(hours, 10) + 12;
+													}
+													var date = new Date();
+													var month = date.getMonth() + 1;
+                									var year = date.getFullYear();
+													let day = new Date(year, month, 0).getDate() / monthlyGoalDataSaved[0].connect_number
+													cron.schedule(`*,${parseInt(minutes)},${hours},${day} * * * *`, () => {
+														// cron.schedule(`*,1,2,4 * * * *`, () => {
+															let notification2 = {
+																user1_id: GetpatnerData.id,
+																goal_id: monthlyGoalDataSaved[0].id,
+																user1_device_id: GetpatnerData.fcmid,
+															}
+															notificationObject.notification(updateedstage.fcmid, function(err, response) {
+																let notification1 = {
+																	user_id: updateedstage.id,
+																	goal_id: monthlyGoalDataSaved[0].id,
+																	device_id: updateedstage.fcmid,
+																	notification_id: response.results[0].message_id,
+																}
+																notificationObject.saveNotification(notification1, function(err, response) {})
+															})
+															notificationObject.notification(GetpatnerData.fcmid, function(err, response) {
+																let notification1 = {
+																	user_id: GetpatnerData.id,
+																	goal_id: monthlyGoalDataSaved[0].id,
+																	device_id: updateedstage.fcmid,
+																	notification_id: response.results[0].message_id,
+																}
+																notificationObject.saveNotification(notification1, function(err, response) {})
+															})
 													  });
 													if(updateedstage) {
 														res.send({

@@ -15,7 +15,7 @@ const current_datetime = require('date-and-time');
 const db = require('../config/database');
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op
-goalSettingsObject.belongsTo
+
 class GoalService
 {
 	// get goal setting
@@ -178,7 +178,7 @@ class GoalService
 		const now = new Date();
 		const random_number = now.getTime()+Math.floor(Math.random() * 1000);
 
-		callback(null, monthlyGoalObject.bulkCreate([
+		callback(null, await monthlyGoalObject.bulkCreate([
 			{
 				partner_mapping_id : monthlyGoalData.partner_mapping_id,
 				user_id            : monthlyGoalData.user_id,
