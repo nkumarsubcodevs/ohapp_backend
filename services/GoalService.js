@@ -29,6 +29,23 @@ class GoalService
 		callback(null,goal_settings);
 	}
 
+	// Get Goal Setting Answer
+	async getGoalSettingsAnswer(user_id,goal_id, callback){
+		goalSettingsObject.hasMany(questionOptionsObject, {foreignKey: 'question_id'});
+		goalSettingAnswerObject.belongsTo(goalSettingsObject, {foreignKey: 'question_id'});
+		const goal_settings = await goalSettingAnswerObject.findAll({
+			include: [{
+					model: goalSettingsObject,
+					include:[{
+						model: questionOptionsObject
+					}]
+				}
+			],
+			where: {user_id: user_id, goal_id: goal_id}
+		});
+		callback(null,goal_settings);
+	}
+
 	// get goal by id
 	async getGoalById(id, callback) {
 		const response = await monthlyGoalObject.findOne({ where: { id: id } });
@@ -41,8 +58,15 @@ class GoalService
 		callback(null, response);
 	}
 
+	// get goal by partner mappingid
+	async getAllGoalsByPartnerMappingID(id, callback) {
+		const response = await monthlyGoalObject.findOne({ where: { partner_mapping_id: id, status: 1 }, order: [['create_time', 'DESC']] });
+		callback(null, response);
+	}
+
+	// Get Goal by user id
 	async getGoalByUserId(user_id, callback) {
-		const response = await monthlyGoalObject.findAll({ where: { user_id: user_id, status: 1 } });
+		const response = await monthlyGoalObject.find({ where: { user_id: user_id, status: 1 }, order: [['create_time', 'DESC']] });
 		callback(null, response);
 	}
 
@@ -77,8 +101,8 @@ class GoalService
 			status: 1,
 			update_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss')
 		},
-		{ where: { id: updatedData.id }})
-		const response = await goalSettingAnswerObject.findOne({ where: { patner_mapping_id:  updatedData.patner_mapping_id } });
+		{ where: { goal_id: updatedData.goal_id, question_id: updatedData.question_id, user_id: updatedData.user_id }})
+		const response = await goalSettingAnswerObject.findOne({ where: { user_id:  updatedData.user_id, goal_id: updatedData.goal_id } });
 		callback(null, response);
 	}
 	// Save Goal Setting
@@ -177,47 +201,26 @@ class GoalService
 
 		const now = new Date();
 		const random_number = now.getTime()+Math.floor(Math.random() * 1000);
-
-		callback(null, await monthlyGoalObject.bulkCreate([
-			{
-				partner_mapping_id : monthlyGoalData.partner_mapping_id,
-				user_id            : monthlyGoalData.user_id,
-				goal_identifier	   : random_number,
-				month_start        : monthlyGoalData.month_start,
-				month_end          : monthlyGoalData.month_end,
-				connect_number     : monthlyGoalData.connect_number,
-				initiator_count    : monthlyGoalData.initiator_count,
-				initiator_count1   : monthlyGoalData.initiator_count1,
-				intimate_time      : monthlyGoalData.intimate_time,
-				intimate_request_time : monthlyGoalData.intimate_request_time,
-				intimate_account_time : monthlyGoalData.intimate_account_time,
-				percentage         : monthlyGoalData.percentage,
-				complete_count     : 0,
-				complete_percentage: 0,
-				status: 1,
-				create_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss'),
-				update_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss')
-			},
-			{
-				partner_mapping_id : monthlyGoalData.partner_mapping_id,
-				user_id            : monthlyGoalData.partner_id,
-				goal_identifier	   : random_number,
-				month_start        : monthlyGoalData.month_start,
-				month_end          : monthlyGoalData.month_end,
-				connect_number     : monthlyGoalData.connect_number,
-				initiator_count    : monthlyGoalData.initiator_count1,
-				initiator_count1   : monthlyGoalData.initiator_count,
-				intimate_time      : monthlyGoalData.intimate_time,
-				intimate_request_time : monthlyGoalData.intimate_request_time,
-				intimate_account_time : monthlyGoalData.intimate_account_time,
-				percentage         : monthlyGoalData.partner_percentage,
-				complete_count     : 0,
-				complete_percentage: 0,
-				status: 1,
-				create_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss'),
-				update_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss')
-			}
-		]));
+		let GoalData = new monthlyGoalObject({
+			partner_mapping_id : monthlyGoalData.partner_mapping_id,
+			user_id            : monthlyGoalData.user_id,
+			goal_identifier	   : random_number,
+			month_start        : monthlyGoalData.month_start,
+			month_end          : monthlyGoalData.month_end,
+			connect_number     : monthlyGoalData.connect_number,
+			initiator_count    : monthlyGoalData.initiator_count,
+			initiator_count1   : monthlyGoalData.initiator_count1,
+			intimate_time      : monthlyGoalData.intimate_time,
+			intimate_request_time : monthlyGoalData.intimate_request_time,
+			intimate_account_time : monthlyGoalData.intimate_account_time,
+			percentage         : monthlyGoalData.percentage,
+			complete_count     : 0,
+			complete_percentage: 0,
+			status: 1,
+			create_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss'),
+			update_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss')
+		})
+		callback(null, await GoalData.save());
 	}
 
 	// check Monthly Goal created or not
@@ -236,62 +239,31 @@ class GoalService
 	}
 	// Update monthly goal
 	async updateMonthlyGoal(monthlyGoalData, callback){
-
 		const now = new Date();
 
-		const goalData = await monthlyGoalObject.findAll({ where: { partner_mapping_id: monthlyGoalData.partner_mapping_id } });
-
-		var partner_goal_id = 0;
-
-		if(goalData[0].id==monthlyGoalData.goal_id)
-		{
-			partner_goal_id = goalData[1].id;
-		}
-
-		if(goalData[1].id==monthlyGoalData.goal_id)
-		{
-			partner_goal_id = goalData[0].id;
-		}
-		
-		monthlyGoalObject.update({
-			month_start        : monthlyGoalData.month_start,
-			month_end          : monthlyGoalData.month_end,
+		callback(null, await monthlyGoalObject.update({
+			user_id            : monthlyGoalData.user_id,
 			connect_number     : monthlyGoalData.connect_number,
 			initiator_count    : monthlyGoalData.initiator_count,
+			initiator_count1   : monthlyGoalData.initiator_count1,
+			intimate_time      : monthlyGoalData.intimate_time,
+			intimate_request_time : monthlyGoalData.intimate_request_time,
+			intimate_account_time : monthlyGoalData.intimate_account_time,
 			percentage         : monthlyGoalData.percentage,
 			complete_count     : 0,
 			complete_percentage: 0,
 			status: 1,
-			create_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss'),
 			update_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss')
-		}, 
-		{ where: { id: monthlyGoalData.goal_id }});
-
-		var partner_percentage = 100 - monthlyGoalData.percentage;
-		var partner_initiator_count = monthlyGoalData.connect_number - monthlyGoalData.initiator_count;
-
-		callback(null, monthlyGoalObject.update({
-			month_start        : monthlyGoalData.month_start,
-			month_end          : monthlyGoalData.month_end,
-			connect_number     : monthlyGoalData.connect_number,
-			initiator_count    : partner_initiator_count,
-			percentage         : partner_percentage,
-			complete_count     : 0,
-			complete_percentage: 0,
-			status: 1,
-			create_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss'),
-			update_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss')
-		}, 
-		{ where: { id: partner_goal_id }}));
-
+		},
+		{ where: { id:monthlyGoalData.id}}));
 	}
 
 	// Update monthly goal
-	async getGoalDetails(partner_mapping_id, callback){
+	async getGoalDetails(partner_mapping_id, user_id, callback){
 
 		monthlyGoalObject.belongsTo(userObject, {foreignKey: 'user_id'});
 		const response = await monthlyGoalObject.findAll({
-			where: { partner_mapping_id: partner_mapping_id, status:1 }, 
+			where: { partner_mapping_id: partner_mapping_id, status:1, user_id: user_id}, 
 			include: [{
 						model: userObject, 
 						attributes: ['id', 'role_id', 'first_name', 'last_name', 'gender', 'email', 'profile_image', 'face_id', 'touch_id', 'notification_mute_status', 'notification_mute_end', 'status', 'update_time']
@@ -352,6 +324,11 @@ class GoalService
 	// Save Questionaries from Admin panel
 	async saveQuestionaries(questionData, callback) {
 		const now = new Date();
+		await goalSettingsObject.update({
+			status:0
+		},{
+			where: {id}
+		})
 		let Questiona = new goalSettingsObject({
 			question_descripation: questionData.question_descripation,
 			question_title:questionData.question_title,

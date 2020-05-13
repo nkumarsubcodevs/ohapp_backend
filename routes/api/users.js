@@ -1284,9 +1284,6 @@ router.delete('/unparring', verifyToken, function(req, res) {
 								}
 							})
 						}
-						if(err) {
-							console.log('hello')
-						}
 					});
 				}
 				}
@@ -1373,7 +1370,7 @@ router.get('/dashboard', verifyToken, function(req, res) {
 			message: 'User id is required.',
 		});
 	}
-	goalObject.getGoalByUserId(user_id, function(err, GoalData) {
+	goalObject.getPartnerById(user_id, function(err, GoalData) {
 		if(err) {
 			res.send({
 				status:400,
@@ -1381,48 +1378,52 @@ router.get('/dashboard', verifyToken, function(req, res) {
 			})
 		}
 		if(GoalData) {
-			console.log(GoalData)
-			userSerObject.getUserById(user_id, function(err, userdata) {
-				if(err) {
-					res.send({
-						status:400,
-						message: "User is not found."
-					})
-				}
-				if(userdata) {
-					userSerObject.getPartnerById(user_id, function(err, patnerData) {
-						if(patnerData) {
-							let dashboard = {
-								connect_number: GoalData[0].connect_number,
-								initiator_count1: GoalData[0].initiator_count,
-								initiator_count2: GoalData[0].initiator_count1,
-								complete_count: GoalData[0].complete_count,
-								patner1_user_id: userdata.id,
-								patner1_first_name:userdata.first_name,
-								patner1_last_name:userdata.last_name,
-								patner1_gender: userdata.gender,
-								patner2_user_id: patnerData.id,
-								patner2_first_name:patnerData.first_name,
-								patner2_last_name:patnerData.last_name,
-								patner2_gender: patnerData.gender
-
+			goalObject.getAllGoalsByPartnerMappingID(GoalData.id, function(err, patnerGoalData) {
+				userSerObject.getUserById(user_id, function(err, userdata) {
+					if(err) {
+						res.send({
+							status:400,
+							message: "User is not found."
+						})
+					}
+					if(userdata) {
+						userSerObject.getPartnerById(user_id, function(err, patnerData) {
+							if(patnerData) {
+								let dashboard = {
+									connect_number: patnerGoalData.connect_number,
+									initiator_count1: patnerGoalData.user_id === user_id ? patnerGoalData.initiator_count : patnerGoalData.initiator_count1,
+									initiator_count2: patnerGoalData.user_id === user_id ? patnerGoalData.initiator_count1 : patnerGoalData.initiator_count ,
+									complete_count: patnerGoalData.complete_count,
+									patner1_user_id: userdata.id,
+									patner1_first_name:userdata.first_name,
+									patner1_last_name:userdata.last_name,
+									patner1_gender: userdata.gender,
+									patner1_profile_image: userdata.profile_image ? `${config.site_url}profile_images/${userdata.profile_image}`: null,
+									patner2_user_id: patnerData.id,
+									patner2_first_name:patnerData.first_name,
+									patner2_last_name:patnerData.last_name,
+									patner2_gender: patnerData.gender,
+									patner2_profile_image: patnerData.profile_image ? `${config.site_url}profile_images/${patnerData.profile_image}`: null
+	
+								}
+								res.send({
+									status:200,
+									result:dashboard
+								})
 							}
-							res.send({
-								status:200,
-								result:dashboard
-							})
-						}
-						if(err) {
-							res.send({
-								status:400,
-								messgae: "patner is not found"
-							})
-						}
-					})
-				}
+							if(err) {
+								res.send({
+									status:400,
+									messgae: "patner is not found"
+								})
+							}
+						})
+					}
+				})
 			})
 		}
 	})
 })
+
 module.exports = router;
 

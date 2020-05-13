@@ -87,10 +87,35 @@ router.put('/saveAnswer', verifyToken, function(req, res, next) {
                       message: "patner is not found",
                     })
                   } else {
-                    res.send({
-                      status:200,
-                      result: patner
-                    })
+                    if(patner.answer === "true" && pageData.answer === "true") {
+                      notificationObject.updateNotificationStage(pageData.notification_id, 2, function(err, updateStage) {
+                        if(updateStage) {
+                          res.send({
+                            status:200,
+                            result: updateStage
+                          })
+                        }
+                      })
+                    } 
+                    if(patner.answer === "false" && pageData.answer === "false"){
+                      res.send({
+                        status:200,
+                        message: "Not interested of dating for tonight ",
+                        result: patner
+                      })
+                    }
+                    if(patner.answer === "false" || pageData.answer === "false") {
+                      res.send({
+                        staus: 200,
+                        message: "patner is not interested"
+                      })
+                    }
+                    if(patner.answer === null) {
+                      res.send({
+                        status: 200,
+                        messgae: "waiting for your patner confirmation"
+                      })
+                    }
                   }
                 })
               }
@@ -106,6 +131,11 @@ router.put('/saveAnswer', verifyToken, function(req, res, next) {
       }
   });
 });
+
+router.get('/getNotificationStage', verifyToken, function(req, res) {
+  let user_id = jwt.decode(req.headers['x-access-token']).id;
+  
+})
 
 
 

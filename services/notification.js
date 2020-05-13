@@ -36,7 +36,7 @@ class NotificationService
 		var message = { //this may vary according to the message type (single recipient, multicast, topic, et cetera)
 			to: re, 
 			notification: {
-				title: 'Dating reminder', 
+				title: 'Dating', 
 				body: 'Do you want to set plan of dating for tonight' 
 			},
 			data: {  //you can send only notification or only data(or include both)
@@ -55,12 +55,29 @@ class NotificationService
 
 	async updateNotification(id, answer, callback) {
 		const now = new Date();
-		callback(null, GoalNotification.update({answer:  answer, update_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss') }, { where: { notification_id: id }}) );
+		GoalNotification.update({answer:  answer, update_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss') }, { where: { notification_id: id }});
+		let response = await GoalNotification.findOne({where: {notification_id: id, status: 1}});
+		if(response.answer === answer) {
+			callback(null, response);
+		} else {
+			this.updateNotification(id, answer, callback);
+		}
 	}
 
 	async getNotification(id, callback) {
-		let response = await GoalNotification.findOne({where: { user_id: id, status: 1}});
+		let response = await GoalNotification.findOne({where: { user_id: id, status: 1}, order : [['create_time', 'DESC']]});
 		callback(null, response)
+	}
+
+	async updateNotificationStage(id, stage, callback) {
+		const now = new Date();
+		GoalNotification.update({stage:  stage, update_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss') }, { where: { notification_id: id }}) 
+		let response = await GoalNotification.findOne({where: {notification_id: id, status: 1}});
+		if(response.stage == stage) {
+			callback(null, response);
+		} else {
+			this.updateNotificationStage(id, stage, callback);
+		}
 	}
 }
 
