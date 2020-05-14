@@ -13,6 +13,7 @@ const goalRoutes = require('./routes/api/goals');
 const messageRoutes = require('./routes/api/messages');
 const imagesRoutes = require('./routes/api/images');
 const notificationRoute = require('./routes/api/notification');
+const feedbackRoute = require('./routes/api/feedback');
 
 // routes of users
 apiRoutes.use('/users', usersRoutes);
@@ -31,5 +32,8 @@ apiRoutes.use('/images', imagesRoutes);
 
 //routes of notification
 apiRoutes.use('/notification', notificationRoute);
+
+//routes of notification
+apiRoutes.use('/feedback', feedbackRoute);
 
 module.exports = apiRoutes;

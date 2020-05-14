@@ -123,23 +123,28 @@ router.post('/savegoalsettings', verifyToken, function(req, res) {
 	// 		message: 'Answer is required',
 	// 	});
 	// }
-	//Check goal exists or not
-	goalSerObject.getGoalByUserId(user_id, function(err, goalGetData) 
-	{
-		if(err)
+	req.body.map(response => {
+		// Check setting question exists or not
+		goalSerObject.getGoalSettingsQuestionById(response.question_id, function(err, goalQuestionData) 
 		{
-			res.send({
-				status: 500,
-				message: 'something went wrong',
-			});
-		}
-		else
-		{
-			if(goalGetData) 
+			if(err)
 			{
-				req.body.map(response => {
-					// Check setting question exists or not
-					goalSerObject.getGoalSettingsQuestionById(response.question_id, function(err, goalQuestionData) 
+				res.send({
+					status: 500,
+					message: 'something went wrong',
+				});
+			}
+			else
+			{
+				if(goalQuestionData) 
+				{
+					let goalSettingData = {
+						'question_id': response.question_id,
+						'answer': response.answer,
+						'user_id': user_id,
+						'custom_answer': response.custom_answer ? response.custom_answer : null
+					};
+					goalSerObject.saveSettings(goalSettingData, function(err, goalSettingDataSaved)
 					{
 						if(err)
 						{
@@ -150,118 +155,39 @@ router.post('/savegoalsettings', verifyToken, function(req, res) {
 						}
 						else
 						{
-							if(goalQuestionData) 
-							{
-								goalSerObject.getGoalSettingByPatnerMappingId(goalGetData[0].partner_mapping_id, response.question_id, function(err, goalQuestionAnswerData) 
-								{
-									if(err)
-									{
-										res.send({
-											status: 500,
-											message: 'something went wrong',
-										});
-									}
-									else
-									{
-										// if(goalQuestionAnswerData) 
-										// {
-										// 	let goalSettingData = {
-										// 		'goal_id': goalGetData[0].id,
-										// 		'question_id': response.question_id,
-										// 		'answer': response.answer,
-										// 		'patner_mapping_id': goalGetData[0].partner_mapping_id,
-										// 		'user_id': user_id,
-										// 		'id': goalQuestionAnswerData.id,
-										// 		'custom_answer': response.custom_answer ? response.custom_answer : null
-										// 	};
-										// 	goalSerObject.updatesetting(goalSettingData, function(err, goalSettingDataupdated)
-										// 	{
-										// 		if(err)
-										// 		{
-										// 			res.send({
-										// 				status: 500,
-										// 				message: 'something went wrong',
-										// 			});
-										// 		}
-										// 		else
-										// 		{
-										// 			res.send({
-										// 				status: 200,
-										// 				message: 'Saved sucessfully',
-										// 			});
-										// 		}
-										// 	});
-										// } else {
-												let goalSettingData = {
-													'goal_id': goalGetData[0].id,
-													'question_id': response.question_id,
-													'answer': response.answer,
-													'patner_mapping_id': goalGetData[0].partner_mapping_id,
-													'user_id': user_id,
-													'custom_answer': response.custom_answer ? response.custom_answer : null
-												};
-											goalSerObject.saveSettings(goalSettingData, function(err, goalSettingDataSaved)
-											{
-												if(err)
-												{
-													res.send({
-														status: 500,
-														message: 'something went wrong',
-													});
-												}
-												else
-												{
-													userSerObject.updateUserStage(7, user_id, function(err, updatedStage) {
-														if(updatedStage) {
-															userSerObject.getPartnerById(user_id, function(err, patnerData) {
-																if(err) {
-																	res.send({
-																		status: 400,
-																		message: "something went wrong"
-																	})
-																}
-																if(patnerData) {
-																	userSerObject.updateUserStage(7, patnerData.id, function(err, updatPatnerStage){
-																		if(updatPatnerStage) {
-																			res.send({
-																				status:200,
-																				message: "Success",
-																				user_stage: updatedStage.stage,
-																				patner_Stage: updatPatnerStage.stage
-																			})
-																		}
-																	})
-																}
-															} )
-														}
+							userSerObject.updateUserStage(7, user_id, function(err, updatedStage) {
+								if(updatedStage) {
+									userSerObject.getPartnerById(user_id, function(err, patnerData) {
+										if(err) {
+											res.send({
+												status: 400,
+												message: "something went wrong"
+											})
+										}
+										if(patnerData) {
+											res.send({
+												status:200,
+												message: "Question answer is saved successfully",
+												user_stage: updatedStage.stage,
+											})
+										}
+									})
+								}
 
-													})
-												}
-											});
-										// }
-									}
-								});
-							}
-							else
-							{
-								return res.send({
-									status: 400,
-									message: 'No goal setting found',
-								});
-							}
+							})
 						}
 					});
-				})
+				}
+				else
+				{
+					return res.send({
+						status: 400,
+						message: 'Question is not found',
+					});
+				}
 			}
-			else
-			{
-				return res.send({
-					status: 400,
-					message: 'No goal found',
-				});
-			}
-		}
-	});
+		});
+	})
 });
 
 // Compare user security code
@@ -388,60 +314,71 @@ router.post('/checkuseruniquecode', verifyToken, function(req, res) {
 									}
 									else
 									{
-										userSerObject.updateUserStage(3, user_id, function(err, userStageupdatedata) {});
-										goalSerObject.createPartnerMapping(monthlyGoalData, function(err, createMonthlyData)
-										{
-											if(err)
-											{
-												res.send({
-													status: 500,
-													message: 'something went wrong',
-												});
-											}
-											else
-											{
-												if(createMonthlyData) 
+										userSerObject.updateUserStage(3, user_id, function(err, userStageupdatedata) {
+											if(userStageupdatedata) {
+												goalSerObject.createPartnerMapping(monthlyGoalData, function(err, createMonthlyData)
 												{
-													userSerObject.getUserById(uniqueCodeData.id, function(err, response) {
-														if(err) {
-															return res.send({
-																status: 400,
-																message: 'Your patner is not found',
-															});
-														}
-														if(response) {
-															if(response.stage !== 3) {
-																return res.send({
-																	status: 200,
-																	message: 'Please Wait, Your parten is not entered code!',
-																	FCMID: uniqueCodeData.fcmid
-																})
-															}
-															if(response.stage === 3) {
-																// userSerObject.freeSecurityCodes(monthlyGoalData, function(err, freeSecurityData){
-																userSerObject.updateUserStage(4, user_id, function(err, userStageupdatedata) {
-																	userSerObject.updateUserStage(4, monthlyGoalData.partner_two_id, function(err, responses){})
-																	if(userStageupdatedata) {
+													if(err)
+													{
+														res.send({
+															status: 500,
+															message: 'something went wrong',
+														});
+													}
+													else
+													{
+														if(createMonthlyData) 
+														{
+															userSerObject.getUserById(uniqueCodeData.id, function(err, response) {
+																if(err) {
+																	return res.send({
+																		status: 400,
+																		message: 'Your patner is not found',
+																	});
+																}
+																if(response) {
+																	if(response.stage !== 3) {
 																		return res.send({
 																			status: 200,
-																			message: 'Paring sucessfully',
-																			stage: userStageupdatedata.stage,
+																			message: 'Please Wait, Your parten is not entered code!',
 																			FCMID: uniqueCodeData.fcmid
 																		})
 																	}
-																});
-																// }
-															}
+																	if(response.stage === 3) {
+																		// userSerObject.freeSecurityCodes(monthlyGoalData, function(err, freeSecurityData){
+																		userSerObject.updateUserStage(4, user_id, function(err, userStageupdatedata) {
+																			if(userStageupdatedata) {
+																				userSerObject.updateUserStage(4, monthlyGoalData.partner_two_id, function(err, updatepatnerStage){
+																					if(updatepatnerStage) {
+																						return res.send({
+																							status: 200,
+																							message: 'Paring sucessfully',
+																							stage: userStageupdatedata.stage,
+																							FCMID: uniqueCodeData.fcmid
+																						})
+																					}
+																				})
+																			}
+																		});
+																		// }
+																	}
+																}
+															});
 														}
-													});
-												}
-												else
-												{
-													return res.send({
-														status: 400,
-														message: 'Unable to add monthly goal.',
-													});
-												}
+														else
+														{
+															return res.send({
+																status: 400,
+																message: 'Unable to add monthly goal.',
+															});
+														}
+													}
+												});
+											} else {
+												res.send({
+													status:400,
+													message:'something went wrong'
+												})
 											}
 										});
 									}
@@ -790,14 +727,14 @@ router.post('/createmonthlygoal', verifyToken, function(req, res) {
 																		res.send({
 																			status: 200,
 																			message: 'The monthly goal has been created.',
-																			stage: updateedstage.stage,
+																			stage: updatedStage.stage,
 																			fcmid: GetpatnerData.fcmid,
-																			Patner1_first_name: updateedstage.first_name,
-																			Patner1_last_name: updateedstage.last_name,
-																			patner1_stage: updateedstage.stage,
-																			Patner2_first_name:GetpatnerData.first_name,
-																			Patner2_last_name:GetpatnerData.last_name,
-																			patner2_stage: GetpatnerData.stage
+																			Patner1_first_name: updatedStage.first_name,
+																			Patner1_last_name: updatedStage.last_name,
+																			patner1_stage: updatedStage.stage,
+																			Patner2_first_name:updateedstage.first_name,
+																			Patner2_last_name:updateedstage.last_name,
+																			patner2_stage: updateedstage.stage
 																		});
 																	}
 																})
@@ -913,6 +850,31 @@ router.post('/CheckingStage', verifyToken, function(req, res) {
 											user_stage: userDetails.stage,
 											patner_stage:partenerData.stage
 										})
+									}
+									if(partenerData.stage === 4 && userDetails.stage === 3) {
+										userSerObject.updateUserStage(4, userDetails.id, function(err, updatestageData) {
+											if(updatestageData) {
+												userSerObject.updateUserStage(5, user_id, function(err, updatestageData) {
+													if(updatestageData) {
+														res.send({
+															status: 200,
+															message: 'Sucessfully enter goal page',
+															stage: updatestageData.stage
+														})
+													} else {
+														res.send({
+															status: 400,
+															message: 'Something Went wrong',
+														})
+													}
+												}) 
+											} else {
+												res.send({
+													status: 400,
+													message: 'Something Went wrong',
+												})
+											}
+										}) 
 									}
 							}
 						});
@@ -1062,42 +1024,69 @@ router.get('/getmonthlygoaldetail', verifyToken, function(req, res, next) {
 		});
 	}
 
-	// if(!formValidator.isInt(partner_mapping_id))   
-	// {
-	// 	return res.send({
-	// 		status: 400,
-	// 		message: 'Please enter a valid goal id.',
-	// 	});
-	// }
 	goalSerObject.getPartnerData(user_id, function(err, patnerData) {
 		if(patnerData) {
-					// if(partnerData)
-					// {
-						goalSerObject.getGoalDetails(patnerData.id, user_id, function(err, goalCompleteData)
-						{
-							if(err)
-							{
+			goalSerObject.getGoalDetails(patnerData.partner_one_id, patnerData.partner_two_id, function(err, goalCompleteData)
+			{
+				if(err)
+				{
+					res.send({
+						status: 500,
+						message: 'There was a problem finding the goal.',
+					});
+				}
+				else
+				{
+					if(goalCompleteData) {
+						userSerObject.getUserById(user_id, function(err, loginUserData) {
+							if(loginUserData) {
+								userSerObject.getPartnerById(user_id, function(err, patnerData, id) {
+									if(patnerData) {
+										let currentGoalData = {
+											id: goalCompleteData.id,
+											partner_mapping_id: goalCompleteData.partner_mapping_id,
+											user_id: goalCompleteData.user_id,
+											goal_identifier: goalCompleteData.goal_identifier,
+											month_start: goalCompleteData.month_start,
+											month_end: goalCompleteData.month_end,
+											connect_number: goalCompleteData.connect_number,
+											initiator_count: goalCompleteData.user_id === user_id ? goalCompleteData.initiator_count : goalCompleteData.initiator_count1,
+											initiator_count1: goalCompleteData.user_id === user_id ? goalCompleteData.initiator_count1 : goalCompleteData.initiator_count,
+											intimate_time: goalCompleteData.intimate_time,
+											intimate_request_time: goalCompleteData.intimate_request_time,
+											intimate_account_time: goalCompleteData.intimate_account_time,
+											complete_count: goalCompleteData.complete_count,
+											complete_percentage: goalCompleteData.complete_percentage,
+											status: goalCompleteData.status,
+											create_time: goalCompleteData.create_time,
+											update_time: goalCompleteData.update_time,
+											user1_first_name:loginUserData.first_name,
+											user1_last_name:loginUserData.last_name,
+											user2_first_name:patnerData.first_name,
+											user2_last_name:patnerData.last_name
+										}
+										res.send({
+											status: 200,
+											result: currentGoalData,
+										});
+									} 
+									else {
+										res.send({
+											status: 400,
+											message: "partner not found"
+										})
+									}
+								})
+							} else {
 								res.send({
-									status: 500,
-									message: 'There was a problem finding the goal.',
-								});
+									status: 400,
+									message: "user not found"
+								})
 							}
-							else
-							{
-								res.send({
-									status: 200,
-									result: goalCompleteData,
-								});
-							}
-						});
-					// }
-					// else
-					// {
-					// 	res.send({
-					// 		status: 404,
-					// 		message: 'No goal found.',
-					// 	});
-					// }
+						})
+					}
+				}
+			});
 		}
 		if(err) {
 			res.send({
@@ -1310,25 +1299,8 @@ router.get('/CheckQuetionariesFlag', verifyToken, function(req, res) {
 })
 
 // Update goal setting detail
-router.put('/updateGoalSetting/:goal_id', verifyToken, function(req, res) {
+router.put('/updateGoalSetting/', verifyToken, function(req, res) {
 	let user_id     = jwt.decode(req.headers['x-access-token']).id;
-	let goal_id     = req.params.goal_id;
-
-	if(!goal_id) 
-	{
-		return res.send({
-			status: 400,
-			message: 'Goal Id is required as params.',
-		});
-	}
-
-	if(!formValidator.isInt(goal_id))   
-	{
-		return res.send({
-			status: 400,
-			message: 'Please enter a valid goal id.',
-		});
-	}
 
 	// if(!answer) 
 	// {
@@ -1338,22 +1310,30 @@ router.put('/updateGoalSetting/:goal_id', verifyToken, function(req, res) {
 	// 	});
 	// }
 	//Check goal exists or not
-	goalSerObject.getGoalByUserId(user_id, function(err, goalGetData) 
-	{
-		if(err)
+
+	req.body.map(response => {
+		// Check setting question exists or not
+		goalSerObject.getGoalSettingsQuestionById(response.question_id, function(err, goalQuestionData) 
 		{
-			res.send({
-				status: 500,
-				message: 'something went wrong',
-			});
-		}
-		else
-		{
-			if(goalGetData) 
+			if(err)
 			{
-				req.body.map(response => {
-					// Check setting question exists or not
-					goalSerObject.getGoalSettingsQuestionById(response.question_id, function(err, goalQuestionData) 
+				res.send({
+					status: 500,
+					message: 'something went wrong',
+				});
+			}
+			else
+			{
+				if(goalQuestionData) 
+				{
+					let goalSettingData = {
+						'question_id': response.question_id,
+						'answer': response.answer,
+						'user_id': user_id,
+						'id': response.question_answer_id,
+						'custom_answer': response.custom_answer ? response.custom_answer : null
+					};
+					goalSerObject.updatesetting(goalSettingData, function(err, goalSettingDataupdated)
 					{
 						if(err)
 						{
@@ -1364,70 +1344,22 @@ router.put('/updateGoalSetting/:goal_id', verifyToken, function(req, res) {
 						}
 						else
 						{
-							if(goalQuestionData) 
-							{
-								goalSerObject.getGoalSettingByPatnerMappingId(goalGetData[0].partner_mapping_id, response.question_id, function(err, goalQuestionAnswerData) 
-								{
-									if(err)
-									{
-										res.send({
-											status: 500,
-											message: 'something went wrong',
-										});
-									}
-									else
-									{
-										if(goalQuestionAnswerData) 
-										{
-											let goalSettingData = {
-												'goal_id': goal_id,
-												'question_id': response.question_id,
-												'answer': response.answer,
-												'patner_mapping_id': goalGetData[0].partner_mapping_id,
-												'user_id': user_id,
-												'id': goalQuestionAnswerData.id,
-												'custom_answer': response.custom_answer ? response.custom_answer : null
-											};
-											goalSerObject.updatesetting(goalSettingData, function(err, goalSettingDataupdated)
-											{
-												if(err)
-												{
-													res.send({
-														status: 500,
-														message: 'something went wrong',
-													});
-												}
-												else
-												{
-													res.send({
-														status: 200,
-														message: 'Saved sucessfully',
-													});
-												}
-											});
-										} 
-									}
-								});
-							}
-							else
-							{
-								return res.send({
-									status: 400,
-									message: 'No goal setting found',
-								});
-							}
+							res.send({
+								status: 200,
+								message: 'updated sucessfully',
+							});
 						}
 					});
-				})
+				}
+				else
+				{
+					return res.send({
+						status: 400,
+						message: 'No goal setting found',
+					});
+				}
 			}
-			else
-			{
-				return res.send({
-					status: 400,
-					message: 'No goal found',
-				});
-			}
-		}
-	});
+		});
+	})
 });
 module.exports = router;

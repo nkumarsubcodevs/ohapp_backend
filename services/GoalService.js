@@ -28,6 +28,17 @@ class GoalService
 		});
 		callback(null,goal_settings);
 	}
+	// get all pages list
+	async getQuestion(paginationData, callback){
+		const response = await goalSettingsObject.findAndCountAll({offset: paginationData.offset, limit: paginationData.limit});
+		callback(null,response);
+	}
+
+	//get single question record
+	async getSingleQuestionRecord(question_id,callback) {
+		const response = await goalSettingsObject.findAll({where:{id: question_id}});
+		callback(null,response);
+	}
 
 	// Get Goal Setting Answer
 	async getGoalSettingsAnswer(user_id,goal_id, callback){
@@ -61,12 +72,13 @@ class GoalService
 	// get goal by partner mappingid
 	async getAllGoalsByPartnerMappingID(id, callback) {
 		const response = await monthlyGoalObject.findOne({ where: { partner_mapping_id: id, status: 1 }, order: [['create_time', 'DESC']] });
+		
 		callback(null, response);
 	}
 
 	// Get Goal by user id
 	async getGoalByUserId(user_id, callback) {
-		const response = await monthlyGoalObject.find({ where: { user_id: user_id, status: 1 }, order: [['create_time', 'DESC']] });
+		const response = await monthlyGoalObject.findOne({ where: { user_id: user_id, status: 1 }, order: [['create_time', 'DESC']] });
 		callback(null, response);
 	}
 
@@ -90,6 +102,7 @@ class GoalService
 
 	// update setting answer quetion
 	async updatesetting(updatedData, callback) {
+
 		const now = new Date();
 		await goalSettingAnswerObject.update({
 			goal_id: updatedData.goal_id,
@@ -101,8 +114,8 @@ class GoalService
 			status: 1,
 			update_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss')
 		},
-		{ where: { goal_id: updatedData.goal_id, question_id: updatedData.question_id, user_id: updatedData.user_id }})
-		const response = await goalSettingAnswerObject.findOne({ where: { user_id:  updatedData.user_id, goal_id: updatedData.goal_id } });
+		{ where: { id: updatedData.id }})
+		const response = await goalSettingAnswerObject.findOne({ where: { id: updatedData.id } });
 		callback(null, response);
 	}
 	// Save Goal Setting
@@ -110,11 +123,9 @@ class GoalService
 
 		const now = new Date();
 		let settingData = new goalSettingAnswerObject({
-			goal_id: goalSettingData.goal_id,
 			question_id: goalSettingData.question_id,
 			answer: goalSettingData.answer,
 			user_id: goalSettingData.user_id,
-			patner_mapping_id: goalSettingData.patner_mapping_id,
 			custom_answer: goalSettingData.custom_answer,
 			status: 1,
 			create_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss'),
@@ -259,17 +270,32 @@ class GoalService
 	}
 
 	// Update monthly goal
-	async getGoalDetails(partner_mapping_id, user_id, callback){
+	async getGoalDetails(id, patner, callback){
 
 		monthlyGoalObject.belongsTo(userObject, {foreignKey: 'user_id'});
-		const response = await monthlyGoalObject.findAll({
-			where: { partner_mapping_id: partner_mapping_id, status:1, user_id: user_id}, 
-			include: [{
-						model: userObject, 
-						attributes: ['id', 'role_id', 'first_name', 'last_name', 'gender', 'email', 'profile_image', 'face_id', 'touch_id', 'notification_mute_status', 'notification_mute_end', 'status', 'update_time']
-					 }]
-		});
-
+		const response = await monthlyGoalObject.findOne({
+			where: 
+			{ 
+			[Op.or]: [
+			  {
+				user_id: {
+					[Op.eq]: id
+				}
+			  },
+			  {
+				user_id: {
+					[Op.eq]: patner
+				}
+			  }
+			],
+			[Op.and]: [
+				{
+				  status: {
+					  [Op.eq]: 1
+				  }
+				},
+			]	
+		}, order: [['create_time', 'DESC']] });
 		callback(null, response);
 	}
 
@@ -324,11 +350,6 @@ class GoalService
 	// Save Questionaries from Admin panel
 	async saveQuestionaries(questionData, callback) {
 		const now = new Date();
-		await goalSettingsObject.update({
-			status:0
-		},{
-			where: {id}
-		})
 		let Questiona = new goalSettingsObject({
 			question_descripation: questionData.question_descripation,
 			question_title:questionData.question_title,

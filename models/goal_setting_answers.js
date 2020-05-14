@@ -10,19 +10,11 @@ const database  = require('../config/database');
 
 const GoalSettingAnswer = database.define('goal_setting_answers',
 {
-	goal_id: {
-		type: Sequelize.BIGINT,
-		allowNull: false,
-	},
 	question_id: {
 		type: Sequelize.BIGINT,
 		allowNull: false,
 	},
 	user_id: {
-		type: Sequelize.BIGINT,
-		allowNull: false,
-	},
-	patner_mapping_id: {
 		type: Sequelize.BIGINT,
 		allowNull: false,
 	},

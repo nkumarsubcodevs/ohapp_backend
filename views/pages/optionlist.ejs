@@ -1,0 +1,39 @@
+<% include ../partials/leftpart %> 
+<% include ../partials/header %> 
+
+
+<div class="content-wrapper">
+<section class="content-header">
+		  <h1>Add Option</h1>
+		  <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-dashboard"></i> Home</a></li>
+        <li class="active">Dashboard</li>
+		  </ol>
+    </section>
+       
+   
+		<section class="content">
+    
+     <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                      <h3 class="box-title">Add Option</h3>
+                    </div>
+                     <form role="form" method="POST" action="/pages/option">
+                     <input type="hidden" name="question_id" value="<%=pageValue[0]['id']%>"/>
+                        <div class="box-body">
+                          <div class="form-group">
+                            <label for="exampleInputEmail1">Option</label>
+                            <input type="text" class="form-control" name="title"/>
+                          </div>
+                        </div>
+                        <div class="box-footer">
+                          <button type="submit" class="btn btn-primary">Submit</button>
+                        </div>
+                      </form>
+                  </div>
+            </div>
+        </div>
+ </section>
+</div>

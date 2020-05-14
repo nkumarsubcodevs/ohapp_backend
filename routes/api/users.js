@@ -627,6 +627,7 @@ router.post('/login', function(req, res) {
 											}
 										});
 									} else {
+										user.profile_image = user.profile_image ? `${config.site_url}profile_images/${user.profile_image}`: null
 										res.send({
 											status: 200,
 											message: 'success',
@@ -1309,20 +1310,69 @@ router.delete('/removeAccount', verifyToken, function(req, res) {
 			message: 'Please enter a valid user id.',
 		});
 	}
-	userSerObject.RemoveAccount(user_id, function(err, removeAccountData) {
+	userSerObject.getUserById(user_id, function(err, GetuserDetail) {
 		if(err) {
 			res.send({
-				status: 400,
-				message: 'User Account is not avaliable'
+				status:400,
+				message: "Users is not found.",
+				stage:1
 			})
 		}
-		if(removeAccountData) {
+		if(GetuserDetail.stage < 4) {
 			res.send({
-				status: 200,
-				message: 'User Account remove sucessfully'
+				status:400,
+				message: "Paring is not avalibale",
+				stage:1
 			})
+		} else {
+			userSerObject.getPartnerById(user_id, function(err, partnerData, patner_mapping_id)
+			{
+				if(err)
+				{
+					res.send({
+						status: 500,
+						message: 'There was a problem finding the partner user.',
+					});
+				}
+				else
+				{	if(partnerData) {
+					userSerObject.RemoveParring(user_id, function(err, response) {
+						if(response) {
+							userSerObject.RemoveMonthlyGoal(user_id, partnerData.id,function(err, removeableData) {
+								if(removeableData) {
+									userSerObject.updateUserStage(1, partnerData.id, function(err, updatedStage){
+										if(updatedStage) {
+											userSerObject.RemoveAccount(user_id, function(err, removeAccountData) {
+												if(err) {
+													res.send({
+														status: 400,
+														message: 'User Account is not avaliable'
+													})
+												}
+												if(removeAccountData) {
+													res.send({
+														status: 200,
+														message: 'User Account remove sucessfully'
+													})
+												}
+											})
+										} else {
+											res.send({
+												status: 400,
+												message: "Something Went worng"
+											})
+										}
+									})
+								}
+							})
+						}
+					});
+				}
+				}
+			});
 		}
 	})
+	
 })
 
 router.get('/getProfile', verifyToken, function(req,res) {
@@ -1378,7 +1428,7 @@ router.get('/dashboard', verifyToken, function(req, res) {
 			})
 		}
 		if(GoalData) {
-			goalObject.getAllGoalsByPartnerMappingID(GoalData.id, function(err, patnerGoalData) {
+			goalObject.getGoalDetails(GoalData.partner_one_id,GoalData.partner_two_id, function(err, patnerGoalData) {
 				userSerObject.getUserById(user_id, function(err, userdata) {
 					if(err) {
 						res.send({

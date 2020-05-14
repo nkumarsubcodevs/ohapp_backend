@@ -6,16 +6,18 @@
 
 const express = require('express');
 const PageService = require('../../services/PageService');
+const GoalService = require('../../services/GoalService');
 const custom_helper = require('../../helpers/custom_helper');
 const formValidator = require('validator');
 
 let router =  express.Router();
 var pageSerObject = new PageService();
+var GoalObject = new GoalService();
 
 // page listing
-router.get('/:page?', function(req, res){
+router.get('/:page', function(req, res){
 
-	var perPage = 2;
+	var perPage = 5;
 	var page = req.params.page || 1;
 	
 	let paginationData = {
@@ -23,7 +25,7 @@ router.get('/:page?', function(req, res){
 		'limit' : perPage,
 	};
 
-	pageSerObject.getPageList(paginationData, function(err, pageData)
+	GoalObject.getQuestion(paginationData, function(err, pageData)
 	{
 		    if(pageData)
 			{
@@ -93,7 +95,62 @@ router.get('/:page?', function(req, res){
 			}
 		});
 	});
+	router.get('/add/:pages?',function (req,res){
+		res.render('pages/addlist');
+	});
+	router.post('/add/question',function (req,res){
 
-		
+		var title = req.body.title;
+		var status = req.body.status;
+		var descripation = req.body.descripation
+
+		let pageData = {
+			'question_title': title,
+			'question_descripation': descripation,
+			'iscustom': status,
+		};
 	
+		GoalObject.saveQuestionaries(pageData , function(err, response){
+			if(err)
+			{
+				req.flash('error_message','Something went wrong');
+			}else{
+				req.flash('success_message','saved Successfully');
+				res.redirect('/pages/1');
+			}
+		});
+	});
+	router.get('/option/:id?',function (req,res){
+		var page_id = req.params.id;
+
+		GoalObject.getSingleQuestionRecord(page_id,function(err,pageData)
+			{
+				if (err)
+				{
+					req.flash('error_message', 'Unable to fetch page detail');
+
+				}else
+				{
+					res.render('pages/optionlist',{
+						pageValue : pageData,
+						custom_helper: custom_helper
+					});
+				}
+			});
+
+	});
+	router.post('/option',function (req,res){
+
+		var title = req.body.title;
+		var id =  req.body.question_id
+		GoalObject.setQuestionOptions(title, id , function(err, response){
+			if(err)
+			{
+				req.flash('error_message','Something went wrong');
+			}else{
+				req.flash('success_message','Option Added Successfully');
+				res.redirect('/pages/1');
+			}
+		});
+	});
 module.exports = router;

@@ -321,7 +321,8 @@ class UserService
 	async updateUserStage(stage, id, callback){
 		await userObject.update({ stage: stage }, { where: { id: id}});
 		const response = await userObject.findOne({ where: { id: id } });
-		if(response.stage === stage) {
+		console.log(response.stage, response.id)
+		if(response.stage == stage) {
 			return callback(null, response)
 		} else {
 			return this.updateUserStage(stage, id, callback)
@@ -379,7 +380,8 @@ class UserService
 				}
 			  }
 			]
-		}});
+		},
+	});
 		callback(null, unparing)
 	}
 
@@ -401,7 +403,14 @@ class UserService
 		callback(null, unparing)
 	}
 
-	async RemoveAccount(userId, callback) {}
+	async RemoveAccount(userId, callback) {
+		let removeUser = await userObject.destroy({
+			where: {
+				id: userId
+			}
+		})
+		callback(null, removeUser)
+	}
 }
 
 module.exports = UserService;
