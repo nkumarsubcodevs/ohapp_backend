@@ -153,4 +153,75 @@ router.get('/:page', function(req, res){
 			}
 		});
 	});
+	router.get('/delete/:id',function (req,res){
+
+		var id = req.params.id;
+		GoalObject.removeQuestionaries(id , function(err, response){
+			if(err)
+			{
+				req.flash('error_message','Something went wrong');
+			}else{
+				if(response) {
+					GoalObject.removeOption(id , function(err, response){
+						if(err)
+						{
+							req.flash('error_message','Something went wrong');
+						}else{
+							if(response) {
+								GoalObject.removeQuestionariesAnswer(id , function(err, response){
+									if(err)
+									{
+										req.flash('error_message','Something went wrong');
+									}else{
+										if(response) {
+											req.flash('error_message','Option delete Successfully');
+											res.redirect('/pages/1');
+										} else {
+											req.flash('error_message','Something went wrong');
+										}
+									}
+								});
+							} else {
+								req.flash('error_message','Something went wrong');
+							}
+						}
+					});
+				} else {
+					req.flash('error_message','Something went wrong');
+				}
+			}
+		});
+	});
+
+	router.get('/view/:id/:page', function(req, res) {
+	let id = req.params.id
+	var perPage = 5;
+	var page = req.params.page || 1;
+	
+	let paginationData = {
+		'offset': (perPage * page) - perPage,
+		'limit' : perPage,
+	};
+
+	GoalObject.getQuestionOption(paginationData, id, function(err, pageData)
+	{
+		    if(pageData)
+			{
+				if (err) 
+				{  
+					req.flash('error_message','Error Occured: Unable to fetch page list');
+				}else 
+				{
+					const itemCount = pageData.count;
+					res.render('pages/optionview', {
+						custom_helper: custom_helper,
+						pageDataValue: pageData.rows,
+						current: page,
+						route_page: '/optionview',
+						pages: Math.ceil(itemCount / perPage)
+					});
+				}
+			}
+		});
+	})
 module.exports = router;

@@ -704,18 +704,18 @@ router.post('/createmonthlygoal', verifyToken, function(req, res) {
 																	let day = new Date(year, month, 0).getDate() / monthlyGoalDataSaved.connect_number
 																	cron.schedule(`${parseInt(minutes)} ${hours} */${day} * *`, () => {
 																		// cron.schedule(`*,1,2,4 * * * *`, () => {
-																			notificationObject.notification(updateedstage.fcmid, function(err, response) {
+																			notificationObject.notification(updatedStage.fcmid, function(err, response) {
 																				let notification1 = {
-																					user_id: updateedstage.id,
+																					user_id: updatedStage.id,
 																					goal_id: monthlyGoalDataSaved.id,
-																					device_id: updateedstage.fcmid,
+																					device_id: updatedStage.fcmid,
 																					notification_id: response.results[0].message_id,
 																				}
 																				notificationObject.saveNotification(notification1, function(err, response) {})
 																			})
-																			notificationObject.notification(GetpatnerData.fcmid, function(err, response) {
+																			notificationObject.notification(updateedstage.fcmid, function(err, response) {
 																				let notification1 = {
-																					user_id: GetpatnerData.id,
+																					user_id: updateedstage.id,
 																					goal_id: monthlyGoalDataSaved.id,
 																					device_id: updateedstage.fcmid,
 																					notification_id: response.results[0].message_id,
@@ -828,7 +828,6 @@ router.post('/CheckingStage', verifyToken, function(req, res) {
 											patner_stage: partenerData.stage
 										})
 									}
-									}
 									if(partenerData.stage === 7 && userDetails.stage === 4) {
 										res.send({
 											status: 200,
@@ -840,7 +839,7 @@ router.post('/CheckingStage', verifyToken, function(req, res) {
 									if(partenerData.stage < 4) {
 										res.send({
 											status:400,
-											messgae: "PAring is not save successfully",
+											messgae: "Paring is not save successfully",
 											user_stage: userDetails.stage
 										})
 									}
@@ -851,7 +850,7 @@ router.post('/CheckingStage', verifyToken, function(req, res) {
 											patner_stage:partenerData.stage
 										})
 									}
-									if(partenerData.stage === 4 && userDetails.stage === 3) {
+									if(partenerData.stage === 4 && userDetails.stage < 4) {
 										userSerObject.updateUserStage(4, userDetails.id, function(err, updatestageData) {
 											if(updatestageData) {
 												userSerObject.updateUserStage(5, user_id, function(err, updatestageData) {
@@ -876,10 +875,10 @@ router.post('/CheckingStage', verifyToken, function(req, res) {
 											}
 										}) 
 									}
+								}
 							}
 						});
 					}
-		
 				}
 			});
 		}
@@ -959,46 +958,63 @@ router.post('/updatemonthlygoal/:goal_id', verifyToken, function(req, res) {
 		{
 			if(goalData)
 			{
-				if(goalData.status)
-			    {
-					let monthlyGoalData = {
-						'partner_mapping_id': goalData.partner_mapping_id,
-						'user_id': user_id,
-						'connect_number': connect_number,
-						'initiator_count': initiator_count,
-						'initiator_count1': initiator_count1,
-						'status': 1,
-						'intimate_time': intimate_time,
-						'intimate_request_time': intimate_request_time,
-						'intimate_account_time': intimate_account_time,
-						'id': goal_id,
-						'partner_initiator_count': initiator_count,
-					};
-					goalSerObject.updateMonthlyGoal(monthlyGoalData, function(err, monthlyGoalDataSaved)
-					{
-						if(err)
-						{
+				userSerObject.getPartnerById(user_id, function(err, partnerResponse) {
+					if(err) {
+						res.send({
+							status: 400,
+							message: "something went wrong"
+						})
+					} else {
+						if(partnerResponse) {
+							if(goalData.status)
+							{
+								let monthlyGoalData = {
+									'partner_mapping_id': goalData.partner_mapping_id,
+									'user_id': user_id,
+									'connect_number': connect_number,
+									'initiator_count': initiator_count,
+									'initiator_count1': initiator_count1,
+									'status': 1,
+									'intimate_time': intimate_time,
+									'intimate_request_time': intimate_request_time,
+									'intimate_account_time': intimate_account_time,
+									'id': goal_id,
+									'partner_initiator_count': initiator_count,
+								};
+								goalSerObject.updateMonthlyGoal(monthlyGoalData, function(err, monthlyGoalDataSaved)
+								{
+									if(err)
+									{
+										res.send({
+											status: 500,
+											message: 'something went wrong.',
+										});
+									}
+									else
+									{
+										res.send({
+											status: 200,
+											message: 'The monthly goal has been updated.',
+											patner_fcmid: partnerResponse.fcmid
+										});
+									}
+								});
+							}
+							else
+							{
+								return res.send({
+									status: 400,
+									message: 'This goal is not active',
+								});
+							}
+						} else {
 							res.send({
-								status: 500,
-								message: 'something went wrong.',
-							});
+								status: 400,
+								message: "partner not found"
+							})
 						}
-						else
-						{
-							res.send({
-								status: 200,
-								message: 'The monthly goal has been updated.',
-							});
-						}
-					});
-				}
-				else
-				{
-					return res.send({
-						status: 400,
-						message: 'This goal is not active',
-					});
-				}
+					}
+				})
 			}
 			else
 			{

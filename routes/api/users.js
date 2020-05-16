@@ -7,6 +7,7 @@
 const express = require('express');
 const userService = require('../../services/UserService');
 const goalService = require('../../services/GoalService');
+const QuickyService = require('../../services/quickyService');
 
 const formValidator = require('validator');
 const path = require('path');
@@ -66,6 +67,9 @@ var userSerObject = new userService();
 
 // Create goal model object
 var goalObject = new goalService();
+
+// Create quicky model object
+var quickyObject = new QuickyService();
 
 // Get user detail
 router.get('/getuserdetail/:user_id', verifyToken, function(req, res, next) {
@@ -597,7 +601,6 @@ router.post('/login', function(req, res) {
 									});
 									res.cookie("access_token", access_token, { httpOnly: true });
 									res.cookie("refresh_token", refresh_token, { httpOnly: true });
-
 									if(user.stage > 3) {
 										goalObject.checkParternstage(user.id, function(err, partnerData)
 										{
@@ -623,6 +626,11 @@ router.post('/login', function(req, res) {
 														result: user,
 														patner_mapping_id: partnerData.id
 													});
+												} else {
+													res.send({
+														status: 504,
+														message: "something went wrong!"
+													})
 												}
 											}
 										});
@@ -1251,44 +1259,83 @@ router.delete('/unparring', verifyToken, function(req, res) {
 				message: "Users is not found.",
 				stage:1
 			})
-		}
-		if(GetuserDetail.stage < 4) {
-			res.send({
-				status:400,
-				message: "Paring is not avalibale",
-				stage:1
-			})
 		} else {
-			userSerObject.getPartnerById(user_id, function(err, partnerData, patner_mapping_id)
-			{
-				if(err)
-				{
+			if(GetuserDetail) {
+				if(GetuserDetail.stage < 4) {
 					res.send({
-						status: 500,
-						message: 'There was a problem finding the partner user.',
-					});
-				}
-				else
-				{	if(partnerData) {
-					userSerObject.RemoveParring(user_id, function(err, response) {
-						if(response) {
-							userSerObject.RemoveMonthlyGoal(user_id, partnerData.id,function(err, removeableData) {
-								if(removeableData) {
-									userSerObject.updateUserStage(1, partnerData.id, function(err, updatedStage){})
-									userSerObject.updateUserStage(1, user_id, function(err, updatedStage){
-										res.send({
-											status:200,
-											message: "Paring Remove Sucessfully!",
-											stage: updatedStage.stage
+						status:400,
+						message: "Paring is not avalibale",
+						stage:1
+					})
+				} else {
+					userSerObject.getPartnerById(user_id, function(err, partnerData, patner_mapping_id)
+					{
+						if(err)
+						{
+							res.send({
+								status: 500,
+								message: 'There was a problem finding the partner user.',
+							});
+						}
+						else
+						{	if(partnerData) {
+								userSerObject.RemoveParring(user_id, function(err, response) {
+									if(response) {
+										userSerObject.RemoveMonthlyGoal(user_id, partnerData.id,function(err, removeableData) {
+											if(removeableData) {
+												userSerObject.updateUserStage(1, partnerData.id, function(err, updatedPatnerStage){
+													if(updatedPatnerStage) {
+														userSerObject.updateUserStage(1, user_id, function(err, updatedStage){
+															if(updatedStage) {
+																res.send({
+																	status:200,
+																	message: "Paring Remove Sucessfully!",
+																	stage: updatedStage.stage,
+																	partner_fcmid: updatedPatnerStage.fcmid
+																})
+															} else {
+																res.send({
+																	status: 504,
+																	message: "something went wrong!"
+																})
+															}
+														})
+													} else {
+														res.send({
+															status: 504,
+															message: "Somwthing went wrong!"
+														})
+													}
+												})
+											} else {
+												res.send({
+													status: 504,
+													message: "something went wrong"
+												})
+											}
 										})
-									})
-								}
-							})
+									} else {
+										res.send({
+											status: 504,
+											message: "something went wrong!"
+										})
+									}
+								});
+							} else {
+								res.send({
+									status: 504,
+									message: "partner not found"
+								})
+							}
 						}
 					});
 				}
-				}
-			});
+			} else {
+				res.send({
+					status: 404,
+					message: "user is not found"
+				})
+			}
 		}
 	})
 })
@@ -1317,62 +1364,92 @@ router.delete('/removeAccount', verifyToken, function(req, res) {
 				message: "Users is not found.",
 				stage:1
 			})
-		}
-		if(GetuserDetail.stage < 4) {
-			res.send({
-				status:400,
-				message: "Paring is not avalibale",
-				stage:1
-			})
 		} else {
-			userSerObject.getPartnerById(user_id, function(err, partnerData, patner_mapping_id)
-			{
-				if(err)
-				{
+			if(GetuserDetail) {
+				if(GetuserDetail.stage < 4) {
 					res.send({
-						status: 500,
-						message: 'There was a problem finding the partner user.',
-					});
-				}
-				else
-				{	if(partnerData) {
-					userSerObject.RemoveParring(user_id, function(err, response) {
-						if(response) {
-							userSerObject.RemoveMonthlyGoal(user_id, partnerData.id,function(err, removeableData) {
-								if(removeableData) {
-									userSerObject.updateUserStage(1, partnerData.id, function(err, updatedStage){
-										if(updatedStage) {
-											userSerObject.RemoveAccount(user_id, function(err, removeAccountData) {
-												if(err) {
-													res.send({
-														status: 400,
-														message: 'User Account is not avaliable'
-													})
-												}
-												if(removeAccountData) {
-													res.send({
-														status: 200,
-														message: 'User Account remove sucessfully'
-													})
-												}
-											})
-										} else {
-											res.send({
-												status: 400,
-												message: "Something Went worng"
-											})
-										}
-									})
-								}
-							})
+						status:400,
+						message: "Paring is not avalibale",
+						stage:1
+					})
+				} else {
+					userSerObject.getPartnerById(user_id, function(err, partnerData, patner_mapping_id)
+					{
+						if(err)
+						{
+							res.send({
+								status: 500,
+								message: 'There was a problem finding the partner user.',
+							});
+						}
+						else
+						{
+							if(partnerData) {
+								userSerObject.RemoveParring(user_id, function(err, response) {
+									if(response) {
+										userSerObject.RemoveMonthlyGoal(user_id, partnerData.id,function(err, removeableData) {
+											if(removeableData) {
+												userSerObject.updateUserStage(1, partnerData.id, function(err, updatedStage){
+													if(updatedStage) {
+														userSerObject.RemoveAccount(user_id, function(err, removeAccountData) {
+															if(err) {
+																res.send({
+																	status: 400,
+																	message: 'User Account is not avaliable'
+																})
+															} else {
+																if(removeAccountData) {
+																	res.send({
+																		status: 200,
+																		message: 'User Account remove sucessfully',
+																		patner_fcmid: updatedStage.fcmid
+																	})
+																} else {
+																	res.send({
+																		status:404,
+																		message: "User is not found"
+																	})
+																}
+															}
+														})
+													} else {
+														res.send({
+															status: 400,
+															message: "Something Went worng"
+														})
+													}
+												})
+											} else {
+												res.send({
+													status: 504,
+													message: "something went wrong"
+												})
+											}
+										})
+									} else {
+										res.send({
+											status: 504,
+											message: "something went wrong"
+										})
+									}
+								});
+							} else {
+								res.send({
+									status: 504,
+									message: "something went wrong"
+								})
+							}
 						}
 					});
 				}
-				}
-			});
+			} else {
+				res.send({
+					status: 404,
+					message: "user is not found"
+				})
+			}
 		}
 	})
-	
 })
 
 router.get('/getProfile', verifyToken, function(req,res) {
@@ -1474,6 +1551,7 @@ router.get('/dashboard', verifyToken, function(req, res) {
 		}
 	})
 })
+
 
 module.exports = router;
 

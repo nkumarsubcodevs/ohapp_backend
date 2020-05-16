@@ -40,8 +40,7 @@ class NotificationService
 				body: 'Do you want to set plan of dating for tonight' 
 			},
 			data: {  //you can send only notification or only data(or include both)
-				my_key: 'my value',
-				my_another_key: 'my another value'
+				type: 'remember'
 			}
 		};
 		fcm.send(message, function(err, response){
@@ -53,6 +52,26 @@ class NotificationService
 		});
 	}
 
+	async SendFeedbacknotification(notificationData, callback) {
+		let re = notificationData
+		var message = { //this may vary according to the message type (single recipient, multicast, topic, et cetera)
+			to: re, 
+			notification: {
+				title: 'Feedback of Tomorrow Plan', 
+				body: 'how much did you like your tomorrow plan? ' 
+			},
+			data: {  //you can send only notification or only data(or include both)
+				type: 'feedback'
+			}
+		};
+		fcm.send(message, function(err, response){
+			if (err) {
+				console.log("Something has gone wrong!", err);
+			} else {
+				callback(null, JSON.parse(response));
+			}
+		});
+	}
 	async updateNotification(id, answer, callback) {
 		const now = new Date();
 		GoalNotification.update({answer:  answer, update_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss') }, { where: { notification_id: id }});
@@ -69,15 +88,27 @@ class NotificationService
 		callback(null, response)
 	}
 
-	async updateNotificationStage(id, stage, callback) {
+	async getNotificationById(id, callback) {
+		let response = await GoalNotification.findOne({where: { id: id, status: 1}, order : [['create_time', 'DESC']]});
+		callback(null, response)
+	}
+
+	async updateNotificationStage(notification, stage, callback) {
 		const now = new Date();
-		GoalNotification.update({stage:  stage, update_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss') }, { where: { notification_id: id }}) 
-		let response = await GoalNotification.findOne({where: {notification_id: id, status: 1}});
-		if(response.stage == stage) {
-			callback(null, response);
-		} else {
-			this.updateNotificationStage(id, stage, callback);
-		}
+		GoalNotification.update({
+			stage:  stage,
+			update_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss'
+		)},
+		{
+			where: {
+				notification_id: notification
+			}
+		}).then(async res => {
+			let response = await GoalNotification.findOne({where: {notification_id: notification, status: 1}});
+			callback(null, response)
+		}).catch(err => {
+			callback(err, null)
+		})
 	}
 }
 

@@ -362,6 +362,25 @@ class GoalService
 		callback(null,data)
 	}
 
+	async removeQuestionaries(question_id, callback) {
+		let res = goalSettingsObject.destroy({where: {id: question_id}});
+		callback(null, res)
+	}
+	async removeOption(question_id, callback) {
+		let res = questionOptionsObject.destroy({where: {question_id: question_id}});
+		callback(null, res)
+	}
+
+	async removeQuestionariesAnswer(question_id, callback) {
+		let res = goalSettingAnswerObject.destroy({where: {question_id: question_id}});
+		callback(null, res)
+	}
+
+	async getQuestionOption(paginationData,id, callback) {
+		const GetOption = await questionOptionsObject.findAll({offset: paginationData.offset, limit: paginationData.limit},{where : {question_id: id}});
+		callback(null,GetOption);
+	}
+
 }
 
 module.exports = GoalService;

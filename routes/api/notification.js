@@ -27,33 +27,11 @@ var goalServiceObject = new goalService();
 var userServiceObject = new userService();
 
 // Get single page content
-router.put('/saveAnswer', verifyToken, function(req, res, next) {
+router.get('/checkNotificationStage', verifyToken, function(req, res, next) {
 
-  var notification_id = req.body.notification_id;
-  var Answer = req.body.Answer;
   var user_id = jwt.decode(req.headers['x-access-token']).id;
 
-  // if(!page_id) 
-  // {
-  //     return res.send({
-  //       status: 400,
-  //       message: 'Page id is required',
-  //     });
-  // }
-
-  // if(!formValidator.isInt(page_id))   
-	// {
-	// 	return res.send({
-	// 		status: 400,
-	// 		message: 'Please enter a valid page id.',
-	// 	});
-	// }
-  
-  // let pageData = {
-  //     'page_id': page_id,
-  // };
-
-  notificationObject.updateNotification(notification_id,  Answer, function(err, pageData)
+  notificationObject.getNotification(user_id, function(err, pageData)
   {
       if(err)
       {
@@ -72,69 +50,121 @@ router.put('/saveAnswer', verifyToken, function(req, res, next) {
                   status: 400,
                   message: "Something went wrong"
                 })
-              }
-              if(patnerData) {
-                notificationObject.getNotification(patnerData.partner_two_id, function(err, patner) {
-                  if(err) {
-                    res.send({
-                      status: 400,
-                      message: "something went wrong"
-                    })
-                  }
-                  if(patner === null) {
-                    res.send({
-                      status: 504,
-                      message: "patner is not found",
-                    })
-                  } else {
-                    if(patner.answer === "true" && pageData.answer === "true") {
-                      notificationObject.updateNotificationStage(pageData.notification_id, 2, function(err, updateStage) {
-                        if(updateStage) {
-                          res.send({
-                            status:200,
-                            result: updateStage
+              } else {
+                if(patnerData) {
+                  notificationObject.getNotification(patnerData.partner_two_id, function(err, patner) {
+                    if(err) {
+                      res.send({
+                        status: 400,
+                        message: "something went wrong"
+                      })
+                    } else {
+                      if(patner.stage == 1 && pageData.stage == 1) {
+                          notificationObject.getNotificationById(pageData.id, function(err, notification1) {
+                            if(err) {
+                              res.send({
+                                status: 400,
+                                message: "Something went wrong!"
+                              })
+                            } else {
+                              if(notification1) {
+                                notificationObject.getNotificationById(patner.id, function(err, notification2) {
+                                  if(err) {
+                                    res.send({
+                                      status: 400,
+                                      message: "Something went wrong!"
+                                    })
+                                  } else {
+                                    if(notification2) {
+                                     if(notification2.stage == 1 && notification1.stage) {
+                                       notificationObject.updateNotificationStage(pageData.notification_id, 2, function(err, updateStage) {
+                                         if(updateStage) {
+                                           res.send({
+                                             status:200,
+                                             result: 'updateStage'
+                                           })
+                                         } else {
+                                           res.send({
+                                             status: 504,
+                                             message: "Something went wrong!"
+                                           })
+                                         }
+                                       })
+                                     } else {
+                                       res.send({
+                                         status:404,
+                                         message: "something went wrong"
+                                       })
+                                     }
+                                    } else {
+                                      res.send({
+                                        status: 504,
+                                        message: "Something went wrong!"
+                                      })
+                                    }
+                                  }
+                                })
+                              } else {
+                                res.send({
+                                  status: 500,
+                                  message: "Something went wrong!"
+                                })
+                              }
+                            }
                           })
-                        }
-                      })
-                    } 
-                    if(patner.answer === "false" && pageData.answer === "false"){
-                      res.send({
-                        status:200,
-                        message: "Not interested of dating for tonight ",
-                        result: patner
-                      })
+                      } else if(patner.stage == 2 && pageData.stage == 1) {
+                        res.send({
+                          status:200,
+                          message: "Your patner Is setting quicky",
+                          user_stage: pageData.stage,
+                          partner_stage: patner.stage
+                        })
+                      } else if(patner.stage == 3 && pageData.stage == 3){
+                        res.send({
+                          status: 200,
+                          message: "Quicky is saved successfully",
+                          user_stage: pageData.stage,
+                          partner_stage: patner.stage
+                        })
+                      } else {
+                        notificationObject.updateNotificationStage(pageData.notification_id, 2, function(err, updateStage) {
+                          if(updateStage) {
+                            res.send({
+                              status:200,
+                              result: 'updateStage'
+                            })
+                          } else {
+                            res.send({
+                              status: 504,
+                              message: "Something3 went wrong!"
+                            })
+                          }
+                        })
+                      }
                     }
-                    if(patner.answer === "false" || pageData.answer === "false") {
-                      res.send({
-                        staus: 200,
-                        message: "patner is not interested"
-                      })
-                    }
-                    if(patner.answer === null) {
-                      res.send({
-                        status: 200,
-                        messgae: "waiting for your patner confirmation"
-                      })
-                    }
-                  }
-                })
+                  })
+                } else {
+                  res.send({
+                    status: 404,
+                    message: "notification not found"
+                  })
+                }
               }
             })
           }
           else
           {
-              res.send({
-                status: 404,
-                message: 'No page found.',
-              });
-          }	
+            res.send({
+              status: 404,
+              message: 'No page found.',
+            });
+          }
       }
   });
 });
 
 router.get('/getNotificationStage', verifyToken, function(req, res) {
   let user_id = jwt.decode(req.headers['x-access-token']).id;
-  
 })
 
 
