@@ -58,6 +58,14 @@ const MonthlyGoal = database.define('monthly_goals',
 	// 	type: Sequelize.STRING(50),
 	// 	allowNull: true,
 	// },
+	contribution1: {
+		type: Sequelize.BIGINT,
+		allowNull: false,
+	},
+	contribution2: {
+		type: Sequelize.BIGINT,
+		allowNull: false,
+	},
 	complete_count: {
 		type: Sequelize.STRING(50),
 		allowNull: true,

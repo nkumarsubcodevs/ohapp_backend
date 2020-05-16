@@ -381,6 +381,45 @@ class GoalService
 		callback(null,GetOption);
 	}
 
+	async updateCompleteCount(completedata, callback) {
+		monthlyGoalObject.update({
+			complete_count: completedata.complete_count,
+			contribution1: completedata.contribution1,
+			contribution2: completedata.contribution2
+		}, {where: {id: completedata.id}}).then(async () => {
+			let res = await monthlyGoalObject.findOne({where: {id: completedata.id}});
+			callback(null, res)
+		}).catch(err => {
+			callback(err.message, null)
+		})
+	}
+
+	async GetPreviousMonthyGoalById(id, patner, callback) {
+		const response = await monthlyGoalObject.findAll({
+			where: 
+			{ 
+			[Op.or]: [
+			  {
+				user_id: {
+					[Op.eq]: id
+				}
+			  },
+			  {
+				user_id: {
+					[Op.eq]: patner
+				}
+			  }
+			],
+			[Op.and]: [
+				{
+				  status: {
+					  [Op.eq]: 1
+				  }
+				},
+			]	
+		}, order: [['create_time', 'DESC']] }, {limit: 2});
+		callback(null, response[1])
+	}
 }
 
 module.exports = GoalService;

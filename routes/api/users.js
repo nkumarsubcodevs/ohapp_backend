@@ -682,7 +682,7 @@ router.post('/login', function(req, res) {
 // update user profile API
 router.post('/profileupdate', verifyToken, function(req, res, next) {
 
-	let user_id    = req.body.user_id;
+	let user_id    = jwt.decode(req.headers['x-access-token']).id;
 	let first_name = req.body.first_name;
 	let last_name  = req.body.last_name;
 
@@ -1521,6 +1521,8 @@ router.get('/dashboard', verifyToken, function(req, res) {
 									initiator_count1: patnerGoalData.user_id === user_id ? patnerGoalData.initiator_count : patnerGoalData.initiator_count1,
 									initiator_count2: patnerGoalData.user_id === user_id ? patnerGoalData.initiator_count1 : patnerGoalData.initiator_count ,
 									complete_count: patnerGoalData.complete_count,
+									contribution1: patnerGoalData.user_id === user_id ? patnerGoalData.contribution1 : patnerGoalData.contribution2 ,
+									contribution2: patnerGoalData.user_id === user_id ? patnerGoalData.contribution2 : patnerGoalData.contribution1 ,
 									patner1_user_id: userdata.id,
 									patner1_first_name:userdata.first_name,
 									patner1_last_name:userdata.last_name,

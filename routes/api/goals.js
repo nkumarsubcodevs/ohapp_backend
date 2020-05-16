@@ -8,6 +8,7 @@ const express = require('express');
 const goalService = require('../../services/GoalService');
 const notificationService = require('../../services/notification');
 const userService = require('../../services/UserService');
+const ComplitionService = require('../../services/completionService');
 const customHelper = require('../../helpers/custom_helper');
 const formValidator = require('validator');
 const current_datetime = require('date-and-time');
@@ -24,6 +25,9 @@ var goalSerObject = new goalService();
 
 // Create user model object
 var userSerObject = new userService();
+
+// Create user model object
+var completionSerObject = new ComplitionService();
 
 var notificationObject = new notificationService();
 
@@ -1378,4 +1382,174 @@ router.put('/updateGoalSetting/', verifyToken, function(req, res) {
 		});
 	})
 });
+
+// Update Complete goal count
+router.put('/updateCompletedGoal', verifyToken, function(req,res) {
+	let user_id = jwt.decode(req.headers['x-access-token']).id;
+	let answer1 = req.body.didYouConnectLastNight;
+	let answer2 = req.body.WhoInitiative;
+	if(!answer1) 
+	{
+		return res.send({
+			status: 400,
+			message: 'Answer is required',
+		});
+	}
+	userSerObject.getPartnerById(user_id, function(err, partner_data) {
+		if(err) {
+			res.send({
+				status:400,
+				message: "something1 went wrong!"
+			})
+		} else {
+			if(partner_data) {
+				goalSerObject.getGoalDetails(user_id, partner_data.id, function(err, monthly_goal_data) {
+					if(err) {
+						res.send({
+							status:400,
+							message: "something2 went wrong!"
+						})
+					} else {
+						if(monthly_goal_data) {
+							goalSerObject.getPartnerData(user_id, function(err, patner_mapping_data) {
+								if(err) {
+									res.sendF({
+										status: 400,
+										message: "something3 went wrong"
+									})
+								} else {
+									if(patner_mapping_data) {
+										if(answer1 === "true") {
+											if(!answer2)
+											{
+												return res.send({
+													status: 400,
+													message: 'Who initiative is required',
+												});
+											}
+											let userID ;
+											if(answer2 === "true") {
+												userID = user_id;
+											} else {
+												userID = partner_data.id
+											}
+											let comepletion_goal = {
+												user_id: userID,
+												goal_id: monthly_goal_data.id,
+												partner_mapping_id: patner_mapping_data.id,
+												didYouConnectLastNight: answer1,
+												WhoInitiative: answer2
+											}
+											let completeData = {
+												id: monthly_goal_data.id,
+												complete_count: parseInt(monthly_goal_data.complete_count) + 1,
+												contribution1: monthly_goal_data.user_id === user_id ? parseInt(monthly_goal_data.contribution1) + 1 : parseInt(monthly_goal_data.contribution1),
+												contribution2: monthly_goal_data.user_id === user_id ? parseInt(monthly_goal_data.contribution2) : parseInt(monthly_goal_data.contribution2) +1,
+											}
+											goalSerObject.updateCompleteCount(completeData, function(err, update_monthly_data) {
+												if(err) {
+													res.send({
+														status:400,
+														message: err
+													})
+												} else {
+													if(update_monthly_data) {
+														completionSerObject.saveCompletionGoal(comepletion_goal, function(err, save_data) {
+															if(err) {
+																res.send({
+																	status: 504,
+																	message: "something5 Went Wrong"
+																})
+															} else {
+																if(save_data) {
+																	res.send({
+																		status: 200,
+																		message: "Succssfully saved"
+																	})
+																} else {
+																	res.send({
+																		status: 504,
+																		message: "something6 Went Wrong"
+																	})
+																}
+															}
+														})
+													} else {
+														res.send({
+															status: 504,
+															message: "something7 Went Wrong"
+														})
+													}
+												}
+											})
+										} else {
+											res.send({
+												status: 200,
+												message: "You did not connect tomorrow night"
+											})
+										}
+									}
+								}
+								})
+							} else {
+								res.send({
+									status: 400,
+									message: "Goal is not found"
+								})
+							}
+						}
+				})
+			} else {
+				res.send({
+					status: 504,
+					message: "partner is not found"
+				})
+			}
+		}
+	})
+
+})
+
+router.get('/previousMonthlyGoal', verifyToken, function(req, res) {
+	let user_id = jwt.decode(req.headers['x-access-token']).id;
+
+	userSerObject.getPartnerById(user_id, function(err, partner_data) {
+		if(err) {
+			res.send({
+				status:400,
+				message: "something went wrong!"
+			})
+		} else {
+			if(partner_data) {
+				goalSerObject.GetPreviousMonthyGoalById(user_id, partner_data.id, function(err, previous_monthly_goal_data) {
+					if(err) {
+						res.send({
+							status:400,
+							message: "something went wrong!"
+						})
+					} else {
+						if(previous_monthly_goal_data) {
+							res.send({
+								status: 200,
+								result: previous_monthly_goal_data
+							})
+						} else {
+							res.send({
+								status: 400,
+								message: "Previous monthly goal data is not avaliable"
+							})
+						}
+					}
+				})
+			} else {
+				res.send({
+					status: 504,
+					message: "partner is not found"
+				})
+			}
+		}
+	})
+
+})
+
 module.exports = router;
