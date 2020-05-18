@@ -227,11 +227,17 @@ class GoalService
 			percentage         : monthlyGoalData.percentage,
 			complete_count     : 0,
 			complete_percentage: 0,
+			contribution1:0,
+			contribution2:0,
 			status: 1,
 			create_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss'),
 			update_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss')
 		})
-		callback(null, await GoalData.save());
+		await GoalData.save().then(res => {
+			callback(null, res);
+		}).catch(err => {
+			callback(err.message, null);
+		})
 	}
 
 	// check Monthly Goal created or not

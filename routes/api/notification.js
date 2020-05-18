@@ -156,7 +156,7 @@ router.get('/checkNotificationStage', verifyToken, function(req, res, next) {
           {
             res.send({
               status: 404,
-              message: 'No page found.',
+              message: 'Notification is not found',
             });
           }
       }

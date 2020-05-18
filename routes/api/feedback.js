@@ -17,7 +17,7 @@ let router =  express.Router();
 // Create user model object
 var feedbackObject = new FeedbackService();
 
-// Get single page content
+// save Feed back data
 router.post('/savefeedback', verifyToken, function(req, res) {
 
   var user_id = jwt.decode(req.headers['x-access-token']).id;
@@ -91,7 +91,5 @@ router.post('/savefeedback', verifyToken, function(req, res) {
     }
   })
 });
-
-
 
 module.exports = router;

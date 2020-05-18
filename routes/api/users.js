@@ -1533,7 +1533,6 @@ router.get('/dashboard', verifyToken, function(req, res) {
 									patner2_last_name:patnerData.last_name,
 									patner2_gender: patnerData.gender,
 									patner2_profile_image: patnerData.profile_image ? `${config.site_url}profile_images/${patnerData.profile_image}`: null
-	
 								}
 								res.send({
 									status:200,
