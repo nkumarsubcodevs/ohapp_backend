@@ -63,7 +63,12 @@ router.post('/savefeedback', verifyToken, function(req, res) {
                     messge: "Updated successfully",
                     result: updatedFeedback,
                   });
-              } 
+              } else {
+                res.send({
+                  status: 504,
+                  message: "Something Went Wrong"
+                })
+              }
           }
       });
     } else {
@@ -85,7 +90,12 @@ router.post('/savefeedback', verifyToken, function(req, res) {
                     messge: "saved successfully",
                     result: savefeedback,
                   });
-              } 
+              } else {
+                res.send({
+                  status: 504,
+                  message: "Something Went Wrong"
+                })
+              }
           }
       });
     }

@@ -15,17 +15,29 @@
 		<section class="content">
     
      <div class="row">
-            <div class="col-md-12">
+            <div class="col-md-6">
                 <div class="box box-primary">
                     <div class="box-header with-border">
-                      <h3 class="box-title">Update Page</h3>
+                      <h3 class="box-title">Update Question</h3>
                     </div>
                      <form role="form" method="POST" action="/pages/update">
                      <input type="hidden" name="page_id" value="<%=pageValue[0]['id']%>"/>
                         <div class="box-body">
                           <div class="form-group">
                             <label for="exampleInputEmail1">Title</label>
-                            <input type="text" class="form-control" name="title" value="<%=pageValue[0]['title']%>"/>
+                            <input type="text" class="form-control" name="title" value="<%=pageValue[0]['question_title']%>"/>
+                          </div>
+                          <div class="form-group">
+                            <label for="exampleInputEmail1">descripation</label>
+                            <input type="text" class="form-control" name="descripation" value="<%=pageValue[0]['question_descripation']%>"/>
+                          </div>
+                          <div class="row">
+                          <% for(var i=0; i < pageValue[0]['Options'].length; i++) { %>
+                            <div class="form-group col-md-6" >
+                              <label for="exampleInputEmail1">Option<%=i +1%></label>
+                              <input type="text" class="form-control" name="Option" value="<%=pageValue[0]['Options'][i].title%>"/>
+                            </div>
+                         <% } %>
                           </div>
                           <div class="form-group">
                             <label for="exampleInputPassword1">Status</label>
@@ -34,20 +46,16 @@
                                 <option value="0" <% if(pageValue[0]['status']==0) { %> selected <% } %>>Inactive</option>
                             </select>
                             </div>
-                          <div class="form-group">
-                            <label for="exampleInputFile">Update_time</label>
-                            <input type="text" class="form-control" name="update_time" value="<%=custom_helper.h_convertDateTimeInTimeStamp(pageValue[0]['update_time'])%>"/>
-                          </div>
                         </div>
                         <div class="box-footer">
                           <button type="submit" class="btn btn-primary">Submit</button>
+                          <a class="btn btn-secondary bg-gray float-right" href="/pages/1" style="color: white">Cancel</a>
                         </div>
                       </form>
-
                   </div>
             </div>
         </div>
  </section>
 </div>
-	 
-			
+
+

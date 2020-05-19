@@ -51,10 +51,24 @@ router.get('/getgoalsettings', verifyToken, function(req, res, next) {
 			if(settingData)
 			{
 				goalSerObject.getGoalSettings(function(err, GetquestionWithOption) {
-					res.send({
-						status: 200,
-						settings: GetquestionWithOption,
-					});
+					if(err) {
+						res.send({
+							status: 404,
+							message: "Something Went Wrong"
+						})
+					} else {
+						if(GetquestionWithOption) {
+							res.send({
+								status: 200,
+								settings: GetquestionWithOption,
+							});
+						} else {
+							res.send({
+								status: 504,
+								message: "Option is not found"
+							})
+						}
+					}
 				})
 			}
 			else
@@ -63,7 +77,7 @@ router.get('/getgoalsettings', verifyToken, function(req, res, next) {
 					status: 404,
 					message: 'No Question found.',
 				});
-			}	
+			}
 		}
 	});
 });
@@ -86,10 +100,24 @@ router.get('/getgoalsettingsanswer/:goal_id', verifyToken, function(req, res, ne
 			if(settingData)
 			{
 				goalSerObject.getGoalSettingsAnswer(user_id, goal_id,function(err, GetquestionWithOption) {
-					res.send({
-						status: 200,
-						settings: GetquestionWithOption,
-					});
+					if(err) {
+						res.send({
+							status: 404,
+							message: "something went wrong"
+						})
+					} else {
+						if(GetquestionWithOption) {
+							res.send({
+								status: 200,
+								settings: GetquestionWithOption,
+							});
+						} else {
+							res.send({
+								status: 504,
+								message: "Option is not avaliable"
+							})
+						}
+					}
 				})
 			}
 			else
@@ -322,6 +350,11 @@ router.post('/checkuseruniquecode', verifyToken, function(req, res) {
 															});
 														// }
 													}
+												} else {
+													res.send({
+														status: 504,
+														message: "Patner is not found"
+													})
 												}
 											}
 										});
@@ -376,6 +409,11 @@ router.post('/checkuseruniquecode', verifyToken, function(req, res) {
 																			});
 																			// }
 																		}
+																	} else {
+																		res.send({
+																			status: 504,
+																			message: "Something went Wrong"
+																		})
 																	}
 																}
 															});
@@ -477,10 +515,17 @@ router.post('/getpartnermapping', verifyToken, function(req, res) {
 			}
 			else
 			{
-				res.send({
-					status: 200,
-					partnerMappingData: partnersData,
-				});
+				if(partnerData) {
+					res.send({
+						status: 200,
+						partnerMappingData: partnersData,
+					});
+				} else {
+					res.send({
+						status: 504,
+						message: "Something went is wrong"
+					})
+				}
 			}
 		}
 		else
@@ -699,9 +744,12 @@ router.post('/createmonthlygoal', verifyToken, function(req, res) {
 																				var date = new Date();
 																				var month = date.getMonth() + 1;
 																				var year = date.getFullYear();
-																				let day = new Date(year, month, 0).getDate() / monthlyGoalDataSaved.connect_number
+																				let day = parseInt(new Date(year, month, 0).getDate() / monthlyGoalDataSaved.connect_number);
+																				if(day <= 0) {
+																					day = 1
+																				}
 																				cron.schedule(`${parseInt(minutes)} ${hours} */${day} * *`, () => {
-																					// cron.schedule(`*,1,2,4 * * * *`, () => {
+																					// cron.schedule(`* * * * *`, (err, ress) => {
 																						notificationObject.notification(updatedStage.fcmid, function(err, response) {
 																							let notification1 = {
 																								user_id: updatedStage.id,
@@ -709,7 +757,8 @@ router.post('/createmonthlygoal', verifyToken, function(req, res) {
 																								device_id: updatedStage.fcmid,
 																								notification_id: response.results[0].message_id,
 																							}
-																							notificationObject.saveNotification(notification1, function(err, response) {})
+																							notificationObject.saveNotification(notification1, function(err, response) {
+																							})
 																						})
 																						notificationObject.notification(updateedstage.fcmid, function(err, response) {
 																							let notification1 = {
@@ -720,7 +769,7 @@ router.post('/createmonthlygoal', verifyToken, function(req, res) {
 																							}
 																							notificationObject.saveNotification(notification1, function(err, response) {})
 																						})
-																				});
+																				}, {timezone: "Asia/Kolkata"});
 																				if(updateedstage) {
 																					res.send({
 																						status: 200,
@@ -1133,6 +1182,11 @@ router.get('/getmonthlygoaldetail', verifyToken, function(req, res, next) {
 								})
 							}
 						})
+					} else {
+						res.send({
+							status: 504,
+							message: "Goal is not avaliable"
+						})
 					}
 				}
 			});
@@ -1286,13 +1340,14 @@ router.post('/saveQuestionaries', verifyToken, function(req, res) {
 				status: 400,
 				messgae: "Something went Wrong!"
 			})
-		}
-		if(response) {
-			res.send({
-				status:200,
-				message: "Question save successfully",
-				result: response
-			})
+		} else {
+			if(response) {
+				res.send({
+					status:200,
+					message: "Question save successfully",
+					result: response
+				})
+			}
 		}
 	})
 })
@@ -1319,31 +1374,37 @@ router.get('/CheckQuetionariesFlag', verifyToken, function(req, res) {
 							status: 400,
 							message: 'Invalid partner id provided',
 						});
-					}
-					if(partenerData) {
-						setTimeout(() => {
-							if(partenerData.stage === 7) {
-								res.send({
-									status: 400,
-									message: 'Please Wait, Your partner is already working on questionaries',
-								});
-							} else {
-								userSerObject.updateUserStage(7, user_id, function(err, updatestageData) {
-									if(updatestageData) {
-										res.send({
-											status: 200,
-											message: 'Sucessfully enter questionaries page',
-											stage: updatestageData.stage
-										})
-									} else {
-										res.send({
-											status: 400,
-											message: 'Something Went wrong',
-										})
-									}
-								})
-							}
-						}, 1000)
+					} else {
+						if(partenerData) {
+							setTimeout(() => {
+								if(partenerData.stage === 7) {
+									res.send({
+										status: 400,
+										message: 'Please Wait, Your partner is already working on questionaries',
+									});
+								} else {
+									userSerObject.updateUserStage(7, user_id, function(err, updatestageData) {
+										if(updatestageData) {
+											res.send({
+												status: 200,
+												message: 'Sucessfully enter questionaries page',
+												stage: updatestageData.stage
+											})
+										} else {
+											res.send({
+												status: 400,
+												message: 'Something Went wrong',
+											})
+										}
+									})
+								}
+							}, 1000)
+						} else {
+							res.send({
+								status: 504,
+								message: "Partner is not found"
+							})
+						}
 					}
 				});
 			} else {
@@ -1397,16 +1458,23 @@ router.put('/updateGoalSetting/', verifyToken, function(req, res) {
 						if(err)
 						{
 							res.send({
-								status: 500,
+								status: 400,
 								message: 'something went wrong',
 							});
 						}
 						else
 						{
-							res.send({
-								status: 200,
-								message: 'updated sucessfully',
-							});
+							if(goalSettingDataupdated) {
+								res.send({
+									status: 200,
+									message: 'updated sucessfully',
+								});
+							} else {
+								res.send({
+									status: 504,
+									message: "Something went wrong"
+								})
+							}
 						}
 					});
 				}
@@ -1527,16 +1595,21 @@ router.put('/updateCompletedGoal', verifyToken, function(req,res) {
 												message: "You did not connect tomorrow night"
 											})
 										}
+									} else {
+										res.send({
+											status: 504,
+											message: "partner mapping is not found"
+										})
 									}
 								}
 								})
-							} else {
-								res.send({
-									status: 400,
-									message: "Goal is not found"
-								})
-							}
+						} else {
+							res.send({
+								status: 400,
+								message: "Goal is not found"
+							})
 						}
+					}
 				})
 			} else {
 				res.send({
@@ -1573,41 +1646,18 @@ router.get('/previousMonthlyGoal', verifyToken, function(req, res) {
 									status:400,
 									message: "User is not found."
 								})
-							}
-							if(userdata) {
-								userSerObject.getPartnerById(user_id, function(err, patnerData) {
-									if(patnerData) {
-										if(previous_monthly_goal_data) {
-											let dashboard = {
-												connect_number: previous_monthly_goal_data.connect_number,
-												initiator_count1: previous_monthly_goal_data.user_id === user_id ? previous_monthly_goal_data.initiator_count : previous_monthly_goal_data.initiator_count1,
-												initiator_count2: previous_monthly_goal_data.user_id === user_id ? previous_monthly_goal_data.initiator_count1 : previous_monthly_goal_data.initiator_count ,
-												complete_count: previous_monthly_goal_data.complete_count,
-												contribution1: previous_monthly_goal_data.user_id === user_id ? previous_monthly_goal_data.contribution1 : previous_monthly_goal_data.contribution2 ,
-												contribution2: previous_monthly_goal_data.user_id === user_id ? previous_monthly_goal_data.contribution2 : previous_monthly_goal_data.contribution1 ,
-												patner1_user_id: userdata.id,
-												patner1_first_name:userdata.first_name,
-												patner1_last_name:userdata.last_name,
-												patner1_gender: userdata.gender,
-												patner1_profile_image: userdata.profile_image ? `${config.site_url}profile_images/${userdata.profile_image}`: null,
-												patner2_user_id: patnerData.id,
-												patner2_first_name:patnerData.first_name,
-												patner2_last_name:patnerData.last_name,
-												patner2_gender: patnerData.gender,
-												patner2_profile_image: patnerData.profile_image ? `${config.site_url}profile_images/${patnerData.profile_image}`: null
-											}
-											res.send({
-												status:200,
-												result:dashboard
-											})
-											} else {
+							} else {
+								if(userdata) {
+									userSerObject.getPartnerById(user_id, function(err, patnerData) {
+										if(patnerData) {
+											if(previous_monthly_goal_data) {
 												let dashboard = {
-													connect_number: '0',
-													initiator_count1: '0',
-													initiator_count2: '0',
-													complete_count: '0',
-													contribution1: '0',
-													contribution2: '0',
+													connect_number: previous_monthly_goal_data.connect_number,
+													initiator_count1: previous_monthly_goal_data.user_id === user_id ? previous_monthly_goal_data.initiator_count : previous_monthly_goal_data.initiator_count1,
+													initiator_count2: previous_monthly_goal_data.user_id === user_id ? previous_monthly_goal_data.initiator_count1 : previous_monthly_goal_data.initiator_count ,
+													complete_count: previous_monthly_goal_data.complete_count,
+													contribution1: previous_monthly_goal_data.user_id === user_id ? previous_monthly_goal_data.contribution1 : previous_monthly_goal_data.contribution2 ,
+													contribution2: previous_monthly_goal_data.user_id === user_id ? previous_monthly_goal_data.contribution2 : previous_monthly_goal_data.contribution1 ,
 													patner1_user_id: userdata.id,
 													patner1_first_name:userdata.first_name,
 													patner1_last_name:userdata.last_name,
@@ -1620,20 +1670,49 @@ router.get('/previousMonthlyGoal', verifyToken, function(req, res) {
 													patner2_profile_image: patnerData.profile_image ? `${config.site_url}profile_images/${patnerData.profile_image}`: null
 												}
 												res.send({
-													status: 200,
-													result: dashboard
+													status:200,
+													result:dashboard
+												})
+												} else {
+													let dashboard = {
+														connect_number: '0',
+														initiator_count1: '0',
+														initiator_count2: '0',
+														complete_count: '0',
+														contribution1: '0',
+														contribution2: '0',
+														patner1_user_id: userdata.id,
+														patner1_first_name:userdata.first_name,
+														patner1_last_name:userdata.last_name,
+														patner1_gender: userdata.gender,
+														patner1_profile_image: userdata.profile_image ? `${config.site_url}profile_images/${userdata.profile_image}`: null,
+														patner2_user_id: patnerData.id,
+														patner2_first_name:patnerData.first_name,
+														patner2_last_name:patnerData.last_name,
+														patner2_gender: patnerData.gender,
+														patner2_profile_image: patnerData.profile_image ? `${config.site_url}profile_images/${patnerData.profile_image}`: null
+													}
+													res.send({
+														status: 200,
+														result: dashboard
+													})
+												}
+											}
+											if(err) {
+												res.send({
+													status:400,
+													messgae: "patner is not found"
 												})
 											}
-										}
-										if(err) {
-											res.send({
-												status:400,
-												messgae: "patner is not found"
-											})
-										}
+										})
+								} else {
+									res.send({
+										status: 504,
+										message: "User is not found"
 									})
 								}
-							})
+							}
+						})
 					}
 				})
 			} else {

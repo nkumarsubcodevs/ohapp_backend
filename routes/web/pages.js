@@ -17,9 +17,9 @@ var GoalObject = new GoalService();
 // page listing
 router.get('/:page', function(req, res){
 
-	var perPage = 5;
+	var perPage = 10;
 	var page = req.params.page || 1;
-	
+
 	let paginationData = {
 		'offset': (perPage * page) - perPage,
 		'limit' : perPage,
@@ -51,14 +51,13 @@ router.get('/:page', function(req, res){
 	router.get('/edit/:id',function(req,res)
 	{
 		var page_id = req.params.id;
-		
-		pageSerObject.getSinglePageRecord(page_id,function(err,pageData)
+		GoalObject.getSingleQuestionRecord(page_id,function(err,pageData)
 			{
-				if (err) 
-				{  
+				if (err)
+				{
 					req.flash('error_message', 'Unable to fetch page detail');
-					
-				}else 
+
+				}else
 				{
 					res.render('pages/updatelistPages',{
 						pageValue : pageData,
@@ -75,25 +74,33 @@ router.get('/:page', function(req, res){
 		var title = req.body.title;
 		var status = req.body.status;
 		var update_time = req.body.update_time;
-
+		var option = req.body.Option
 		let pageData = {
 			'id': page_id,
 			'title': title,
 			'status': status,
 			'update_time': update_time
 		};
-	
-	
-		pageSerObject.updatepageDetails(pageData , function(err, response){
-			if(err)
-			{
-				req.flash('error_message','Something went wrong');
-				
-			}else{
-				req.flash('success_message','Updated Successfully');
-				res.redirect('/pages');
+		GoalObject.removeOption(page_id, function(err, RemoveOption) {
+			if(err) {
+				res.send({
+					status: 404,
+					message: "Something Went worn"
+				})
+			} else {
+				if(RemoveOption) {
+					GoalObject.setQuestionOptions(option , page_id, function(err, response){
+						if(err)
+						{
+							req.flash('error_message','Something went wrong');
+						}else{
+							req.flash('success_message','Updated Successfully');
+							res.redirect('/pages/1');
+						}
+					});
+				}
 			}
-		});
+		})
 	});
 	router.get('/add/:pages?',function (req,res){
 		res.render('pages/addlist');
@@ -103,6 +110,7 @@ router.get('/:page', function(req, res){
 		var title = req.body.title;
 		var status = req.body.status;
 		var descripation = req.body.descripation
+		var option = req.body.Option
 
 		let pageData = {
 			'question_title': title,
@@ -115,15 +123,19 @@ router.get('/:page', function(req, res){
 			{
 				req.flash('error_message','Something went wrong');
 			}else{
-				req.flash('success_message','saved Successfully');
-				res.redirect('/pages/1');
+				if(response) {
+					GoalObject.setQuestionOptions(option, response.id, function(err, SaveOption) {
+						req.flash('success_message','saved Successfully');
+						res.redirect('/pages/1');
+					})
+				}
 			}
 		});
 	});
 	router.get('/option/:id?',function (req,res){
 		var page_id = req.params.id;
 
-		GoalObject.getSingleQuestionRecord(page_id,function(err,pageData)
+		GoalObject.GetQuestion(page_id,function(err,pageData)
 			{
 				if (err)
 				{

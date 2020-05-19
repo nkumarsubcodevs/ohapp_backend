@@ -37,56 +37,63 @@ router.post('/SaveQuicky', verifyToken, function(req, res) {
 
 	goalObject.getPartnerData(user_id, function(err, partnerData){
 	  if(err) {
-		res.send({
-		  status: 404,
-		  message: "something went wrong!"
-		})
-	  }
-	  if(partnerData) {
-		  userSerObject.getUserById(partnerData.partner_two_id, function(err, partnerResponse) {
-			  if(err) {
-				  res.send({
-					  status: 400,
-					  message: "something went wrong"
-				  })
-			  } else {
-				  if(partnerResponse) {
-					  let data = {
-						  user_id: user_id,
-						  when: when,
-						  where: where,
-						  partner_mapping_id: partnerData.id
-					  }
-					quickyObject.saveQuicky(data, function(err, responseQuicky) {
-						if(err) {
-							res.send({
-								status: 400,
-								message: "something went wrong"
-							})
-						}
-						if(responseQuicky) {
-							res.send({
-								status: 200,
-                message: "quicky save successfully",
-                quickyData: responseQuicky,
-                partner_fcmid: partnerResponse.fcmid
-							})
-						}
-					})
-				  } else {
-					  res.send({
-						  status: 504,
-						  message: "partner not found"
-					  })
-				  }
-			  }
-		  })
+      res.send({
+        status: 404,
+        message: "something went wrong!"
+      })
 	  } else {
-		res.send({
-		  status: 504,
-		  message: "Partner not found"
-		})
-	  }
+      if(partnerData) {
+        userSerObject.getUserById(partnerData.partner_two_id, function(err, partnerResponse) {
+          if(err) {
+            res.send({
+              status: 400,
+              message: "something went wrong"
+            })
+          } else {
+            if(partnerResponse) {
+              let data = {
+                user_id: user_id,
+                when: when,
+                where: where,
+                partner_mapping_id: partnerData.id
+              }
+              quickyObject.saveQuicky(data, function(err, responseQuicky) {
+                if(err) {
+                  res.send({
+                    status: 400,
+                    message: "something went wrong"
+                  })
+                } else {
+                  if(responseQuicky) {
+                    res.send({
+                      status: 200,
+                      message: "quicky save successfully",
+                      quickyData: responseQuicky,
+                      partner_fcmid: partnerResponse.fcmid
+                    })
+                  } else {
+                    res.send({
+                      status: 504,
+                      message: "Something went worng"
+                    })
+                  }
+                }
+              })
+            } else {
+              res.send({
+                status: 504,
+                message: "partner not found"
+              })
+            }
+          }
+        })
+      } else {
+        res.send({
+          status: 504,
+          message: "Partner not found"
+        })
+      }
+    }
 	})
 })
 
@@ -108,114 +115,115 @@ router.put('/updateQuicky/:id', verifyToken, function(req, res) {
         if(QuickyData) {
           goalObject.getPartnerData(user_id, function(err, partnerData){
             if(err) {
-            res.send({
-              status: 404,
-              message: "something went wrong!"
-            })
-            }
-            if(partnerData) {
-              userSerObject.getUserById(partnerData.partner_two_id, function(err, partnerResponse) {
-                if(err) {
-                  res.send({
-                    status: 400,
-                    message: "something went wrong"
-                  })
-                } else {
-                  if(partnerResponse) {
-                    let data = {
-                      user_id: user_id,
-                      when: when,
-                      where: where,
-                      partner_mapping_id: partnerData.id,
-                      quicky_id: quicky_id,
-                      partner_response: partner_response
-                    }
-                  quickyObject.updateQuicky(data, function(err, responseQuicky) {
-                    if(err) {
-                      res.send({
-                        status: 400,
-                        message: "something went wrong"
-                      })
-                    }
-                    if(responseQuicky) {
-                       if(responseQuicky.partner_response === true) {
-                         userSerObject.getUserById(user_id, function(err, userData) {
-                           if(err) {
-                             res.send({
-                               status: 404,
-                               message: "something went wrong"
-                             })
-                           } else {
-                             if(userData) {
-                               goalObject.getGoalDetails(user_id, partnerResponse.id, function(err, Goaldata) {
-                                 if(err) {
-                                  res.send({
-                                    status: 404,
-                                    message: "Something went wrong!"
-                                  })
-                                 } else {
-                                   if(Goaldata) {
-                                     const [time, modifier] = Goaldata.intimate_account_time.split(' ');
-                                        let [hours, minutes] = time.split(':');
-                                        if (hours === '12') {
-                                        hours = '00';
-                                        }
-                                        if (modifier === 'PM') {
-                                          hours = parseInt(hours, 10) + 12;
-                                        }
-                                        var now = new Date();
-                                     var night = new Date(
-                                         now.getFullYear(),
-                                         now.getMonth(),
-                                         now.getDate() + 1,
-                                         hours, minutes, 0
-                                     );
-                                     var diff =(night.getTime() - now.getTime()) / 1000 * 24 * 60;
-                                     diff /= 60;
-                                     let timeout =  Math.abs(Math.round(diff))
-                                     setTimeout(() => {
-                                       notificationObject.SendFeedbacknotification(partnerResponse.fcmid, function(err, response) {})
-                                       notificationObject.SendFeedbacknotification(userData.fcmid, function(err, response) {})
-                                     }, timeout)
-                                   } else {
-                                     res.send({
-                                       status: 400,
-                                       message: "Goal is not found"
-                                     })
-                                   }
-                                 }
-                               })
-
-                             } else {
-                               res.send({
-                                 status: 504,
-                                 message: "user not found"
-                               })
-                             }
-                           }
-                         })
-                       }
-                      res.send({
-                        status: 200,
-                        message: "quicky update successfully",
-                        QuickyData: responseQuicky,
-                        partner_fcmid: partnerResponse.fcmid
-                      })
-                    }
-                  })
-                  } else {
-                    res.send({
-                      status: 504,
-                      message: "partner not found"
-                    })
-                  }
-                }
+              res.send({
+                status: 404,
+                message: "something went wrong!"
               })
             } else {
-            res.send({
-              status: 504,
-              message: "Partner not found"
-            })
+              if(partnerData) {
+                userSerObject.getUserById(partnerData.partner_two_id, function(err, partnerResponse) {
+                  if(err) {
+                    res.send({
+                      status: 400,
+                      message: "something went wrong"
+                    })
+                  } else {
+                    if(partnerResponse) {
+                      let data = {
+                        user_id: user_id,
+                        when: when,
+                        where: where,
+                        partner_mapping_id: partnerData.id,
+                        quicky_id: quicky_id,
+                        partner_response: partner_response
+                      }
+                    quickyObject.updateQuicky(data, function(err, responseQuicky) {
+                      if(err) {
+                        res.send({
+                          status: 400,
+                          message: "something went wrong"
+                        })
+                      }
+                      if(responseQuicky) {
+                         if(responseQuicky.partner_response === true) {
+                           userSerObject.getUserById(user_id, function(err, userData) {
+                             if(err) {
+                               res.send({
+                                 status: 404,
+                                 message: "something went wrong"
+                               })
+                             } else {
+                               if(userData) {
+                                 goalObject.getGoalDetails(user_id, partnerResponse.id, function(err, Goaldata) {
+                                   if(err) {
+                                    res.send({
+                                      status: 404,
+                                      message: "Something went wrong!"
+                                    })
+                                   } else {
+                                     if(Goaldata) {
+                                       const [time, modifier] = Goaldata.intimate_account_time.split(' ');
+                                          let [hours, minutes] = time.split(':');
+                                          if (hours === '12') {
+                                          hours = '00';
+                                          }
+                                          if (modifier === 'PM') {
+                                            hours = parseInt(hours, 10) + 12;
+                                          }
+                                          var now = new Date();
+                                       var night = new Date(
+                                           now.getFullYear(),
+                                           now.getMonth(),
+                                           now.getDate() + 1,
+                                           hours, minutes, 0
+                                       );
+                                       var diff =(night.getTime() - now.getTime()) / 1000 * 24 * 60;
+                                       diff /= 60;
+                                       let timeout =  Math.abs(Math.round(diff))
+                                       setTimeout(() => {
+                                         notificationObject.SendFeedbacknotification(partnerResponse.fcmid, function(err, response) {})
+                                         notificationObject.SendFeedbacknotification(userData.fcmid, function(err, response) {})
+                                       }, timeout)
+                                     } else {
+                                       res.send({
+                                         status: 400,
+                                         message: "Goal is not found"
+                                       })
+                                     }
+                                   }
+                                 })
+  
+                               } else {
+                                 res.send({
+                                   status: 504,
+                                   message: "user not found"
+                                 })
+                               }
+                             }
+                           })
+                         }
+                        res.send({
+                          status: 200,
+                          message: "quicky update successfully",
+                          QuickyData: responseQuicky,
+                          partner_fcmid: partnerResponse.fcmid
+                        })
+                      }
+                    })
+                    } else {
+                      res.send({
+                        status: 504,
+                        message: "partner not found"
+                      })
+                    }
+                  }
+                })
+              } else {
+                res.send({
+                  status: 504,
+                  message: "Partner not found"
+                })
+              }
             }
           })
         } else {

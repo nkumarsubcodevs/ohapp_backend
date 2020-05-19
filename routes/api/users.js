@@ -224,7 +224,6 @@ router.get('/getpartnerdetail', verifyToken, function(req, res, next) {
 	});
 });
 
-
 // Get user unique code
 router.get('/getuniquecode/:user_id', verifyToken, function(req, res, next) {
 
@@ -334,7 +333,6 @@ router.get('/createuniquecode', verifyToken, function(req, res, next) {
 		}
 	});
 })
-
 
 // New user registration API
 router.post('/register', function(req, res){
@@ -477,7 +475,6 @@ router.post('/register', function(req, res){
 					}
 					else
 					{
-
 						var access_token = jwt.sign({ id: userResultData.id }, config.secret, {
 							expiresIn: 900
 						});
@@ -569,102 +566,102 @@ router.post('/login', function(req, res) {
 							status: 500,
 							message: 'something went wrong',
 						});
-					}
-
-					if(isMatch)
-					{
-
-						let userFcmidData = {
-							'user_id': user.id,
-							'fcmid': fcmid,
-						};
-					
-						userSerObject.updateUserFcmID(userFcmidData, function(err, userFcmIDRespone)
+					} else {
+						if(isMatch)
 						{
-							if(err)
-							{
-								res.send({
-									status: 500,
-									message: 'There was a problem in update user fcid record.',
-								});
-							}
-							else
-							{
-								if(userFcmIDRespone)
-								{
-									var access_token = jwt.sign({ id: user.id }, config.secret, {
-										expiresIn: 900
-									});
 
-									var refresh_token = jwt.sign({ id: user.id }, config.refreshsecret, { 
-										expiresIn: 86400 
+							let userFcmidData = {
+								'user_id': user.id,
+								'fcmid': fcmid,
+							};
+
+							userSerObject.updateUserFcmID(userFcmidData, function(err, userFcmIDRespone)
+							{
+								if(err)
+								{
+									res.send({
+										status: 500,
+										message: 'There was a problem in update user fcid record.',
 									});
-									res.cookie("access_token", access_token, { httpOnly: true });
-									res.cookie("refresh_token", refresh_token, { httpOnly: true });
-									if(user.stage > 3) {
-										goalObject.checkParternstage(user.id, function(err, partnerData)
-										{
-											if(err)
-											{
-												res.send({
-													status: 500,
-													message: 'There was a problem finding the partner user.',
-												});
-											}
-											else
-											{
-												if(partnerData)
-												{
-													user.profile_image = user.profile_image ? `${config.site_url}profile_images/${user.profile_image}`: null
-													res.send({
-														status: 200,
-														message: 'success',
-														access_token: access_token,
-														refresh_token: refresh_token,
-														user_id: user.id,
-														stage: user.stage,
-														result: user,
-														patner_mapping_id: partnerData.id
-													});
-												} else {
-													res.send({
-														status: 504,
-														message: "something went wrong!"
-													})
-												}
-											}
-										});
-									} else {
-										user.profile_image = user.profile_image ? `${config.site_url}profile_images/${user.profile_image}`: null
-										res.send({
-											status: 200,
-											message: 'success',
-											access_token: access_token,
-											refresh_token: refresh_token,
-											user_id: user.id,
-											stage: user.stage,
-											result:user
-										});
-									}
 								}
 								else
 								{
-									res.send({
-										status: 404,
-										message: 'There was a problem in update user fcid.',
-									});
+									if(userFcmIDRespone)
+									{
+										var access_token = jwt.sign({ id: user.id }, config.secret, {
+											expiresIn: 900
+										});
+
+										var refresh_token = jwt.sign({ id: user.id }, config.refreshsecret, { 
+											expiresIn: 86400 
+										});
+										res.cookie("access_token", access_token, { httpOnly: true });
+										res.cookie("refresh_token", refresh_token, { httpOnly: true });
+										if(user.stage > 3) {
+											goalObject.checkParternstage(user.id, function(err, partnerData)
+											{
+												if(err)
+												{
+													res.send({
+														status: 500,
+														message: 'There was a problem finding the partner user.',
+													});
+												}
+												else
+												{
+													if(partnerData)
+													{
+														user.profile_image = user.profile_image ? `${config.site_url}profile_images/${user.profile_image}`: null
+														res.send({
+															status: 200,
+															message: 'success',
+															access_token: access_token,
+															refresh_token: refresh_token,
+															user_id: user.id,
+															stage: user.stage,
+															result: user,
+															patner_mapping_id: partnerData.id
+														});
+													} else {
+														res.send({
+															status: 504,
+															message: "something went wrong!"
+														})
+													}
+												}
+											});
+										} else {
+											user.profile_image = user.profile_image ? `${config.site_url}profile_images/${user.profile_image}`: null
+											res.send({
+												status: 200,
+												message: 'success',
+												access_token: access_token,
+												refresh_token: refresh_token,
+												user_id: user.id,
+												stage: user.stage,
+												result:user
+											});
+										}
+									}
+									else
+									{
+										res.send({
+											status: 404,
+											message: 'There was a problem in update user fcid.',
+										});
+									}
 								}
-							}
-						});
-					}
-					else
-					{
-						return res.send({
-							status: 401,
-							message: 'Invalid email or password.',
-							auth: false, 
-							access_token: null
-						});
+							});
+						}
+						else
+						{
+							return res.send({
+								status: 401,
+								message: 'Invalid email or password.',
+								auth: false, 
+								access_token: null
+							});
+						}
 					}
 				});
 			}
@@ -753,9 +750,11 @@ router.post('/profileupdate', verifyToken, function(req, res, next) {
 		{
 			if(userData)
 			{
+				userData.profile_image = userData.profile_image ? `${config.site_url}profile_images/${userData.profile_image}` : null,
 				res.send({
 					status: 200,
 					message: 'Profile updated successfully',
+					result: userData
 				});
 			}
 			else
@@ -811,8 +810,8 @@ router.post('/refreshtoken', (req,res) => {
 			access_token: access_token,
 		});
 	}
-	else 
-	{	
+	else
+	{
 		res.send({
 			status: 404,
 			message: 'Invalid request',
@@ -825,14 +824,14 @@ router.post('/forgotpasswordemail', function(req, res) {
 
 	let email    = req.body.email;
 
-	if(!email) 
+	if(!email)
 	{
 		return res.send({
 			status: 400,
 			message: 'Email is required',
 		});
 	}
- 
+
 	if(!formValidator.isEmail(email))
 	{
 		return res.send({
@@ -863,7 +862,7 @@ router.post('/forgotpasswordemail', function(req, res) {
 					'email': email
 				};
 
-				userSerObject.sendForgotEmail(userDataWithtoken, function(err, userData) 
+				userSerObject.sendForgotEmail(userDataWithtoken, function(err, userData)
 				{
 					if(err)
 					{
@@ -871,22 +870,23 @@ router.post('/forgotpasswordemail', function(req, res) {
 							status: 500,
 							message: 'something went wrong',
 						});
+					} else {
+						if(userData)
+						{
+							res.send({
+								status: 200,
+								message: 'A new password has been sent to your email-id.',
+							});
+						}
+						else
+						{
+							res.send({
+								status: 404,
+								message: 'No user found.',
+							});
+						}
 					}
 
-					if(userData)
-					{	
-						res.send({
-							status: 200,
-							message: 'A new password has been sent to your email-id.',
-						});
-					}
-					else
-					{
-						res.send({
-							status: 404,
-							message: 'No user found.',
-						});
-					}
 				});
 			}
 			else
@@ -980,22 +980,23 @@ router.post('/changepassword', verifyToken, function(req, res) {
 							status: 500,
 							message: 'something went wrong in update the password.',
 						});
+					} else {
+						if(userDataUpdate)
+						{
+							res.send({
+								status: 200,
+								message: 'Password updated successfully.',
+							});
+						}
+						else
+						{
+							res.send({
+								status: 404,
+								message: 'No user found.',
+							});
+						}
 					}
 
-					if(userDataUpdate)
-					{			
-						res.send({
-							status: 200,
-							message: 'Password updated successfully.',
-						});
-					}
-					else
-					{
-						res.send({
-							status: 404,
-							message: 'No user found.',
-						});
-					}
 				});
 			}
 			else
@@ -1099,22 +1100,23 @@ router.post('/unavailability', verifyToken, function(req, res) {
 							status: 500,
 							message: 'something went wrong to add new record.',
 						});
+					} else {
+						if(userSaveData)
+						{
+							res.send({
+								status: 200,
+								message: 'Record added successfully.',
+							});
+						}
+						else
+						{
+							res.send({
+								status: 404,
+								message: 'something went wrong to add new record.',
+							});
+						}
 					}
 
-					if(userSaveData)
-					{			
-						res.send({
-							status: 200,
-							message: 'Record added successfully.',
-						});
-					}
-					else
-					{
-						res.send({
-							status: 404,
-							message: 'something went wrong to add new record.',
-						});
-					}
 				});
 			}
 			else
@@ -1133,7 +1135,7 @@ router.get('/logout', function(req, res){
 
 	res.clearCookie("access_token");
 	res.clearCookie("refresh_token");
-	
+
 	res.send({
 		status: 200,
 		message: 'success',
@@ -1218,7 +1220,7 @@ router.post('/profileimageupload', verifyToken, (req, res, next) => {
 										status: 404,
 										message: 'Error occured in image upload.',
 									});
-								}	
+								}
 							}
 						});
 					}
@@ -1466,25 +1468,31 @@ router.get('/getProfile', verifyToken, function(req,res) {
 				status: 400,
 				message: "User does not found"
 			})
-		}
-		if(profileData) {
-			let profiles = {
-				id: profileData.id,
-				first_name: profileData.first_name,
-				last_name: profileData.last_name,
-				gender: profileData.gender,
-				email: profileData.email,
-				profile_image: profileData.profile_image ? `${config.site_url}profile_images/${profileData.profile_image}` : null,
-				notification_mute_status: profileData.notification_mute_status,
-				notification_mute_end: profileData.notification_mute_end,
-				stage: profileData.stage,
-				fcmid: profileData.fcmid,
-				unique_code: profileData.unique_code,
+		} else {
+			if(profileData) {
+				let profiles = {
+					id: profileData.id,
+					first_name: profileData.first_name,
+					last_name: profileData.last_name,
+					gender: profileData.gender,
+					email: profileData.email,
+					profile_image: profileData.profile_image ? `${config.site_url}profile_images/${profileData.profile_image}` : null,
+					notification_mute_status: profileData.notification_mute_status,
+					notification_mute_end: profileData.notification_mute_end,
+					stage: profileData.stage,
+					fcmid: profileData.fcmid,
+					unique_code: profileData.unique_code,
+				}
+				res.send({
+					status:200,
+					result: profiles
+				})
+			} else {
+				res.send({
+					status: 504,
+					message: "User is not found"
+				})
 			}
-			res.send({
-				status:200,
-				result: profiles
-			})
 		}
 	})
 })
@@ -1503,52 +1511,84 @@ router.get('/dashboard', verifyToken, function(req, res) {
 				status:400,
 				message: "Goal is not found"
 			})
-		}
-		if(GoalData) {
-			goalObject.getGoalDetails(GoalData.partner_one_id,GoalData.partner_two_id, function(err, patnerGoalData) {
-				userSerObject.getUserById(user_id, function(err, userdata) {
+		} else {
+			if(GoalData) {
+				goalObject.getGoalDetails(GoalData.partner_one_id,GoalData.partner_two_id, function(err, patnerGoalData) {
 					if(err) {
 						res.send({
-							status:400,
-							message: "User is not found."
+							status: 404,
+							message: "Something Went worng"
 						})
-					}
-					if(userdata) {
-						userSerObject.getPartnerById(user_id, function(err, patnerData) {
-							if(patnerData) {
-								let dashboard = {
-									connect_number: patnerGoalData.connect_number,
-									initiator_count1: patnerGoalData.user_id === user_id ? patnerGoalData.initiator_count : patnerGoalData.initiator_count1,
-									initiator_count2: patnerGoalData.user_id === user_id ? patnerGoalData.initiator_count1 : patnerGoalData.initiator_count ,
-									complete_count: patnerGoalData.complete_count,
-									contribution1: patnerGoalData.user_id === user_id ? patnerGoalData.contribution1 : patnerGoalData.contribution2 ,
-									contribution2: patnerGoalData.user_id === user_id ? patnerGoalData.contribution2 : patnerGoalData.contribution1 ,
-									patner1_user_id: userdata.id,
-									patner1_first_name:userdata.first_name,
-									patner1_last_name:userdata.last_name,
-									patner1_gender: userdata.gender,
-									patner1_profile_image: userdata.profile_image ? `${config.site_url}profile_images/${userdata.profile_image}`: null,
-									patner2_user_id: patnerData.id,
-									patner2_first_name:patnerData.first_name,
-									patner2_last_name:patnerData.last_name,
-									patner2_gender: patnerData.gender,
-									patner2_profile_image: patnerData.profile_image ? `${config.site_url}profile_images/${patnerData.profile_image}`: null
+					} else {
+						if(patnerGoalData) {
+							userSerObject.getUserById(user_id, function(err, userdata) {
+								if(err) {
+									res.send({
+										status:400,
+										message: "User is not found."
+									})
+								} else {
+									if(userdata) {
+										userSerObject.getPartnerById(user_id, function(err, patnerData) {
+											if(err) {
+												res.send({
+													status:400,
+													messgae: "patner is not found"
+												})
+											} else {
+												if(patnerData) {
+													let dashboard = {
+														connect_number: patnerGoalData.connect_number,
+														initiator_count1: patnerGoalData.user_id === user_id ? patnerGoalData.initiator_count : patnerGoalData.initiator_count1,
+														initiator_count2: patnerGoalData.user_id === user_id ? patnerGoalData.initiator_count1 : patnerGoalData.initiator_count ,
+														complete_count: patnerGoalData.complete_count,
+														contribution1: patnerGoalData.user_id === user_id ? patnerGoalData.contribution1 : patnerGoalData.contribution2 ,
+														contribution2: patnerGoalData.user_id === user_id ? patnerGoalData.contribution2 : patnerGoalData.contribution1 ,
+														patner1_user_id: userdata.id,
+														patner1_first_name:userdata.first_name,
+														patner1_last_name:userdata.last_name,
+														patner1_gender: userdata.gender,
+														patner1_profile_image: userdata.profile_image ? `${config.site_url}profile_images/${userdata.profile_image}`: null,
+														patner2_user_id: patnerData.id,
+														patner2_first_name:patnerData.first_name,
+														patner2_last_name:patnerData.last_name,
+														patner2_gender: patnerData.gender,
+														patner2_profile_image: patnerData.profile_image ? `${config.site_url}profile_images/${patnerData.profile_image}`: null
+													}
+													res.send({
+														status:200,
+														result:dashboard
+													})
+												} else {
+													res.send({
+														status: 504,
+														message: "Partner is not found"
+													})
+												}
+											}
+										})
+									} else {
+										res.send({
+											status: 504,
+											message: "USer is not found"
+										})
+									}
 								}
-								res.send({
-									status:200,
-									result:dashboard
-								})
-							}
-							if(err) {
-								res.send({
-									status:400,
-									messgae: "patner is not found"
-								})
-							}
-						})
+							})
+						} else {
+							res.send({
+								status: 504,
+								message: "Goal is not found"
+							})
+						}
 					}
 				})
-			})
+			} else {
+				res.send({
+					status: 504,
+					message: "Goal is not found"
+				})
+			}
 		}
 	})
 })

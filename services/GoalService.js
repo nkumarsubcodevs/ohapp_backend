@@ -34,9 +34,19 @@ class GoalService
 		callback(null,response);
 	}
 
+	// Get Single question
+
+	async GetQuestion(question_id, callback) {
+		const response = await goalSettingsObject.findAll({where:{id: question_id}});
+		callback(null,response);
+	}
 	//get single question record
 	async getSingleQuestionRecord(question_id,callback) {
-		const response = await goalSettingsObject.findAll({where:{id: question_id}});
+		goalSettingsObject.hasMany(questionOptionsObject, {foreignKey: 'question_id'});
+		const response = await goalSettingsObject.findAll( {include: [{
+			model: questionOptionsObject,
+			where: {question_id: question_id}
+		}]},{where:{id: question_id}});
 		callback(null,response);
 	}
 
@@ -337,14 +347,19 @@ class GoalService
 	// Set Question Options
 	async setQuestionOptions(title, question_id, callback) {
 		const now = new Date();
-		let Questiona_option = new questionOptionsObject({
-			title: title,
-			status: 1,
-			question_id: question_id,
-			create_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss'),
-			update_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss')
-		});
-		callback(null,await Questiona_option.save())
+		let data = await Promise.all(title.map(async (element) => {
+			if(element) {
+				let Questiona_option = new questionOptionsObject({
+					title: element,
+					status: 1,
+					question_id: question_id,
+					create_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss'),
+					update_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss')
+				});
+				return await Questiona_option.save()
+			}
+		}))
+		callback(null, data)
 	}
 
 	// Get Question option

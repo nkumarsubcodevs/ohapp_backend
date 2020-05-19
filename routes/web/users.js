@@ -117,9 +117,9 @@ router.get('/logout', function(req, res){
 
 router.get('/:page?',function(req, res){
 
-	var perPage = 2;
+	var perPage = 10;
 	var page = req.params.page || 1;
-	
+
 	let paginationData = {
 		'offset': (perPage * page) - perPage,
 		'limit' : perPage,
@@ -129,14 +129,13 @@ router.get('/:page?',function(req, res){
 	{
 		if(pageData)
 		{
-			if (err) 
-			{  
+			if (err)
+			{
 				req.flash('error_message','Error Occured: Unable to fetch users list');
 				res.redirect('/users/users');
-			}else 
+			}else
 			{
 				const itemCount = pageData.count;
-				
 				res.render('users/users', {
                     pageDataValue: pageData.rows,
 					current: page,
@@ -147,7 +146,7 @@ router.get('/:page?',function(req, res){
 		}
 	});
 });
-	
+
 
 
 module.exports = router;

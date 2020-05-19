@@ -8,7 +8,7 @@
     </h1> 
     <ol class="breadcrumb">
         <li><a href="/"><i class="fa fa-dashboard"></i>Home</a></li>
-        <li class="active">Page List</li>
+        <li class="active">Questionries List</li>
         </ol>
   </section>
 
@@ -18,8 +18,8 @@
       <div class="col-xs-12">
       <div class="box">
               <div class="box-header with-border d-flex">
-                <h3 class="box-title">Page List</h3>
-                <a class="btn btn-success" href="/pages/add/1" style="float: right;">Add</a>
+                <h3 class="box-title">Questionries List</h3>
+                <a class="btn btn-success" href="/pages/add/1" style="float: right;">Add Question</a>
               </div>
               <div class="box-body">
                 <table class="table table-bordered">
@@ -64,17 +64,13 @@
                            <td><%= custom_helper.h_convertDateTimeInTimeStamp(item.update_time)%></td>
                             <td><a class="btn btn-success" href="/pages/edit/<%=item.id%>">Edit</a></td>
                             <td><a class="btn btn-danger" href="/pages/delete/<%=item.id%>">Delete</a></td>
-                            <td><a class="btn btn-primary" href="/pages/option/<%=item.id%>">Add Option</a></td>
                       </tr>
                       <%
                       });
                   } 
                   %>
-                  
                 </tbody></table>
               </div>
-             
-             
               <div class="box-footer clearfix">
                   <% include ../partials/paginate %> 
               </div>

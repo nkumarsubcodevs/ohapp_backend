@@ -286,7 +286,12 @@ class UserService
 	// update user profile
 	async updateUserProfile(userData, callback){
 		const now = new Date();
-		callback(null, userObject.update({ first_name:  userData.first_name, last_name:  userData.last_name, update_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss') }, { where: { id: userData.user_id }}) );
+		userObject.update({ first_name:  userData.first_name, last_name:  userData.last_name, update_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss') }, { where: { id: userData.user_id }})
+		.then(async res=> {
+			callback(null, await userObject.findOne({where: {id: userData.user_id}}));
+		}).catch(err => {
+			callback(err.message, null)
+		})
 	}
 
 	// update user fcmid
@@ -321,7 +326,6 @@ class UserService
 	async updateUserStage(stage, id, callback){
 		await userObject.update({ stage: stage }, { where: { id: id}});
 		const response = await userObject.findOne({ where: { id: id } });
-		console.log(response.stage, response.id)
 		if(response.stage == stage) {
 			return callback(null, response)
 		} else {
