@@ -11,6 +11,7 @@ const userService = require('../../services/UserService');
 const NotificationService = require('../../services/notification');
 const formValidator = require('validator');
 const jwt = require('jsonwebtoken')
+const current_datetime = require('date-and-time');
 // verifytoken middleware
 const verifyToken = require('./verifytoken');
 
@@ -65,11 +66,75 @@ router.post('/SaveQuicky', verifyToken, function(req, res) {
                   })
                 } else {
                   if(responseQuicky) {
-                    res.send({
-                      status: 200,
-                      message: "quicky save successfully",
-                      quickyData: responseQuicky,
-                      partner_fcmid: partnerResponse.fcmid
+                    notificationObject.getNotification(user_id, function(err, NotificationData) {
+                      if(err) {
+                        res.send({
+                          status: 504,
+                          message: "Something went worng"
+                        })
+                      } else {
+                        if(NotificationData) {
+                          notificationObject.updateNotificationStage(NotificationData.notification_id, 3, function(err, updateStage) {
+                            if(err) {
+                              res.send({
+                                status: 504,
+                                message: "Something went worng"
+                              })
+                            } else {
+                              if(updateStage) {
+                                notificationObject.getNotification(partnerData.partner_two_id, function(err, NotificationData2) {
+                                  if(err) {
+                                    res.send({
+                                      status: 504,
+                                      message: "Something went worng"
+                                    })
+                                  } else {
+                                    if(NotificationData2) {
+                                      notificationObject.updateNotificationStage(NotificationData2.notification_id, 3, function(err, updatedStage) {
+                                        if(err) {
+                                          res.send({
+                                            status: 504,
+                                            message: "Something went worng"
+                                          })
+                                        } else {
+                                          if(updatedStage) {
+                                            res.send({
+                                              status: 200,
+                                              message: "quicky save successfully",
+                                              quickyData: responseQuicky,
+                                              partner_fcmid: partnerResponse.fcmid
+                                            })
+                                          } else {
+                                            res.send({
+                                              status: 504,
+                                              message: "Not update partner stage"
+                                            })
+                                          }
+                                        }
+                                      })
+                                    } else {
+                                      res.send({
+                                        status: 504,
+                                        message: "Notification not found"
+                                      })
+                                    }
+                                  }
+                                })
+                              } else {
+                                res.send({
+                                  status: 504,
+                                  message: "not update user stage"
+                                })
+                              }
+                            }
+                          })
+                        } else {
+                          res.send({
+                            status: 504,
+                            message: "Notification not found"
+                          })
+                        }
+                      }
                     })
                   } else {
                     res.send({
@@ -174,15 +239,13 @@ router.put('/updateQuicky/:id', verifyToken, function(req, res) {
                                        var night = new Date(
                                            now.getFullYear(),
                                            now.getMonth(),
-                                           now.getDate() + 1,
+                                           now.getDate() +1,
                                            hours, minutes, 0
                                        );
-                                       var diff =(night.getTime() - now.getTime()) / 1000 * 24 * 60;
-                                       diff /= 60;
-                                       let timeout =  Math.abs(Math.round(diff))
+                                       let timeout = current_datetime.subtract(night, now).toMilliseconds();
                                        setTimeout(() => {
-                                         notificationObject.SendFeedbacknotification(partnerResponse.fcmid, function(err, response) {})
-                                         notificationObject.SendFeedbacknotification(userData.fcmid, function(err, response) {})
+                                         notificationObject.SendFeedbacknotification(partnerResponse.fcmid,quicky_id, function(err, response) {})
+                                         notificationObject.SendFeedbacknotification(userData.fcmid,quicky_id,  function(err, response) {})
                                        }, timeout)
                                      } else {
                                        res.send({
@@ -192,7 +255,6 @@ router.put('/updateQuicky/:id', verifyToken, function(req, res) {
                                      }
                                    }
                                  })
-  
                                } else {
                                  res.send({
                                    status: 504,

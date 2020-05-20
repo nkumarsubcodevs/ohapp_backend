@@ -4,7 +4,7 @@
 <div class="content-wrapper">
 <section class="content-header">
      <h1>
-      Page List
+      Questionries List
     </h1> 
     <ol class="breadcrumb">
         <li><a href="/"><i class="fa fa-dashboard"></i>Home</a></li>
@@ -18,8 +18,7 @@
       <div class="col-xs-12">
       <div class="box">
               <div class="box-header with-border d-flex">
-                <h3 class="box-title">Questionries List</h3>
-                <a class="btn btn-success" href="/pages/add/1" style="float: right;">Add Question</a>
+                <a class="btn btn-success" href="/pages/add/1">Add Question</a>
               </div>
               <div class="box-body">
                 <table class="table table-bordered">
@@ -62,8 +61,11 @@
                               </td>
 
                            <td><%= custom_helper.h_convertDateTimeInTimeStamp(item.update_time)%></td>
-                            <td><a class="btn btn-success" href="/pages/edit/<%=item.id%>">Edit</a></td>
-                            <td><a class="btn btn-danger" href="/pages/delete/<%=item.id%>">Delete</a></td>
+                            <td class="text-center">
+                              <a class="btn btn-success" href="/pages/edit/<%=item.id%>">Edit</a>
+                              <a class="btn btn-danger" href="/pages/delete/<%=item.id%>">Delete</a>
+                              <a class="btn btn-primary" href="/pages/option/<%=item.id%>">Add Option</a>
+                            </td>
                       </tr>
                       <%
                       });

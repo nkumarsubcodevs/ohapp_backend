@@ -103,8 +103,15 @@ router.get('/:page', function(req, res){
 		})
 	});
 	router.get('/add/:pages?',function (req,res){
-		res.render('pages/addlist');
+		res.render('pages/addlist', {
+			option: 7
+		});
 	});
+	router.get('/add/options/:data', function(req, res) {
+		res.render('pages/addlist', {
+			option: parseInt(req.params.data) + 1
+		})
+	})
 	router.post('/add/question',function (req,res){
 
 		var title = req.body.title;
@@ -155,7 +162,7 @@ router.get('/:page', function(req, res){
 
 		var title = req.body.title;
 		var id =  req.body.question_id
-		GoalObject.setQuestionOptions(title, id , function(err, response){
+		GoalObject.SaveQuetionOption(title, id , function(err, response){
 			if(err)
 			{
 				req.flash('error_message','Something went wrong');
@@ -204,7 +211,6 @@ router.get('/:page', function(req, res){
 			}
 		});
 	});
-
 	router.get('/view/:id/:page', function(req, res) {
 	let id = req.params.id
 	var perPage = 5;

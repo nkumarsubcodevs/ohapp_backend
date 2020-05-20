@@ -28,16 +28,16 @@ class PageService
 		const response = await pageObject.findAll({where:{id: page_id}});
 		callback(null,response);
 	}
-	
+
 	//update page details
 	async updatepageDetails(pageData, callback){
 		const response=await pageObject.update({title:pageData.title,status:pageData.status,update_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss')}, { where: { id: pageData.id }});
 		callback(null, response);
 	}
-	
+
 }
-	
-		
+
+
 module.exports = PageService;
 
 

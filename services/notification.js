@@ -52,7 +52,7 @@ class NotificationService
 		});
 	}
 
-	async SendFeedbacknotification(notificationData, callback) {
+	async SendFeedbacknotification(notificationData, Quicky_id, callback) {
 		let re = notificationData
 		var message = { //this may vary according to the message type (single recipient, multicast, topic, et cetera)
 			to: re, 
@@ -61,7 +61,8 @@ class NotificationService
 				body: 'how much did you like your tomorrow plan? ' 
 			},
 			data: {  //you can send only notification or only data(or include both)
-				type: 'feedback'
+				type: 'feedback',
+				id: Quicky_id
 			}
 		};
 		fcm.send(message, function(err, response){

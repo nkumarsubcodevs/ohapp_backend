@@ -1074,11 +1074,88 @@ router.post('/updatemonthlygoal/:goal_id', verifyToken, function(req, res) {
 									}
 									else
 									{
-										res.send({
-											status: 200,
-											message: 'The monthly goal has been updated.',
-											patner_fcmid: partnerResponse.fcmid
-										});
+									if(monthlyGoalDataSaved) {
+										userSerObject.getUserById(partnerResponse.id, function(err, GetpatnerData) {
+											if(err) {
+												res.send({
+													status:400,
+													message: "Something went Wrong"
+												})
+											} else {
+												if(GetpatnerData) {
+													userSerObject.getUserById(user_id, function(err, usersData) {
+														if(err) {
+															res.send({
+																status: 404,
+																messgae: "Something Went wrong"
+															})
+														} else {
+															if(usersData) {
+																const [time, modifier] = monthlyGoalDataSaved.intimate_request_time.split(' ');
+																let [hours, minutes] = time.split(':');
+																if (hours === '12') {
+																hours = '00';
+																}
+																if (modifier === 'PM') {
+																hours = parseInt(hours, 10) + 12;
+																}
+																var date = new Date();
+																var month = date.getMonth() + 1;
+																var year = date.getFullYear();
+																let day = parseInt(new Date(year, month, 0).getDate() / monthlyGoalDataSaved.connect_number);
+																if(day <= 0) {
+																	day = 1
+																}
+																cron.schedule(`${parseInt(minutes)} ${hours} */${day} * *`, () => {
+																	// cron.schedule(`* * * * *`, (err, ress) => {
+																		notificationObject.notification(GetpatnerData.fcmid, function(err, response) {
+																			let notification1 = {
+																				user_id: GetpatnerData.id,
+																				goal_id: monthlyGoalDataSaved.id,
+																				device_id: GetpatnerData.fcmid,
+																				notification_id: response.results[0].message_id,
+																			}
+																			notificationObject.saveNotification(notification1, function(err, response) {
+																			})
+																		})
+																		notificationObject.notification(usersData.fcmid, function(err, response) {
+																			let notification1 = {
+																				user_id: usersData.id,
+																				goal_id: monthlyGoalDataSaved.id,
+																				device_id: usersData.fcmid,
+																				notification_id: response.results[0].message_id,
+																			}
+																			notificationObject.saveNotification(notification1, function(err, response) {})
+																		})
+																}, {timezone: "Asia/Kolkata"});
+																res.send({
+																	status: 200,
+																	message: 'The monthly goal has been updated.',
+																	patner_fcmid: partnerResponse.fcmid
+																});
+															} else {
+																res.send({
+																	status: 504,
+																	messgae: "user is not found"
+																})
+															}
+														}
+													})
+												} else {
+													res.send({
+														status: 504,
+														messgae: "Patner is not found"
+													})
+												}
+											}
+										})
+										
+										} else {
+											res.send({
+												status: 504,
+												message: "Goal is not update"
+											})
+										}
 									}
 								});
 							}

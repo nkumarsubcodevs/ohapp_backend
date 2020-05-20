@@ -267,8 +267,7 @@ class GoalService
 	// Update monthly goal
 	async updateMonthlyGoal(monthlyGoalData, callback){
 		const now = new Date();
-
-		callback(null, await monthlyGoalObject.update({
+		await monthlyGoalObject.update({
 			user_id            : monthlyGoalData.user_id,
 			connect_number     : monthlyGoalData.connect_number,
 			initiator_count    : monthlyGoalData.initiator_count,
@@ -282,7 +281,12 @@ class GoalService
 			status: 1,
 			update_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss')
 		},
-		{ where: { id:monthlyGoalData.id}}));
+		{ where: { id:monthlyGoalData.id}}).then(async res => {
+			let response = await monthlyGoalObject.findOne({where: {id: monthlyGoalData.id}});
+			callback(null, response);
+		}).catch(err => {
+			callback(err.message, null)
+		})
 	}
 
 	// Update monthly goal
@@ -360,6 +364,19 @@ class GoalService
 			}
 		}))
 		callback(null, data)
+	}
+
+	// Save singal option
+	async SaveQuetionOption(title, quetion_id, callback) {
+		const now = new Date();
+		let Questiona_option = new questionOptionsObject({
+			title: title,
+			status: 1,
+			question_id: quetion_id,
+			create_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss'),
+			update_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss')
+		});
+		callback(null, await Questiona_option.save())
 	}
 
 	// Get Question option

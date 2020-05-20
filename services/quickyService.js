@@ -49,7 +49,6 @@ class QuickyService
 				  callback(err, null)
 			  })
 	}
-
 }
 
 module.exports = QuickyService;

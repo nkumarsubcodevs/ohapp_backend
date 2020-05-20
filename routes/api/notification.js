@@ -81,7 +81,9 @@ router.get('/checkNotificationStage', verifyToken, function(req, res, next) {
                                          if(updateStage) {
                                            res.send({
                                              status:200,
-                                             result: 'updateStage'
+                                             result: 'updateStage',
+                                             user_stage: updateStage.stage,
+                                             partner_stage: notification2.stage
                                            })
                                          } else {
                                            res.send({
@@ -131,7 +133,9 @@ router.get('/checkNotificationStage', verifyToken, function(req, res, next) {
                           if(updateStage) {
                             res.send({
                               status:200,
-                              result: 'updateStage'
+                              result: 'updateStage',
+                              user_stage: pageData.stage,
+                              partner_stage: patner.stage
                             })
                           } else {
                             res.send({
