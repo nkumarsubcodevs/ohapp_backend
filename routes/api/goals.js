@@ -618,6 +618,7 @@ router.post('/createmonthlygoal', verifyToken, function(req, res) {
 
 	if(!initiator_count1) 
 	{
+		console.log(initiator_count1)
 		return res.send({
 			status: 400,
 			message: 'Initiator count 1 is required.',
@@ -741,9 +742,17 @@ router.post('/createmonthlygoal', verifyToken, function(req, res) {
 																				if (modifier === 'PM') {
 																				hours = parseInt(hours, 10) + 12;
 																				}
-																				var date = new Date();
-																				var month = date.getMonth() + 1;
-																				var year = date.getFullYear();
+																				var night = new Date(
+																					now.getFullYear(),
+																					now.getMonth(),
+																					now.getDate(),
+																					hours, minutes, 0
+																					);
+																				var month = current_datetime.format(night, 'MM', true);
+																				var year = current_datetime.format(night, 'YYYY', true);
+																				minutes = current_datetime.format(night, 'mm', true);
+																				hours = current_datetime.format(night, 'HH', true);
+																				console.log(minutes, hours)
 																				let day = parseInt(new Date(year, month, 0).getDate() / monthlyGoalDataSaved.connect_number);
 																				if(day <= 0) {
 																					day = 1
@@ -769,7 +778,7 @@ router.post('/createmonthlygoal', verifyToken, function(req, res) {
 																							}
 																							notificationObject.saveNotification(notification1, function(err, response) {})
 																						})
-																				}, {timezone: "Asia/Kolkata"});
+																				});
 																				if(updateedstage) {
 																					res.send({
 																						status: 200,

@@ -588,13 +588,9 @@ router.post('/login', function(req, res) {
 								{
 									if(userFcmIDRespone)
 									{
-										var access_token = jwt.sign({ id: user.id }, config.secret, {
-											expiresIn: 900
-										});
+										var access_token = jwt.sign({ id: user.id }, config.secret);
 
-										var refresh_token = jwt.sign({ id: user.id }, config.refreshsecret, { 
-											expiresIn: 86400 
-										});
+										var refresh_token = jwt.sign({ id: user.id }, config.refreshsecret);
 										res.cookie("access_token", access_token, { httpOnly: true });
 										res.cookie("refresh_token", refresh_token, { httpOnly: true });
 										if(user.stage > 3) {

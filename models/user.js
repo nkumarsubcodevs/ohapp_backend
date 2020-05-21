@@ -53,6 +53,14 @@ const User = database.define('users',
 	fcmid: {
 		type: Sequelize.STRING(250),
 	},
+	device_name: {
+		type: Sequelize.STRING(100),
+		allowNull: true
+	},
+	receipt: {
+		type: Sequelize.TEXT,
+		allowNull: true
+	},
 	notification_mute_status: {
 		type: Sequelize.INTEGER,
 	},

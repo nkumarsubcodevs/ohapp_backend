@@ -415,6 +415,20 @@ class UserService
 		})
 		callback(null, removeUser)
 	}
+
+	async UpdateSubscripation(UpdateData, callback) {
+		const now = new Date();
+		await userObject.update({
+			device_name: UpdateData.device_name,
+			receipt: UpdateData.receipt,
+			update_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss')
+		}, {where: {id: UpdateData.user_id}}).then(async res => {
+			let response = await userObject.findOne({where: {id: UpdateData.user_id}});
+			callback(null, response)
+		}).catch(err => {
+			callback(err.message, null)
+		})
+	}
 }
 
 module.exports = UserService;

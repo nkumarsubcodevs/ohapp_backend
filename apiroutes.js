@@ -15,6 +15,7 @@ const imagesRoutes = require('./routes/api/images');
 const notificationRoute = require('./routes/api/notification');
 const feedbackRoute = require('./routes/api/feedback');
 const quickyRoute = require('./routes/api/quicky');
+const purchaseRoute = require('./routes/api/purchase');
 
 // routes of users
 apiRoutes.use('/users', usersRoutes);
@@ -39,5 +40,8 @@ apiRoutes.use('/feedback', feedbackRoute);
 
 //routes of quicky
 apiRoutes.use('/quicky', quickyRoute);
+
+//routes of quicky
+apiRoutes.use('/purchases', purchaseRoute);
 
 module.exports = apiRoutes;
