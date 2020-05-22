@@ -108,7 +108,7 @@ image.post('/remove', function(req, res) {
           if (!url) {
             return res.send({
               status: 400,
-              message: 'url not found',
+              message: 'Image is not found',
             });
           }
           res.send({
@@ -127,7 +127,7 @@ image.post('/remove', function(req, res) {
     } else {
       return res.send({
         status: 406,
-        message: 'no urls exists in collection',
+        message: 'Image is not exists in collection',
       });
     }
   });

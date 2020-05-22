@@ -11,6 +11,8 @@ const appRoutes = express();
 const indexRoutes = require('./index');
 const userRoutes  = require('./routes/web/users');
 const pageRoutes  =   require('./routes/web/pages');
+const messagesRoutes  =   require('./routes/web/messages');
+const feedbackRoutes  =   require('./routes/web/feedback');
 
 
 // routes of index
@@ -19,5 +21,11 @@ appRoutes.use('/', indexRoutes);
 appRoutes.use('/users', userRoutes);
 // routes of pages
 appRoutes.use('/pages', pageRoutes);
+
+// routes of messages
+appRoutes.use('/messages', messagesRoutes);
+
+// routes of feedback
+appRoutes.use('/feedback', feedbackRoutes);
 
 module.exports = appRoutes;

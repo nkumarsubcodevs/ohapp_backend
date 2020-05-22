@@ -7,6 +7,7 @@
 
 
 const feedbackObject  = require('../models/feedback');
+const userObject  = require('../models/user');
 const current_datetime = require('date-and-time');
 const db = require('../config/database');
 const Sequelize = require('sequelize');
@@ -37,6 +38,20 @@ class FeedBackServices
 	async updatefeedback(user_id,feedback, callback) {
 		let response = await feedbackObject.update({feedback_details: feedback},{where : {user_id: user_id}})
 		callback(null, response)
+	}
+
+	async getfeedbackWithUser(paginationData,callback) {
+		feedbackObject.belongsTo(userObject, {foreignKey: 'user_id'});
+		await feedbackObject.findAndCountAll({
+			include: [{
+						model: userObject,
+					 }]
+		}).then(res => {
+			callback(null, res)
+		}).catch(err => {
+			console.log(err)
+			callback(err.message, null)
+		});
 	}
 
 }

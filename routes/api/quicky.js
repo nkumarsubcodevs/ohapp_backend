@@ -5,10 +5,10 @@
 */
 
 const express = require('express');
-const QuickyService = require('../../services/quickyService');
+const QuickyService = require('../../services/QuickyService');
 const GoalService = require('../../services/GoalService');
 const userService = require('../../services/UserService');
-const NotificationService = require('../../services/notification');
+const NotificationService = require('../../services/NotificationService');
 const formValidator = require('validator');
 const jwt = require('jsonwebtoken')
 const current_datetime = require('date-and-time');
@@ -66,76 +66,82 @@ router.post('/SaveQuicky', verifyToken, function(req, res) {
                   })
                 } else {
                   if(responseQuicky) {
-                    notificationObject.getNotification(user_id, function(err, NotificationData) {
-                      if(err) {
-                        res.send({
-                          status: 504,
-                          message: "Something went worng"
-                        })
-                      } else {
-                        if(NotificationData) {
-                          notificationObject.updateNotificationStage(NotificationData.notification_id, 3, function(err, updateStage) {
-                            if(err) {
-                              res.send({
-                                status: 504,
-                                message: "Something went worng"
-                              })
-                            } else {
-                              if(updateStage) {
-                                notificationObject.getNotification(partnerData.partner_two_id, function(err, NotificationData2) {
-                                  if(err) {
-                                    res.send({
-                                      status: 504,
-                                      message: "Something went worng"
-                                    })
-                                  } else {
-                                    if(NotificationData2) {
-                                      notificationObject.updateNotificationStage(NotificationData2.notification_id, 3, function(err, updatedStage) {
-                                        if(err) {
-                                          res.send({
-                                            status: 504,
-                                            message: "Something went worng"
-                                          })
-                                        } else {
-                                          if(updatedStage) {
-                                            res.send({
-                                              status: 200,
-                                              message: "quicky save successfully",
-                                              quickyData: responseQuicky,
-                                              partner_fcmid: partnerResponse.fcmid
-                                            })
-                                          } else {
-                                            res.send({
-                                              status: 504,
-                                              message: "Not update partner stage"
-                                            })
-                                          }
-                                        }
-                                      })
-                                    } else {
-                                      res.send({
-                                        status: 504,
-                                        message: "Notification not found"
-                                      })
-                                    }
-                                  }
-                                })
-                              } else {
-                                res.send({
-                                  status: 504,
-                                  message: "not update user stage"
-                                })
-                              }
-                            }
-                          })
-                        } else {
-                          res.send({
-                            status: 504,
-                            message: "Notification not found"
-                          })
-                        }
-                      }
-                    })
+                      // notificationObject.getNotification(user_id, function(err, NotificationData) {
+                      //   if(err) {
+                      //     res.send({
+                      //       status: 504,
+                      //       message: "Something went worng"
+                      //     })
+                      //   } else {
+                      //     if(NotificationData) {
+                      //       notificationObject.updateNotificationStage(NotificationData.notification_id, 3, function(err, updateStage) {
+                      //         if(err) {
+                      //           res.send({
+                      //             status: 504,
+                      //             message: "Something went worng"
+                      //           })
+                      //         } else {
+                      //           if(updateStage) {
+                      //             notificationObject.getNotification(partnerData.partner_two_id, function(err, NotificationData2) {
+                      //               if(err) {
+                      //                 res.send({
+                      //                   status: 504,
+                      //                   message: "Something went worng"
+                      //                 })
+                      //               } else {
+                      //                 if(NotificationData2) {
+                      //                   notificationObject.updateNotificationStage(NotificationData2.notification_id, 3, function(err, updatedStage) {
+                      //                     if(err) {
+                      //                       res.send({
+                      //                         status: 504,
+                      //                         message: "Something went worng"
+                      //                       })
+                      //                     } else {
+                      //                       if(updatedStage) {
+                      //                         res.send({
+                      //                           status: 200,
+                      //                           message: "quicky save successfully",
+                      //                           quickyData: responseQuicky,
+                      //                           partner_fcmid: partnerResponse.fcmid
+                      //                         })
+                      //                       } else {
+                      //                         res.send({
+                      //                           status: 504,
+                      //                           message: "partner stage is not updated"
+                      //                         })
+                      //                       }
+                      //                     }
+                      //                   })
+                      //                 } else {
+                      //                   res.send({
+                      //                     status: 504,
+                      //                     message: "Notification not found"
+                      //                   })
+                      //                 }
+                      //               }
+                      //             })
+                      //           } else {
+                      //             res.send({
+                      //               status: 504,
+                      //               message: "not update user stage"
+                      //             })
+                      //           }
+                      //         }
+                      //       })
+                      //     } else {
+                      //       res.send({
+                      //         status: 504,
+                      //         message: "Notification is not found"
+                      //       })
+                      //     }
+                      //   }
+                      // })
+                      res.send({
+                        status: 200,
+                        message: "quicky save successfully",
+                        quickyData: responseQuicky,
+                        partner_fcmid: partnerResponse.fcmid
+                      })
                   } else {
                     res.send({
                       status: 504,
@@ -147,7 +153,7 @@ router.post('/SaveQuicky', verifyToken, function(req, res) {
             } else {
               res.send({
                 status: 504,
-                message: "partner not found"
+                message: "partner is not found"
               })
             }
           }
@@ -155,7 +161,7 @@ router.post('/SaveQuicky', verifyToken, function(req, res) {
       } else {
         res.send({
           status: 504,
-          message: "Partner not found"
+          message: "Partner mapping is not found"
         })
       }
     }
@@ -258,7 +264,7 @@ router.put('/updateQuicky/:id', verifyToken, function(req, res) {
                                } else {
                                  res.send({
                                    status: 504,
-                                   message: "user not found"
+                                   message: "user is not found"
                                  })
                                }
                              }
@@ -283,7 +289,7 @@ router.put('/updateQuicky/:id', verifyToken, function(req, res) {
               } else {
                 res.send({
                   status: 504,
-                  message: "Partner not found"
+                  message: "Partner mapping is not found"
                 })
               }
             }

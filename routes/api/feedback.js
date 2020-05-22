@@ -77,8 +77,8 @@ router.post('/savefeedback', verifyToken, function(req, res) {
           if(err)
           {
               res.send({
-                status: 500,
-                message: 'There was a problem in fetching the page.',
+                status: 404,
+                message: 'Something Went wrong',
               });
           }
           else
@@ -92,7 +92,7 @@ router.post('/savefeedback', verifyToken, function(req, res) {
                   });
               } else {
                 res.send({
-                  status: 504,
+                  status: 500,
                   message: "Something Went Wrong"
                 })
               }

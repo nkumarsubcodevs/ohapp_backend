@@ -5,11 +5,9 @@
 */
 
 const express = require('express');
-const subscripationService = require('../../services/subscripationService');
+const subscripationService = require('../../services/SubscripationService');
 const GoalService = require('../../services/GoalService');
-const userService = require('../../services/UserService');
-const NotificationService = require('../../services/notification');
-const formValidator = require('validator');
+const UserService = require('../../services/UserService');
 const jwt = require('jsonwebtoken')
 const current_datetime = require('date-and-time');
 var iap = require('in-app-purchase');
@@ -27,10 +25,7 @@ var SubscripationObject = new subscripationService();
 var goalObject = new GoalService();
 
 // Create USer model object
-var userSerObject = new userService();
-
-// Create notification model object
-var notificationObject = new NotificationService();
+var userSerObject = new UserService();
 
 // Save quicky data
 router.post('/', verifyToken, function(req, res) {
@@ -99,7 +94,7 @@ router.post('/', verifyToken, function(req, res) {
         else {
         res.send({
           status: 504,
-          message: "partner not found"
+          message: "partner is not found"
         })
       }
     }

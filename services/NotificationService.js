@@ -31,13 +31,14 @@ class NotificationService
 		callback(null, await response.save())
 	}
 
-	async notification(notificationData, callback) {
+	async notification(notificationData, data,  callback) {
 		let re = notificationData
 		var message = { //this may vary according to the message type (single recipient, multicast, topic, et cetera)
 			to: re, 
 			notification: {
 				title: 'Dating', 
-				body: 'Do you want to set plan of dating for tonight' 
+				body: `You are at ${data.PR} of goal with ${data.remaing_days} days left in the month.
+				Would you like to make a connection tonight?`
 			},
 			data: {  //you can send only notification or only data(or include both)
 				type: 'remember'
@@ -57,8 +58,8 @@ class NotificationService
 		var message = { //this may vary according to the message type (single recipient, multicast, topic, et cetera)
 			to: re, 
 			notification: {
-				title: 'Feedback of Tomorrow Plan', 
-				body: 'how much did you like your tomorrow plan? ' 
+				title: 'Feedback of last night', 
+				body: 'Did you connect last night? ' 
 			},
 			data: {  //you can send only notification or only data(or include both)
 				type: 'feedback',

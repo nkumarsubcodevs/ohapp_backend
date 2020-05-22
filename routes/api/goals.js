@@ -5,10 +5,10 @@
 */
 
 const express = require('express');
-const goalService = require('../../services/GoalService');
-const notificationService = require('../../services/notification');
-const userService = require('../../services/UserService');
-const ComplitionService = require('../../services/completionService');
+const GoalService = require('../../services/GoalService');
+const NotificationService = require('../../services/NotificationService');
+const UserService = require('../../services/UserService');
+const completionService = require('../../services/CompletionService');
 const customHelper = require('../../helpers/custom_helper');
 const formValidator = require('validator');
 const current_datetime = require('date-and-time');
@@ -24,15 +24,15 @@ let router =  express.Router();
 const config = require('../../config/config');
 
 // Create goal model object
-var goalSerObject = new goalService();
+var goalSerObject = new GoalService();
 
 // Create user model object
-var userSerObject = new userService();
+var userSerObject = new UserService();
 
 // Create user model object
-var completionSerObject = new ComplitionService();
+var completionSerObject = new completionService();
 
-var notificationObject = new notificationService();
+var notificationObject = new NotificationService();
 
 // Get user setting detail
 router.get('/getgoalsettings', verifyToken, function(req, res, next) {
@@ -75,7 +75,7 @@ router.get('/getgoalsettings', verifyToken, function(req, res, next) {
 			{
 				res.send({
 					status: 404,
-					message: 'No Question found.',
+					message: 'Question is not found.',
 				});
 			}
 		}
@@ -114,7 +114,7 @@ router.get('/getgoalsettingsanswer/:goal_id', verifyToken, function(req, res, ne
 						} else {
 							res.send({
 								status: 504,
-								message: "Option is not avaliable"
+								message: "Quetionaries is not avaliable."
 							})
 						}
 					}
@@ -124,9 +124,9 @@ router.get('/getgoalsettingsanswer/:goal_id', verifyToken, function(req, res, ne
 			{
 				res.send({
 					status: 404,
-					message: 'No Question found.',
+					message: 'Question is not found.',
 				});
-			}	
+			}
 		}
 	});
 });
@@ -257,7 +257,7 @@ router.post('/checkuseruniquecode', verifyToken, function(req, res) {
 	{
 		return res.send({
 			status: 400,
-			message: 'Unique Id is required.',
+			message: 'Unique code is required.',
 		});
 	}
 
@@ -265,7 +265,7 @@ router.post('/checkuseruniquecode', verifyToken, function(req, res) {
 	{
 		return res.send({
 			status: 400,
-			message: 'Please enter a valid unique id.',
+			message: 'Please enter a valid unique code.',
 		});
 	}
 
@@ -422,7 +422,7 @@ router.post('/checkuseruniquecode', verifyToken, function(req, res) {
 														{
 															return res.send({
 																status: 400,
-																message: 'Unable to add monthly goal.',
+																message: 'Something went wrong.',
 															});
 														}
 													}
@@ -442,7 +442,7 @@ router.post('/checkuseruniquecode', verifyToken, function(req, res) {
 						{
 							return res.send({
 								status: 400,
-								message: 'No security code found',
+								message: "Your Partner's code does not match",
 							});
 						}
 					}
@@ -452,7 +452,7 @@ router.post('/checkuseruniquecode', verifyToken, function(req, res) {
 			{
 				return res.send({
 					status: 400,
-					message: 'No user found',
+					message: 'User is not found',
 				});
 			}
 		}
@@ -572,7 +572,7 @@ router.post('/createmonthlygoal', verifyToken, function(req, res) {
 	{
 		return res.send({
 			status: 400,
-			message: 'Connect number is required.',
+			message: 'Please enter a valid information.',
 		});
 	}
 
@@ -580,7 +580,7 @@ router.post('/createmonthlygoal', verifyToken, function(req, res) {
 	{
 		return res.send({
 			status: 400,
-			message: 'Please enter a valid connect number.',
+			message: 'Please enter a valid information.',
 		});
 	}
 
@@ -588,7 +588,7 @@ router.post('/createmonthlygoal', verifyToken, function(req, res) {
 	{
 		return res.send({
 			status: 400,
-			message: 'Intimate Account Time is required.',
+			message: 'Please enter a valid information.',
 		});
 	}
 
@@ -596,7 +596,7 @@ router.post('/createmonthlygoal', verifyToken, function(req, res) {
 	{
 		return res.send({
 			status: 400,
-			message: 'Intimate Request Time is required.',
+			message: 'Please enter a valid information.',
 		});
 	}
 
@@ -604,7 +604,7 @@ router.post('/createmonthlygoal', verifyToken, function(req, res) {
 	{
 		return res.send({
 			status: 400,
-			message: 'Intimate time is required.',
+			message: 'Please enter a valid information.',
 		});
 	}
 
@@ -612,7 +612,7 @@ router.post('/createmonthlygoal', verifyToken, function(req, res) {
 	{
 		return res.send({
 			status: 400,
-			message: 'Initiator count is required.',
+			message: 'Please enter a valid information.',
 		});
 	}
 
@@ -621,7 +621,7 @@ router.post('/createmonthlygoal', verifyToken, function(req, res) {
 		console.log(initiator_count1)
 		return res.send({
 			status: 400,
-			message: 'Initiator count 1 is required.',
+			message: 'Please enter a valid information.',
 		});
 	}
 	// Check goal exists or not
@@ -649,7 +649,7 @@ router.post('/createmonthlygoal', verifyToken, function(req, res) {
 							if(partenerData.stage === 5) {
 								res.send({
 									status: 400,
-									message: 'Please Wait, Your partner is already setting goal',
+									message: 'Please Wait! The goal setup is already in progress by your partner.',
 								});
 							} else {
 								var user_checker = 0
@@ -657,12 +657,12 @@ router.post('/createmonthlygoal', verifyToken, function(req, res) {
 								{
 									user_checker++;
 								}
-	
+
 								if(partnerMappingData.partner_two_id==user_id) 
 								{
 									user_checker++;
 								}
-	
+
 								if(user_checker==0)
 								{
 									res.send({
@@ -748,41 +748,70 @@ router.post('/createmonthlygoal', verifyToken, function(req, res) {
 																					now.getDate(),
 																					hours, minutes, 0
 																					);
-																				var month = current_datetime.format(night, 'MM', true);
-																				var year = current_datetime.format(night, 'YYYY', true);
-																				minutes = current_datetime.format(night, 'mm', true);
-																				hours = current_datetime.format(night, 'HH', true);
-																				console.log(minutes, hours)
+																					var date = new Date();
+																				var month = date.getMonth() + 1;
+																				var year = date.getFullYear();
+																				date.get
+																				// var month = current_datetime.format(night, 'MM', true);
+																				// var year = current_datetime.format(night, 'YYYY', true);
+																				// minutes = current_datetime.format(night, 'mm', true);
+																				// hours = current_datetime.format(night, 'HH', true);
+																				// console.log(minutes, hours)
+																				var lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+																				var current_date = date.getDate();
+																				let remaing = lastDay - current_date;
 																				let day = parseInt(new Date(year, month, 0).getDate() / monthlyGoalDataSaved.connect_number);
 																				if(day <= 0) {
 																					day = 1
 																				}
 																				cron.schedule(`${parseInt(minutes)} ${hours} */${day} * *`, () => {
 																					// cron.schedule(`* * * * *`, (err, ress) => {
-																						notificationObject.notification(updatedStage.fcmid, function(err, response) {
-																							let notification1 = {
-																								user_id: updatedStage.id,
-																								goal_id: monthlyGoalDataSaved.id,
-																								device_id: updatedStage.fcmid,
-																								notification_id: response.results[0].message_id,
-																							}
-																							notificationObject.saveNotification(notification1, function(err, response) {
+
+																					goalSerObject.getGoalDetails(updatedStage.id, updateedstage.id, function(err, monthlyGoal_data) {
+																						if(err) {
+																							res.send({
+																								status:404,
+																								message: "Something went wrong!"
 																							})
-																						})
-																						notificationObject.notification(updateedstage.fcmid, function(err, response) {
-																							let notification1 = {
-																								user_id: updateedstage.id,
-																								goal_id: monthlyGoalDataSaved.id,
-																								device_id: updateedstage.fcmid,
-																								notification_id: response.results[0].message_id,
+																						} else {
+																							if(monthlyGoal_data) {
+																								let PR;
+																								if (monthlyGoal_data.complete_count == 0) {
+																									PR = 100;
+																								} else {
+																									PR = (monthlyGoal_data.complete_count / monthlyGoal_data.connect_number) * 100;
+																								}
+																								let Notificationmessage = {
+																									PR: PR,
+																									remaing_days: remaing,
+																								}
+																								notificationObject.notification(updatedStage.fcmid, Notificationmessage, function(err, response) {
+																									let notification1 = {
+																										user_id: updatedStage.id,
+																										goal_id: monthlyGoalDataSaved.id,
+																										device_id: updatedStage.fcmid,
+																										notification_id: response.results[0].message_id,
+																									}
+																									notificationObject.saveNotification(notification1, function(err, response) {
+																									})
+																								})
+																								notificationObject.notification(updateedstage.fcmid, Notificationmessage,function(err, response) {
+																									let notification1 = {
+																										user_id: updateedstage.id,
+																										goal_id: monthlyGoalDataSaved.id,
+																										device_id: updateedstage.fcmid,
+																										notification_id: response.results[0].message_id,
+																									}
+																									notificationObject.saveNotification(notification1, function(err, response) {})
+																								})
 																							}
-																							notificationObject.saveNotification(notification1, function(err, response) {})
-																						})
+																						}
+																					})
 																				});
 																				if(updateedstage) {
 																					res.send({
 																						status: 200,
-																						message: 'The monthly goal has been created.',
+																						message: 'The monthly goal has been successfully created.',
 																						stage: updatedStage.stage,
 																						fcmid: GetpatnerData.fcmid,
 																						Patner1_first_name: updatedStage.first_name,
@@ -1018,7 +1047,46 @@ router.post('/updatemonthlygoal/:goal_id', verifyToken, function(req, res) {
 			message: 'Please enter a valid connect number.',
 		});
 	}
+	if(!intimate_account_time) 
+	{
+		return res.send({
+			status: 400,
+			message: 'Intimate Account Time is required.',
+		});
+	}
 
+	if(!intimate_request_time) 
+	{
+		return res.send({
+			status: 400,
+			message: 'Intimate Request Time is required.',
+		});
+	}
+
+	if(!intimate_time) 
+	{
+		return res.send({
+			status: 400,
+			message: 'Intimate time is required.',
+		});
+	}
+
+	if(!initiator_count) 
+	{
+		return res.send({
+			status: 400,
+			message: 'Initiator count is required.',
+		});
+	}
+
+	if(!initiator_count1) 
+	{
+		console.log(initiator_count1)
+		return res.send({
+			status: 400,
+			message: 'Initiator count 1 is required.',
+		});
+	}
 	// if(!percentage) 
 	// {
 	// 	return res.send({
@@ -1216,7 +1284,7 @@ router.get('/getmonthlygoaldetail', verifyToken, function(req, res, next) {
 				{
 					res.send({
 						status: 500,
-						message: 'There was a problem finding the goal.',
+						message: 'Something went wrong please try after some time.',
 					});
 				}
 				else
@@ -1257,21 +1325,21 @@ router.get('/getmonthlygoaldetail', verifyToken, function(req, res, next) {
 									else {
 										res.send({
 											status: 400,
-											message: "partner not found"
+											message: "partner is not found"
 										})
 									}
 								})
 							} else {
 								res.send({
 									status: 400,
-									message: "user not found"
+									message: "user is not found"
 								})
 							}
 						})
 					} else {
 						res.send({
 							status: 504,
-							message: "Goal is not avaliable"
+							message: "Something went wrong please try after some time."
 						})
 					}
 				}
@@ -1374,7 +1442,7 @@ router.post('/saveOptions', verifyToken, function(req, res) {
 			} else {
 				res.send({
 					status: 504,
-					messgae: "option is not found"
+					messgae: "option is not saved"
 				})
 			}
 		}
@@ -1585,7 +1653,7 @@ router.put('/updateCompletedGoal', verifyToken, function(req,res) {
 	{
 		return res.send({
 			status: 400,
-			message: 'Answer is required',
+			message: 'Please select an option for continue.',
 		});
 	}
 	userSerObject.getPartnerById(user_id, function(err, partner_data) {
@@ -1617,7 +1685,7 @@ router.put('/updateCompletedGoal', verifyToken, function(req,res) {
 											{
 												return res.send({
 													status: 400,
-													message: 'Who initiative is required',
+													message: 'Please select an option for continue.',
 												});
 											}
 											let userID ;
@@ -1657,7 +1725,7 @@ router.put('/updateCompletedGoal', verifyToken, function(req,res) {
 																if(save_data) {
 																	res.send({
 																		status: 200,
-																		message: "Succssfully saved"
+																		message: "Update successfully"
 																	})
 																} else {
 																	res.send({
@@ -1678,13 +1746,13 @@ router.put('/updateCompletedGoal', verifyToken, function(req,res) {
 										} else {
 											res.send({
 												status: 200,
-												message: "You did not connect tomorrow night"
+												message: "You did not connect last night"
 											})
 										}
 									} else {
 										res.send({
 											status: 504,
-											message: "partner mapping is not found"
+											message: "Something went wrong! please try again."
 										})
 									}
 								}
@@ -1692,7 +1760,7 @@ router.put('/updateCompletedGoal', verifyToken, function(req,res) {
 						} else {
 							res.send({
 								status: 400,
-								message: "Goal is not found"
+								message: "Goal is not found. please setup a goal first."
 							})
 						}
 					}
@@ -1787,7 +1855,7 @@ router.get('/previousMonthlyGoal', verifyToken, function(req, res) {
 											if(err) {
 												res.send({
 													status:400,
-													messgae: "patner is not found"
+													messgae: "partner is not found"
 												})
 											}
 										})

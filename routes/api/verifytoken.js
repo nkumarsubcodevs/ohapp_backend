@@ -10,7 +10,7 @@ const config   = require('../../config/config');
 function verifyToken(req, res, next) 
 {
 	const token = req.headers['x-access-token'];
-	
+
 	if(!token) 
 	{
 		return res.send({
@@ -19,9 +19,9 @@ function verifyToken(req, res, next)
 			auth: false
 		});
 	}
-	  		
+
 	jwt.verify(token, config.secret, function(err, decoded) {
-		
+
 		if(err)
 		{
 			res.send({

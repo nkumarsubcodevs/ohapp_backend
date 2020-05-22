@@ -5,9 +5,9 @@
 */
 
 const express = require('express');
-const userService = require('../../services/UserService');
-const goalService = require('../../services/GoalService');
-const QuickyService = require('../../services/quickyService');
+const UserService = require('../../services/UserService');
+const GoalService = require('../../services/GoalService');
+const QuickyService = require('../../services/QuickyService');
 
 const formValidator = require('validator');
 const path = require('path');
@@ -63,10 +63,10 @@ var uploadObject = multer(multerConf).single('user_photo');
 let router =  express.Router();
 
 // Create user model object
-var userSerObject = new userService();
+var userSerObject = new UserService();
 
 // Create goal model object
-var goalObject = new goalService();
+var goalObject = new GoalService();
 
 // Create quicky model object
 var quickyObject = new QuickyService();
@@ -97,8 +97,8 @@ router.get('/getuserdetail/:user_id', verifyToken, function(req, res, next) {
 		if(err)
 		{
 			res.send({
-				status: 500,
-				message: 'There was a problem finding the user.',
+				status: 404,
+				message: 'Something went wrong please try after some time.',
 			});
 		}
 		else
@@ -125,9 +125,9 @@ router.get('/getuserdetail/:user_id', verifyToken, function(req, res, next) {
 			{
 				res.send({
 					status: 404,
-					message: 'No user found.',
+					message: 'User is not found.',
 				});
-			}	
+			}
 		}
 	});
 });
@@ -159,7 +159,7 @@ router.get('/getpartnerdetail', verifyToken, function(req, res, next) {
 		{
 			res.send({
 				status: 500,
-				message: 'There was a problem finding the user.',
+				message: 'Something went wrong please try after some time.',
 			});
 		}
 		else
@@ -171,8 +171,8 @@ router.get('/getpartnerdetail', verifyToken, function(req, res, next) {
 					if(err)
 					{
 						res.send({
-							status: 500,
-							message: 'There was a problem finding the partner user.',
+							status: 404,
+							message: 'Something went wrong please try after some time.',
 						});
 					}
 					else
@@ -199,7 +199,7 @@ router.get('/getpartnerdetail', verifyToken, function(req, res, next) {
 							} else {
 								res.send({
 									status: 400,
-									message: "Your partern is not entered code!",
+									message: "Something went wrong please try after some time.",
 								});
 							}
 						}
@@ -207,7 +207,7 @@ router.get('/getpartnerdetail', verifyToken, function(req, res, next) {
 						{
 							res.send({
 								status: 404,
-								message: 'No partner user found.',
+								message: 'Partner is not found.',
 							});
 						}
 					}
@@ -217,7 +217,7 @@ router.get('/getpartnerdetail', verifyToken, function(req, res, next) {
 			{
 				res.send({
 					status: 404,
-					message: 'No user found.',
+					message: 'User is not found.',
 				});
 			}	
 		}
@@ -250,7 +250,7 @@ router.get('/getuniquecode/:user_id', verifyToken, function(req, res, next) {
 		{
 			res.send({
 				status: 500,
-				message: 'There was a problem finding the user.',
+				message: 'Something went wrong please try after some time.',
 			});
 		}
 		else
@@ -274,7 +274,7 @@ router.get('/getuniquecode/:user_id', verifyToken, function(req, res, next) {
 			{
 				res.send({
 					status: 404,
-					message: 'No user found.',
+					message: 'User is not found.',
 				});
 			}
 		}
@@ -327,7 +327,7 @@ router.get('/createuniquecode', verifyToken, function(req, res, next) {
 			{
 				res.send({
 					status: 404,
-					message: 'No user found.',
+					message: 'User is not found.',
 				});
 			}
 		}
@@ -459,7 +459,7 @@ router.post('/register', function(req, res){
 			{
 				return res.send({
 					status: 405,
-					message: 'Email-Id already exists: '+email,
+					message: 'Email-Id already registered: '+email,
 				});
 			}
 			else
@@ -581,7 +581,7 @@ router.post('/login', function(req, res) {
 								{
 									res.send({
 										status: 500,
-										message: 'There was a problem in update user fcid record.',
+										message: 'Something went wrong please try after some time.',
 									});
 								}
 								else
@@ -665,7 +665,7 @@ router.post('/login', function(req, res) {
 			{
 				return res.send({
 					status: 400,
-					message: 'No user found',
+					message: 'User is not found',
 				});
 			}
 		}
@@ -749,7 +749,7 @@ router.post('/profileupdate', verifyToken, function(req, res, next) {
 				userData.profile_image = userData.profile_image ? `${config.site_url}profile_images/${userData.profile_image}` : null,
 				res.send({
 					status: 200,
-					message: 'Profile updated successfully',
+					message: 'The Profile updated successfully',
 					result: userData
 				});
 			}
@@ -757,7 +757,7 @@ router.post('/profileupdate', verifyToken, function(req, res, next) {
 			{
 				res.send({
 					status: 404,
-					message: 'No user found.',
+					message: 'User is not found.',
 				});
 			}	
 		}
@@ -871,14 +871,14 @@ router.post('/forgotpasswordemail', function(req, res) {
 						{
 							res.send({
 								status: 200,
-								message: 'A new password has been sent to your email-id.',
+								message: 'Your new password has been sent to your email address.',
 							});
 						}
 						else
 						{
 							res.send({
 								status: 404,
-								message: 'No user found.',
+								message: 'User is not found.',
 							});
 						}
 					}
@@ -889,7 +889,7 @@ router.post('/forgotpasswordemail', function(req, res) {
 			{
 				return res.send({
 					status: 400,
-					message: 'No user found',
+					message: 'User is not found',
 				});
 			}
 		}
@@ -955,7 +955,7 @@ router.post('/changepassword', verifyToken, function(req, res) {
 		{
 			res.send({
 				status: 500,
-				message: 'something went wrong',
+				message: 'Something went wrong please try after some time.',
 			});
 		}
 		else
@@ -999,7 +999,7 @@ router.post('/changepassword', verifyToken, function(req, res) {
 			{
 				return res.send({
 					status: 400,
-					message: 'No user found',
+					message: 'User is not found',
 				});
 			}
 		}
@@ -1010,8 +1010,8 @@ router.post('/changepassword', verifyToken, function(req, res) {
 router.post('/unavailability', verifyToken, function(req, res) {
 
 	let user_id  = req.body.user_id;
-	let unavailability_start  = new Date(req.body.unavailability_start).getTime();
-	let unavailability_end    = new Date(req.body.unavailability_end).getTime();
+	let unavailability_start  = customHelper.h_getTime(req.body.unavailability_start);
+	let unavailability_end    = customHelper.h_getTime(req.body.unavailability_end);
 
 	if(!user_id) 
 	{
@@ -1161,7 +1161,7 @@ router.post('/profileimageupload', verifyToken, (req, res, next) => {
 			{
 				return res.send({
 					status: 400,
-					message: 'user id is required',
+					message: 'User id is required',
 				});
 			}
 
@@ -1169,7 +1169,7 @@ router.post('/profileimageupload', verifyToken, (req, res, next) => {
 			{
 				return res.send({
 					status: 400,
-					message: 'upload file is required',
+					message: 'Please select a valid image.',
 				});
 			}
 	
@@ -1184,7 +1184,7 @@ router.post('/profileimageupload', verifyToken, (req, res, next) => {
 				{
 					res.send({
 						status: 500,
-						message: 'There was a problem finding the user.',
+						message: 'Something went wrong please try after some time.',
 					});
 				}
 				else
@@ -1197,7 +1197,7 @@ router.post('/profileimageupload', verifyToken, (req, res, next) => {
 							{
 								res.send({
 									status: 500,
-									message: 'Error uploading file.',
+									message: 'Please select a valid image.',
 								});
 							}
 							else
@@ -1214,7 +1214,7 @@ router.post('/profileimageupload', verifyToken, (req, res, next) => {
 								{
 									res.send({
 										status: 404,
-										message: 'Error occured in image upload.',
+										message: 'Please select a valid image..',
 									});
 								}
 							}
@@ -1224,7 +1224,7 @@ router.post('/profileimageupload', verifyToken, (req, res, next) => {
 					{
 						res.send({
 							status: 404,
-							message: 'No user found.',
+							message: 'User is not found.',
 						});
 					}	
 				}
@@ -1262,7 +1262,7 @@ router.delete('/unparring', verifyToken, function(req, res) {
 				if(GetuserDetail.stage < 4) {
 					res.send({
 						status:400,
-						message: "Paring is not avalibale",
+						message: "Pairing is not available",
 						stage:1
 					})
 				} else {
@@ -1272,7 +1272,7 @@ router.delete('/unparring', verifyToken, function(req, res) {
 						{
 							res.send({
 								status: 500,
-								message: 'There was a problem finding the partner user.',
+								message: 'Something went wrong please try after some time.',
 							});
 						}
 						else
@@ -1287,7 +1287,7 @@ router.delete('/unparring', verifyToken, function(req, res) {
 															if(updatedStage) {
 																res.send({
 																	status:200,
-																	message: "Paring Remove Sucessfully!",
+																	message: "unpaired Successfully!",
 																	stage: updatedStage.stage,
 																	partner_fcmid: updatedPatnerStage.fcmid
 																})
@@ -1301,7 +1301,7 @@ router.delete('/unparring', verifyToken, function(req, res) {
 													} else {
 														res.send({
 															status: 504,
-															message: "Somwthing went wrong!"
+															message: "Something went wrong!"
 														})
 													}
 												})
@@ -1322,7 +1322,7 @@ router.delete('/unparring', verifyToken, function(req, res) {
 							} else {
 								res.send({
 									status: 504,
-									message: "partner not found"
+									message: "partner is not found"
 								})
 							}
 						}
@@ -1393,13 +1393,13 @@ router.delete('/removeAccount', verifyToken, function(req, res) {
 															if(err) {
 																res.send({
 																	status: 400,
-																	message: 'User Account is not avaliable'
+																	message: 'Something went wrong'
 																})
 															} else {
 																if(removeAccountData) {
 																	res.send({
 																		status: 200,
-																		message: 'User Account remove sucessfully',
+																		message: 'Account deleted successfully',
 																		patner_fcmid: updatedStage.fcmid
 																	})
 																} else {
@@ -1462,7 +1462,7 @@ router.get('/getProfile', verifyToken, function(req,res) {
 		if(err) {
 			res.send({
 				status: 400,
-				message: "User does not found"
+				message: "User is not found"
 			})
 		} else {
 			if(profileData) {
@@ -1566,7 +1566,7 @@ router.get('/dashboard', verifyToken, function(req, res) {
 									} else {
 										res.send({
 											status: 504,
-											message: "USer is not found"
+											message: "User is not found"
 										})
 									}
 								}

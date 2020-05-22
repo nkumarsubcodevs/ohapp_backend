@@ -5,7 +5,7 @@
 */
 
 const express = require('express');
-const notificationService = require('../../services/notification');
+const NotificationService = require('../../services/NotificationService');
 const goalService = require('../../services/GoalService');
 const userService = require('../../services/UserService');
 const jwt = require('jsonwebtoken');
@@ -18,7 +18,7 @@ const verifyToken = require('./verifytoken');
 let router =  express.Router();
 
 // Create notification model object
-var notificationObject = new notificationService();
+var notificationObject = new NotificationService();
 
 // Create goal model object
 var goalServiceObject = new goalService();
@@ -37,7 +37,7 @@ router.get('/checkNotificationStage', verifyToken, function(req, res, next) {
       {
           res.send({
             status: 500,
-            message: 'There was a problem in fetching the page.',
+            message: 'Please Wait! The quicky setup is already in progress by your partner.',
           });
       }
       else
@@ -117,7 +117,7 @@ router.get('/checkNotificationStage', verifyToken, function(req, res, next) {
                       } else if(patner.stage == 2 && pageData.stage == 1) {
                         res.send({
                           status:200,
-                          message: "Your patner Is setting quicky",
+                          message: "Your patner is setting quicky",
                           user_stage: pageData.stage,
                           partner_stage: patner.stage
                         })
@@ -140,7 +140,7 @@ router.get('/checkNotificationStage', verifyToken, function(req, res, next) {
                           } else {
                             res.send({
                               status: 504,
-                              message: "Something3 went wrong!"
+                              message: "Something went wrong!"
                             })
                           }
                         })
@@ -150,7 +150,7 @@ router.get('/checkNotificationStage', verifyToken, function(req, res, next) {
                 } else {
                   res.send({
                     status: 404,
-                    message: "notification not found"
+                    message: "partner is not found"
                   })
                 }
               }
@@ -166,11 +166,5 @@ router.get('/checkNotificationStage', verifyToken, function(req, res, next) {
       }
   });
 });
-
-router.get('/getNotificationStage', verifyToken, function(req, res) {
-  let user_id = jwt.decode(req.headers['x-access-token']).id;
-})
-
-
 
 module.exports = router;
