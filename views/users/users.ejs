@@ -18,8 +18,22 @@
 
 
           <div class="box">
-              <div class="box-header with-border">
-                <h3 class="box-title">User List</h3>
+              <div class="box-header with-border" style="display: flex;">
+                <div style="width: 100%;">
+                  <h3 class="box-title">User List</h3>
+                </div>
+                <div style="width: 100%;">
+                  <form role="form" method="POST" action="/users/search" style="display: flex;float: right;">
+                    <div class="box-body" style="padding:0;">
+                      <div class="form-group d-flex">
+                        <input type="text" class="form-control" name="search" required/>
+                      </div>
+                    </div>
+                    <div class="box-footer" style="padding-top: 0;">
+                      <button type="submit" class="btn btn-primary">search</button>
+                    </div>
+                  </form> 
+                </div>
               </div>
               <!-- /.box-header -->
               <div class="box-body">
@@ -59,6 +73,23 @@
                                }
                             %>   
                           </td> 
+                          <td>
+                            <%
+                              if(item.status==1)
+                              {
+                          %>
+                          <a class="btn btn-danger" href="/users/status/0/<%=item.id%>">Inactive</a>
+                          <%
+                              }
+                              else
+                              {
+                          %>
+                          <a class="btn btn-success" href="/users/status/1/<%=item.id%>">Active</a>
+
+                          <%
+                              }
+                          %>
+                        </td>
                       </tr>
                       <%
                       });

@@ -749,17 +749,15 @@ router.post('/createmonthlygoal', verifyToken, function(req, res) {
 																					hours, minutes, 0
 																					);
 																					var date = new Date();
-																				var month = date.getMonth() + 1;
-																				var year = date.getFullYear();
-																				date.get
-																				// var month = current_datetime.format(night, 'MM', true);
-																				// var year = current_datetime.format(night, 'YYYY', true);
-																				// minutes = current_datetime.format(night, 'mm', true);
-																				// hours = current_datetime.format(night, 'HH', true);
+																				// var month = date.getMonth() + 1;
+																				// var year = date.getFullYear();
+																				// date.get
+																				var month = current_datetime.format(night, 'MM', true);
+																				var year = current_datetime.format(night, 'YYYY', true);
+																				minutes = current_datetime.format(night, 'mm', true);
+																				hours = current_datetime.format(night, 'HH', true);
 																				// console.log(minutes, hours)
-																				var lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
-																				var current_date = date.getDate();
-																				let remaing = lastDay - current_date;
+																				
 																				let day = parseInt(new Date(year, month, 0).getDate() / monthlyGoalDataSaved.connect_number);
 																				if(day <= 0) {
 																					day = 1
@@ -775,9 +773,12 @@ router.post('/createmonthlygoal', verifyToken, function(req, res) {
 																							})
 																						} else {
 																							if(monthlyGoal_data) {
+																								var lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+																								var current_date = date.getDate();
+																								let remaing = lastDay - current_date;
 																								let PR;
 																								if (monthlyGoal_data.complete_count == 0) {
-																									PR = 100;
+																									PR = 00;
 																								} else {
 																									PR = (monthlyGoal_data.complete_count / monthlyGoal_data.connect_number) * 100;
 																								}

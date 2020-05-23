@@ -3,60 +3,133 @@
 
 
 <div class="content-wrapper">
-<section class="content-header">
-		  <h1>Add Question</h1>
-		  <ol class="breadcrumb">
-        <li><a href="/"><i class="fa fa-dashboard"></i> Home</a></li>
-        <li class="active">Dashboard</li>
-		  </ol>
-    </section>
-
-
-		<section class="content">
-
-     <div class="row">
-            <div class="col-md-12">
-                <div class="box box-primary" style="margin: auto; width:50%">
-                    <div class="box-header with-border" >
-                      <h3 class="box-title">Add Question</h3>
-                    </div>
-                     <form role="form" method="POST" action="/pages/add/question">
+  <section class="content-header">
+        <h1>Add Question</h1>
+        <ol class="breadcrumb">
+          <li><a href="/"><i class="fa fa-dashboard"></i> Home</a></li>
+          <li class="active">Dashboard</li>
+        </ol>
+  </section>
+  <section class="content">
+    <% include ../partials/messagebox %>
+      <div class="row">
+              <div class="col-md-12">
+                  <div class="box box-primary" style="margin: auto; width:50%">
+                      <div class="box-header with-border" >
+                        <h3 class="box-title">Add Question</h3>
+                      </div>
+                      <% if(step == 1) {
+                        %>
+                      <form role="form" method="POST" action="/pages/add/question">
+                          <div class="box-body">
+                            <div class="form-group ">
+                              <label for="exampleInputEmail1">Question</label>
+                              <input type="text" class="form-control" name="title" required/>
+                            </div>
+                            <div class="form-group">
+                              <label for="exampleInputEmail1">descripation</label>
+                              <input type="text" class="form-control" name="descripation" required/>
+                            </div>
+                            <div class="form-group">
+                              <label for="exampleInputPassword1">Is Custom</label>
+                              <select class="form-control status" name="status" id="status">
+                                  <option value="true">True</option>
+                                  <option value="false" >false</option>
+                              </select>
+                            </div>
+                            <div class="row">
+                              <% for(var i=0; i < option; i++) { %>
+                                <div class="form-group col-md-6" >
+                                  <label for="exampleInputEmail1">Option<%=i +1%></label>
+                                  <%
+                                  if(i==0)
+                                  {
+                               %>
+                               <input type="text" class="form-control" name="Option"/>
+                               <%
+                                  }
+                                  else
+                                  {
+                               %>
+                               <input type="text" class="form-control" name="Option"/>
+                               <%
+                                  }
+                               %>
+                                </div>
+                            <% } %>
+                            <div class="form-group col-md-6" >
+                                <div> </div>
+                                <a class="btn btn-success" href="/pages/add/options/<%=option%>"><i class="fa fa-plus"></i>  Add Option</a>
+                            </div>
+                            </div>
+                          </div>
+                          <div class="box-footer" style="display: flex; justify-content: space-evenly;">
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                            <a class="btn btn-secondary" href="/pages/1">Cancel</a>
+                          </div>
+                      </form>
+                      <% } else { %>
+                      <form role="form" method="POST" action="/pages/add/question">
                         <div class="box-body">
                           <div class="form-group ">
                             <label for="exampleInputEmail1">Question</label>
-                            <input type="text" class="form-control" name="title" required/>
+                            <input type="text" class="form-control" name="title" value="<%=title%>" required/>
                           </div>
                           <div class="form-group">
                             <label for="exampleInputEmail1">descripation</label>
-                            <input type="text" class="form-control" name="descripation" required/>
+                            <input type="text" class="form-control" name="descripation" value="<%=descripation%>" required/>
                           </div>
+                          <div class="form-group">
+                            <label for="exampleInputPassword1">Is Custom</label>
+                            <select class="form-control" name="status">
+                              <option value="true" <% if(status=="true") { %> selected <% } %>>True</option>
+                              <option value="false" <% if(status=="false") { %> selected <% } %>>False</option>
+                          </select>
+                          </div>
+                          <% if(error) {%>
+                            <div class="btn-danger" style="padding-left: 10px"><%= error%></div>  
+                          <%} %>
                           <div class="row">
                             <% for(var i=0; i < option; i++) { %>
                               <div class="form-group col-md-6" >
                                 <label for="exampleInputEmail1">Option<%=i +1%></label>
-                                <input type="text" class="form-control" name="Option" required/>
+                                <%
+                                if(i==0)
+                                {
+                             %>
+                             <input type="text" class="form-control" name="Option"/>
+                             <%
+                                }
+                                else
+                                {
+                             %>
+                             <input type="text" class="form-control" name="Option"/>
+                             <%
+                                }
+                             %>
                               </div>
-                           <% } %>
-                           <div class="form-group col-md-6" >
+                          <% } %>
+                          <div class="form-group col-md-6" >
                               <div> </div>
                               <a class="btn btn-success" href="/pages/add/options/<%=option%>"><i class="fa fa-plus"></i>  Add Option</a>
                           </div>
-                            </div>
-                          <div class="form-group">
-                            <label for="exampleInputPassword1">Is Custom</label>
-                            <select class="form-control" name="status">
-                                <option value="true">True</option>
-                                <option value="false" >false</option>
-                            </select>
-                            </div>
+                          </div>
                         </div>
                         <div class="box-footer" style="display: flex; justify-content: space-evenly;">
                           <button type="submit" class="btn btn-primary">Submit</button>
                           <a class="btn btn-secondary" href="/pages/1">Cancel</a>
                         </div>
-                     </form>
-                </div>
-            </div>
-        </div>
- </section>
+                      </form>
+                      <% } %>
+                  </div>
+              </div>
+          </div>
+  </section>
 </div>
+<% include ../partials/footer %> 
+<script>
+  let vars;
+  function attendanceSubmit(studentId){
+  vars = document.getElementById('status').value;
+  }
+</script>

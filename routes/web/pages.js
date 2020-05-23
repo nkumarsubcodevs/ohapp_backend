@@ -58,10 +58,20 @@ router.get('/edit/:id',function(req,res)
 
 			}else
 			{
-				res.render('pages/updatelistPages',{
-					pageValue : pageData,
-					custom_helper: custom_helper
-				});
+				GoalObject.GetOptionByQuestionId(page_id, function(Err, data) {
+					if (err)
+						{
+							req.flash('error_message', 'Unable to fetch page detail');
+
+						}else
+						{
+							res.render('pages/updatelistPages',{
+								pageValue : pageData,
+								option: data,
+								custom_helper: custom_helper
+							});
+						}
+				})
 			}
 		});
 });
@@ -101,7 +111,8 @@ router.post('/update',function (req,res){
 });
 router.get('/add/:pages?',function (req,res){
 	res.render('pages/addlist', {
-		option: 7
+		option: 7,
+		step: 1
 	});
 });
 router.get('/add/options/:data', function(req, res) {
@@ -114,27 +125,68 @@ router.post('/add/question',function (req,res){
 	var title = req.body.title;
 	var status = req.body.status;
 	var descripation = req.body.descripation
-	var option = req.body.Option
-
+	var options = req.body.Option
+	var optionLength = options.filter(ees => ees != '');
 	let pageData = {
 		'question_title': title,
 		'question_descripation': descripation,
 		'iscustom': status,
 	};
-
-	GoalObject.saveQuestionaries(pageData , function(err, response){
-		if(err)
-		{
-			req.flash('error_message','Something went wrong');
-		}else{
-			if(response) {
-				GoalObject.setQuestionOptions(option, response.id, function(err, SaveOption) {
-					req.flash('success_message','saved Successfully');
-					res.redirect('/pages/1');
-				})
-			}
+	if(status == "false") {
+		let rrr = optionLength.length !== 0;
+		if(rrr) {
+			GoalObject.saveQuestionaries(pageData , function(err, response){
+				if(err)
+				{
+					req.flash('error_message','Something went wrong');
+				}else{
+					if(response) {
+						GoalObject.setQuestionOptions(options, response.id, function(err, SaveOption) {
+							req.flash('success_message','saved Successfully');
+							res.redirect('/pages/1');
+						})
+					}
+				}
+			});
+		} else {
+			req.flash('error_message','Please enter minimum one option');
+			res.render('pages/addlist', {
+				option: 7,
+				step: 2,
+				title: title,
+				descripation: descripation,
+				error: "Please enter valid options",
+				status: status
+			});
 		}
-	});
+	} else {
+		GoalObject.saveQuestionaries(pageData , function(err, response){
+			if(err)
+			{
+				req.flash('error_message','Something went wrong');
+			}else{
+				if(response) {
+					// GoalObject.setQuestionOptions(option, response.id, function(err, SaveOption) {
+						req.flash('success_message','saved Successfully');
+						res.redirect('/pages/1');
+					// })/
+				}
+			}
+		});
+	}
+	// GoalObject.saveQuestionaries(pageData , function(err, response){
+	// 	if(err)
+	// 	{
+	// 		req.flash('error_message','Something went wrong');
+	// 	}else{
+	// 		if(response) {
+	// 			GoalObject.setQuestionOptions(option, response.id, function(err, SaveOption) {
+	// 				req.flash('success_message','saved Successfully');
+	// 				res.redirect('/pages/1');
+	// 			})
+	// 		}
+	// 	}
+	// });
 });
 router.get('/option/:id?',function (req,res){
 	var page_id = req.params.id;
@@ -239,4 +291,5 @@ GoalObject.getQuestionOption(paginationData, id, function(err, pageData)
 		}
 	});
 })
+
 module.exports = router;

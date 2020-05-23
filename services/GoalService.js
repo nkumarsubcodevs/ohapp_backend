@@ -24,13 +24,18 @@ class GoalService
 		const goal_settings = await goalSettingsObject.findAll({
 			include: [{
 				model: questionOptionsObject
-			}]
+			}], order: [['id', 'ASC']] 
 		});
 		callback(null,goal_settings);
 	}
 	// get all pages list
 	async getQuestion(paginationData, callback){
 		const response = await goalSettingsObject.findAndCountAll({offset: paginationData.offset, limit: paginationData.limit});
+		callback(null,response);
+	}
+
+	async getQuestionCount(callback) {
+		const response = await goalSettingsObject.findAndCountAll();
 		callback(null,response);
 	}
 
@@ -43,10 +48,7 @@ class GoalService
 	//get single question record
 	async getSingleQuestionRecord(question_id,callback) {
 		goalSettingsObject.hasMany(questionOptionsObject, {foreignKey: 'question_id'});
-		const response = await goalSettingsObject.findAll( {include: [{
-			model: questionOptionsObject,
-			where: {question_id: question_id}
-		}]},{where:{id: question_id}});
+		const response = await goalSettingsObject.findAll({where:{id: question_id}});
 		callback(null,response);
 	}
 
@@ -379,6 +381,11 @@ class GoalService
 		callback(null, await Questiona_option.save())
 	}
 
+	async GetOptionByQuestionId(quetion_id, callback) {
+		const GetOption = await questionOptionsObject.findAll({where : {question_id:quetion_id}});
+
+		callback(null,GetOption);
+	}
 	// Get Question option
 	async GetQuestionOption(callback) {
 		const GetOption = await questionOptionsObject.findAll();

@@ -321,7 +321,24 @@ class UserService
 		const response = await userObject.findAndCountAll({offset: paginationData.offset, limit: paginationData.limit});
 		callback(null,response);
 	}
+	async getusersetachList(paginationData ,callback){
+		const response = await userObject.findAndCountAll({where: {first_name: paginationData.name},offset: paginationData.offset, limit: paginationData.limit});
+		callback(null,response);
+	}
+	async getuserCount(callback){
+		const response = await userObject.findAndCountAll();
+		callback(null,response);
+	}
 
+	async updateUserStatus(status, id, callback){
+		await userObject.update({ status: status }, { where: { id: id}});
+		const response = await userObject.findOne({ where: { id: id } });
+		if(response.status == status) {
+			return callback(null, response)
+		} else {
+			return this.updateUserStage(status, id, callback)
+		}
+	}
 	// Update stage value
 	async updateUserStage(stage, id, callback){
 		await userObject.update({ stage: stage }, { where: { id: id}});

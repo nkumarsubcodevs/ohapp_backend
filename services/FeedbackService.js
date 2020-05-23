@@ -54,6 +54,30 @@ class FeedBackServices
 		});
 	}
 
+	async getAllFeedbackCount(callback) {
+		await feedbackObject.findAndCountAll().then(res => {
+			callback(null, res)
+		}).catch(err => {
+			console.log(err)
+			callback(err.message, null)
+		});
+	}
+
+	async getNewfeedbackWithUser(callback) {
+		feedbackObject.belongsTo(userObject, {foreignKey: 'user_id'});
+		await feedbackObject.findAndCountAll({
+			include: [{
+						model: userObject,
+					 }],
+					 where : {create_time:  {
+						[Op.gte]: current_datetime.format(new Date(), "YYYY-MM-DD", true)
+					}}
+		}).then(res => {
+			callback(null, res)
+		}).catch(err => {
+			callback(err.message, null)
+		});
+	}
 }
 
 module.exports = FeedBackServices;

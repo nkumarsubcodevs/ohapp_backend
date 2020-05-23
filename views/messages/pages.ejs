@@ -2,84 +2,84 @@
 <% include ../partials/leftpart %>
         
 <div class="content-wrapper">
-<section class="content-header">
-     <h1>
-      Info_Messages List
-    </h1> 
-    <ol class="breadcrumb">
-        <li><a href="/"><i class="fa fa-dashboard"></i>Home</a></li>
-        <li class="active">Info_Messages List</li>
-        </ol>
+  <section class="content-header">
+      <h1>
+        Info_Messages List
+      </h1> 
+      <ol class="breadcrumb">
+          <li><a href="/"><i class="fa fa-dashboard"></i>Home</a></li>
+          <li class="active">Info_Messages List</li>
+          </ol>
   </section>
 
   <section class="content">
-    <% include ../partials/messagebox %>
-    <div class="row">
-      <div class="col-xs-12">
-      <div class="box">
-              <div class="box-header with-border d-flex">
-                <a class="btn btn-success" href="/messages/add/1">Add Info message</a>
-              </div>
-              <div class="box-body">
-                <table class="table table-bordered">
-                  <tbody><tr>
-                    <th style="width: 10px">ID</th>
-                    <th>TITLE</th>
-                    <th>Descripation</th>
-                    <th>STATUS</th>
-                    <th>CREATE TIME</th>
-                    <th>UPDATE TIME</th>
-                    <th></th>
-                  </tr>
+      <% include ../partials/messagebox %>
+      <div class="row">
+        <div class="col-xs-12">
+        <div class="box">
+                <div class="box-header with-border d-flex">
+                  <a class="btn btn-success" href="/messages/add/1">Add Info message</a>
+                </div>
+                <div class="box-body">
+                  <table class="table table-bordered">
+                    <tbody><tr>
+                      <th style="width: 10px">ID</th>
+                      <th>TITLE</th>
+                      <th>Descripation</th>
+                      <th>STATUS</th>
+                      <th>CREATE TIME</th>
+                      <th>UPDATE TIME</th>
+                      <th></th>
+                    </tr>
 
-                  <% 
-                  if(typeof pageDataValue != 'undefined')
-                  { 
-                      pageDataValue.forEach(function(item) 
-                      {
-                      %>
-                      <tr>
-                              <td><%=item.id%></td>
-                              <td><%=item.title%></td>
-                              <td style="width: 50%"><%=item.description%></td>
-                              <td>
-                                  <%
-                                  if(item.status==1)
-                                  {
-                               %>
-                                  <span class="badge bg-green">Active</span>
-                               <%
-                                  }
-                                  else
-                                  {
-                               %>
-                                  <span class="badge bg-red">Inactive</span>
-                               <%
-                                  }
-                               %>
+                    <% 
+                    if(typeof pageDataValue != 'undefined')
+                    { 
+                        pageDataValue.forEach(function(item) 
+                        {
+                        %>
+                        <tr>
+                                <td><%=item.id%></td>
+                                <td><%=item.title%></td>
+                                <td style="width: 50%"><%=item.description%></td>
+                                <td>
+                                    <%
+                                    if(item.status==1)
+                                    {
+                                %>
+                                    <span class="badge bg-green">Active</span>
+                                <%
+                                    }
+                                    else
+                                    {
+                                %>
+                                    <span class="badge bg-red">Inactive</span>
+                                <%
+                                    }
+                                %>
+                                </td>
+
+                            <td><%= custom_helper.h_convertDateTimeInTimeStamp(item.create_time)%></td>
+                            <td><%= custom_helper.h_convertDateTimeInTimeStamp(item.update_time)%></td>
+                              <td class="text-center">
+                                <a class="btn btn-success" href="/messages/edit/<%=item.id%>">Edit</a>
+                                <a class="btn btn-danger" href="/messages/delete/<%=item.id%>">Delete</a>
                               </td>
-
-                           <td><%= custom_helper.h_convertDateTimeInTimeStamp(item.create_time)%></td>
-                           <td><%= custom_helper.h_convertDateTimeInTimeStamp(item.update_time)%></td>
-                            <td class="text-center">
-                              <a class="btn btn-success" href="/messages/edit/<%=item.id%>">Edit</a>
-                              <a class="btn btn-danger" href="/messages/delete/<%=item.id%>">Delete</a>
-                            </td>
-                      </tr>
-                      <%
-                      });
-                  } 
-                  %>
-                </tbody></table>
+                        </tr>
+                        <%
+                        });
+                    } 
+                    %>
+                  </tbody></table>
+                </div>
+                <div class="box-footer clearfix">
+                    <% include ../partials/paginate %> 
+                </div>
               </div>
-              <div class="box-footer clearfix">
-                  <% include ../partials/paginate %> 
-              </div>
-            </div>
 
 
-</div>
-</div>
-</section>
+  </div>
+  </div>
+  </section>
 </div>
 <% include ../partials/footer %> 

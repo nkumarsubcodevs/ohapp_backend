@@ -17,8 +17,83 @@
 		<!-- Main content -->
 		<section class="content">
 			<% include ../partials/messagebox %> 
-			<br><br><br><br><br>
-			<center><h1>Welcome to OH Admin Panel</h1></center>
+			<br><br>
+			<div style="display: flex;">
+				<div style="width: 100%; margin-right: 10px; text-align: center; box-shadow: 0 1px 2px 2px gray;background-color: #74c166;">
+					<div style="padding: 20px;"><p style="font-size: 30px;font-weight: 700;">Total Users</p>
+					<p style="font-size: 20px;font-weight: 700;"><%=TotalUser%></p>
+				</div>
+					<div style="background-color: #67a65b; padding: 5px;">
+						<a href="/pages/1" style="color: black">More View <i class="fa fa-arrow-circle-o-right"></i></a>
+					</div>
+				</div>
+				<div style="width: 100%; margin-right: 10px; text-align: center;  box-shadow: 0 1px 2px 2px gray;background-color: #3c70bd;">
+					<div style="padding: 20px;">
+						<p style="font-size: 30px;font-weight: 700;">Total Questions</p>
+						<p style="font-size: 20px;font-weight: 700;"><%=TotalQuestion%></p>
+					</div>
+					<div style="background-color: #325994; padding: 5px;">
+						<a href="/pages/1" style="color: black">More View <i class="fa fa-arrow-circle-o-right"></i></a>
+					</div>
+				</div>
+				<div style="width: 100%; margin-right: 10px; text-align: center; box-shadow: 0 1px 2px 2px gray;background-color: #c97e36;">
+					<div style="padding: 20px;"><p style="font-size: 30px;font-weight: 700;">Total User concerns</p>
+					<p style="font-size: 20px;font-weight: 700;"><%=TotalFeedback%></p>
+				</div><div style="background-color: #aa6b2e; padding: 5px;">
+					<a href="/pages/1" style="color: black">More View <i class="fa fa-arrow-circle-o-right"></i></a>
+					</div>
+				</div>
+				<div style="width: 100%; text-align: center; box-shadow: 0 1px 2px 2px gray;background-color: #c93636;">
+					<div style="padding: 20px;"><p style="font-size: 30px;font-weight: 700;">New User concerns</p>
+					<p style="font-size: 20px;font-weight: 700;"><%=TotalNewFeedBack%></p>
+				</div>
+				<div style="background-color: #ac3030; padding: 5px;">
+					<a href="/pages/1" style="color: black">More View <i class="fa fa-arrow-circle-o-right"></i></a>
+					</div>
+				</div>
+			</div>
+			<div class="col-xs-12" style="padding: 0; margin-top: 15px;">
+				<div class="box" >
+					<div class="box-header with-border d-flex" style="font-size: 25px;font-weight: 800;">
+						<a href="/pages/add/1">New User Concers</a>
+					</div>
+					<div class="box-body">
+						<table class="table table-bordered">
+						<tbody><tr>
+							<th style="width: 10px">ID</th>
+							<th>FIRST NAME</th>
+							<th>LAST NAME</th>
+							<th>EMAIL</th>
+							<th>USER CONCERNS</th>
+							<th>CREATE TIME</th>
+							<th></th>
+						</tr>
+
+						<% 
+						if(typeof pageDataValue != 'undefined')
+						{ 
+							pageDataValue.forEach(function(item, index) 
+							{
+							%>
+							<tr>
+									<td><%=index + 1%></td>
+									<td><%=item.user.first_name%></td>
+									<td><%=item.user.last_name%></td>
+									<td><%=item.user.email%></td>
+									<td><%=item.feedback_details%></td>
+								<td><%= custom_helper.h_convertDateTimeInTimeStamp(item.update_time)%></td>
+									<td class="text-center">
+									<a class="btn btn-danger" href="/pages/delete/<%=item.id%>">Delete</a>
+									</td>
+							</tr>
+							<%
+							});
+						} 
+						%>
+						</tbody></table>
+					</div>
+				</div>
+			</div>
 		</section>
 		<!-- /.content -->
 	  </div>

@@ -32,10 +32,10 @@
                             <input type="text" class="form-control" name="descripation" value="<%=pageValue[0]['question_descripation']%>"/>
                           </div>
                           <div class="row">
-                          <% for(var i=0; i < pageValue[0]['Options'].length; i++) { %>
+                          <% for(var i=0; i < option.length; i++) { %>
                             <div class="form-group col-md-6" >
                               <label for="exampleInputEmail1" style="font-size: 15px;">Option<%=i +1%></label>
-                              <input type="text" class="form-control" name="Option" value="<%=pageValue[0]['Options'][i].title%>"/>
+                              <input type="text" class="form-control" name="Option" value="<%=option[i].title%>"/>
                             </div>
                          <% } %>
                           </div>
@@ -51,11 +51,12 @@
                           <button type="submit" class="btn btn-primary">Submit</button>
                           <a class="btn btn-secondary" href="/pages/1" style="color: white">Cancel</a>
                         </div>
-                      </form>
+                     </form>
                 </div>
             </div>
         </div>
  </section>
 </div>
+<% include ../partials/footer %> 
 
 

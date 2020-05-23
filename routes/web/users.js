@@ -147,6 +147,48 @@ router.get('/:page?',function(req, res){
 	});
 });
 
+router.post('/search', function(req, res) {
 
+	var perPage = 10;
+	var page = req.params.page || 1;
+	var serach = req.body.search;
+	let paginationData = {
+		'offset': (perPage * page) - perPage,
+		'limit' : perPage,
+		'name'	: serach
+	};
 
+	userSerObject.getusersetachList(paginationData,function(err, pageData)
+	{
+		if(pageData)
+		{
+			if (err)
+			{
+				req.flash('error_message','Error Occured: Unable to fetch users list');
+				res.redirect('/users/users');
+			}else
+			{
+				const itemCount = pageData.count;
+				res.render('users/users', {
+                    pageDataValue: pageData.rows,
+					current: page,
+					route_page: '/users',
+                    pages: Math.ceil(itemCount / perPage)
+                });
+			}
+		}
+	});
+})
+
+router.get('/status/:status?/:id', function(req, res) {
+	userSerObject.updateUserStatus(req.params.status, req.params.id, function(err, response) {
+		if(err) {
+			req.flash('error_message','Error Occured: Unable to fetch users list');
+			res.redirect('/users/1');
+		} else {
+			req.flash('success_message','Status changed success fully');
+			res.redirect('/users/1');
+		}
+	} )
+})
 module.exports = router;
