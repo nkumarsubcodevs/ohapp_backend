@@ -78,6 +78,14 @@ class FeedBackServices
 			callback(err.message, null)
 		});
 	}
+
+	async RemoveFeedback(user_id, callback) {
+		await feedbackObject.destroy({where: {user_id: user_id}}).then(res => {
+			callback(null, res);
+		}).catch(err => {
+			callback(err.message, null)
+		})
+	}
 }
 
 module.exports = FeedBackServices;

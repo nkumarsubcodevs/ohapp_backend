@@ -44,7 +44,8 @@ router.get('/getInfoMessages', verifyToken, function(req, res, next) {
 router.post('/saveMessages', verifyToken, function(req, res) {
   let title = req.body.title;
   let descripation = req.body.description;
-  infoMesssageObject.saveMessages(title, descripation, function(err, MessagesData) {
+  let key = req.bpdy.key;
+  infoMesssageObject.saveMessages(title, descripation, key, function(err, MessagesData) {
     if(err) {
       res.send({
         status: 404,

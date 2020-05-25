@@ -8,6 +8,7 @@ const express = require('express');
 const UserService = require('../../services/UserService');
 const GoalService = require('../../services/GoalService');
 const QuickyService = require('../../services/QuickyService');
+const FeedbackService = require('../../services/FeedbackService');
 
 const formValidator = require('validator');
 const path = require('path');
@@ -70,6 +71,9 @@ var goalObject = new GoalService();
 
 // Create quicky model object
 var quickyObject = new QuickyService();
+
+// Create quicky model object
+var feedbackObject = new FeedbackService();
 
 // Get user detail
 router.get('/getuserdetail/:user_id', verifyToken, function(req, res, next) {
@@ -166,7 +170,7 @@ router.get('/getpartnerdetail', verifyToken, function(req, res, next) {
 		{
 			if(userData)
 			{
-				userSerObject.getPartnerById(user_id, function(err, partnerData, patner_mapping_id)
+				userSerObject.getPartnerById(user_id, function(err, partnerData, patner_mapping_data)
 				{
 					if(err)
 					{
@@ -186,7 +190,7 @@ router.get('/getpartnerdetail', verifyToken, function(req, res, next) {
 								'email': partnerData.email,
 								'role_id': partnerData.role_id,
 								'gender': partnerData.gender,
-								'image_profile': partnerData.image_profile,
+								'image_profile': partnerData.profile_image ? `${config.site_url}profile_images/${partnerData.profile_image}`: null,
 								'status': partnerData.status,
 								'stage': partnerData.stage,
 							};
@@ -194,7 +198,8 @@ router.get('/getpartnerdetail', verifyToken, function(req, res, next) {
 								res.send({
 									status: 200,
 									result: partnerDetail,
-									patner_mapping_id: patner_mapping_id
+									patner_mapping_id: patner_mapping_data.id,
+									unique_id: patner_mapping_data.uniqe_id
 								});
 							} else {
 								res.send({
@@ -1397,10 +1402,21 @@ router.delete('/removeAccount', verifyToken, function(req, res) {
 																})
 															} else {
 																if(removeAccountData) {
-																	res.send({
-																		status: 200,
-																		message: 'Account deleted successfully',
-																		patner_fcmid: updatedStage.fcmid
+																	feedbackObject.RemoveFeedback(user_id, function(err,removeFeedbackdata) {
+																		if(err) {
+																			res.send({
+																				status: 400,
+																				message: 'Something went wrong'
+																			})
+																		} else {
+																			if(removeFeedbackdata) {
+																				res.send({
+																					status: 200,
+																					message: 'Account deleted successfully',
+																					patner_fcmid: updatedStage.fcmid
+																				})
+																			}
+																		}
 																	})
 																} else {
 																	res.send({

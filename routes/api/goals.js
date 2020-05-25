@@ -397,11 +397,15 @@ router.post('/checkuseruniquecode', verifyToken, function(req, res) {
 																				if(userStageupdatedata) {
 																					userSerObject.updateUserStage(4, monthlyGoalData.partner_two_id, function(err, updatepatnerStage){
 																						if(updatepatnerStage) {
-																							return res.send({
-																								status: 200,
-																								message: 'Paring sucessfully',
-																								stage: userStageupdatedata.stage,
-																								FCMID: uniqueCodeData.fcmid
+																							goalSerObject.AddUniqueId(user_id, function(err, updated) {
+																								if(updated) {
+																									return res.send({
+																												status: 200,
+																												message: 'Paring sucessfully',
+																												stage: userStageupdatedata.stage,
+																												FCMID: uniqueCodeData.fcmid
+																											})
+																								}
 																							})
 																						}
 																					})
@@ -515,7 +519,7 @@ router.post('/getpartnermapping', verifyToken, function(req, res) {
 			}
 			else
 			{
-				if(partnerData) {
+				if(partnersData) {
 					res.send({
 						status: 200,
 						partnerMappingData: partnersData,
@@ -778,7 +782,7 @@ router.post('/createmonthlygoal', verifyToken, function(req, res) {
 																								let remaing = lastDay - current_date;
 																								let PR;
 																								if (monthlyGoal_data.complete_count == 0) {
-																									PR = 00;
+																									PR = 0;
 																								} else {
 																									PR = (monthlyGoal_data.complete_count / monthlyGoal_data.connect_number) * 100;
 																								}

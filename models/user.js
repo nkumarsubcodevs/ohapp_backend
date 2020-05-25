@@ -76,6 +76,10 @@ const User = database.define('users',
 		allowNull: true,
 		default: 1
 	},
+	expiry_time: {
+		type: Sequelize.DATE,
+		allowNull: false,
+	},
 	create_time: {
 		type: Sequelize.DATE,
 		allowNull: false,

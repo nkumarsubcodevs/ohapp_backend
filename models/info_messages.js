@@ -13,6 +13,10 @@ const info_messages = database.define('info_messages',
 		type: Sequelize.STRING(250),
 		allowNull: false,
 	},
+	key: {
+		type: Sequelize.STRING(100),
+		allowNull: false,
+	},
 	description: {
 		type: Sequelize.TEXT,
 		allowNull: false,

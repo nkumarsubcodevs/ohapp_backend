@@ -465,6 +465,42 @@ class GoalService
 		}, order: [['create_time', 'DESC']] }, {limit: 2});
 		callback(null, response[1])
 	}
+	async AddUniqueId(id, callback) {
+		
+		let unique = this.makeid(30);
+		let response = await partnerMappingObject.findAll({where: {uniqe_id: unique}});
+		if(response.length == 0) {
+			const response = await partnerMappingObject.update({uniqe_id: unique},{
+				where:
+				{
+				[Op.or]: [
+				  {
+					partner_one_id: {
+						[Op.eq]: id
+					}
+				  },
+				  {
+					partner_two_id: {
+						[Op.eq]: id
+					}
+				  }
+				]
+			}});
+			callback(null, response)
+		} else {
+			this.AddUniqueId(id, callback)
+		}
+	}
+	makeid(length) {
+		var result           = '';
+		var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+		var charactersLength = characters.length;
+		for ( var i = 0; i < length; i++ ) {
+		   result += characters.charAt(Math.floor(Math.random() * charactersLength));
+		}
+		return result;
+	 }
 }
+
 
 module.exports = GoalService;

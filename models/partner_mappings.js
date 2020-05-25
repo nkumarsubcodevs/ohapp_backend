@@ -17,7 +17,11 @@ const PartnerMapping = database.define('partner_mappings',
 	partner_two_id: {
 		type: Sequelize.BIGINT,
 		allowNull: false,
-    },
+	},
+	uniqe_id:{
+		type: Sequelize.STRING,
+		allowNull: true
+	},
 	status: {
 		type: Sequelize.INTEGER,
 		allowNull: false,

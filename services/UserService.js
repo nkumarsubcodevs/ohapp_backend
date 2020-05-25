@@ -216,7 +216,7 @@ class UserService
 			partner_id = partnerResponse[0].partner_one_id;
 		}
 		const response  = await userObject.findOne({ where: { id: partner_id } });
-		callback(null, response, partnerResponse[0].id);
+		callback(null, response, partnerResponse[0]);
 	}
 	
 	// send forgot password email

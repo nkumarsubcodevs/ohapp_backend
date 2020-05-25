@@ -21,11 +21,12 @@ class InfoMessages
 		})
 	}
 
-	async saveMessages(title, message, callback) {
+	async saveMessages(title, message, key, callback) {
 		const now = new Date();
 		let data = new infoObject({
 			title: title,
 			description: message,
+			key:key,
 			status: 1,
 			create_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss'),
 			update_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss')

@@ -53,8 +53,9 @@ router.get('/add/:pages?',function (req,res){
 router.post('/add',function (req,res){
 
 	var title = req.body.title;
-	var descripation = req.body.descripation
-	MessagesObject.saveMessages(title ,descripation, function(err, response){
+	var descripation = req.body.descripation;
+	var key = req.body.key;
+	MessagesObject.saveMessages(title ,descripation, key, function(err, response){
 		if(err)
 		{
 			req.flash('error_message','Something went wrong');

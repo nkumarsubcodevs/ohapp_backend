@@ -35,6 +35,7 @@
                     { 
                         pageDataValue.forEach(function(item) 
                         {
+                          if(item.user) {
                         %>
                         <tr>
                                 <td><%=item.id%></td>
@@ -45,7 +46,7 @@
                                 <td><%= custom_helper.h_convertDateTimeInTimeStamp(item.create_time)%></td>
                                 <td><%= custom_helper.h_convertDateTimeInTimeStamp(item.update_time)%></td>
                         </tr>
-                        <%
+                        <% }
                         });
                     } 
                     %>

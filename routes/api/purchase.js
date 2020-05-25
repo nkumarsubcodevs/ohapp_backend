@@ -113,21 +113,85 @@ router.get('/verify', verifyToken, function(req, res) {
     } else {
       if(UserData) {
         if(UserData.receipt) {
-          console.log(UserData.receipt)
-          SubscripationObject.VerifyReceipt(UserData, function(err, VerifyData) {
-            if(err) {
-              res.send({
-                status: 404,
-                message: "something went wrong"
-              })
-            } else {
-              if(VerifyData) {
+          // SubscripationObject.VerifyReceipt(UserData, function(err, VerifyData) {
+          //   if(err) {
+          //     res.send({
+          //       status: 404,
+          //       message: "something went wrong"
+          //     })
+          //   } else {
+          //     if(VerifyData) {
+                    let date2 = current_datetime.format(new Date, 'YYYY-MM-DD HH:mm:ss', true);
+                    let date1 = new Date(UserData.expiry_time);
+                    date2 = new Date(date2);
+                    if(date2.getTime() < date1.getTime()) {
+                      res.send({
+                        status: 200,
+                        message: "Your Plan is Active!"
+                      })
+                    } else {
+                      userSerObject.getPartnerById(user_id, function(err, PatnerData) {
+                        if(err) {
+                          res.send({
+                            status: 404,
+                            message: "something went wrong"
+                          })
+                        } else {
+                          if(PatnerData) {
+                            if(PatnerData.receipt) {
+                              // SubscripationObject.VerifyReceipt(PatnerData, function(err, VerifyData) {
+                              //   if(err) {
+                              //     res.send({
+                              //       status: 404,
+                              //       message: "something went wrong"
+                              //     })
+                              //   } else {
+                              //     if(VerifyData) {
+                                        if(PatnerData.expiry_time) {
+                                          let date2 = current_datetime.format(new Date, 'YYYY-MM-DD HH:mm:ss', true);
+                                          let date1 = new Date(PatnerData.expiry_time);
+                                          date2 = new Date(date2);
+                                          if(date2.getTime() < date1.getTime()) {
+                                            res.send({
+                                              status: 200,
+                                              message: "You and Your Patner Plan are Active!"
+                                            })
+                                          } else {
+                                            res.send({
+                                              status: 200,
+                                              message: "You and Your Patner Plan are expired!"
+                                            })
+                                          }
+                                        } else {
+                                          res.send({
+                                            status: 200,
+                                            message: "Please Buy subscripation"
+                                          })
+                                        }
+                              //     } else {
+                              //     }
+                              //   }
+                              // })
+                            } else {
+                              res.send({
+                                status: 200,
+                                message: "Please Buy subscripation"
+                              })
+                            }
+                          } else {
+                            res.send({
+                              status: 504,
+                              message: "Patner is not found"
+                            })
+                          }
+                        }
+                      })
+                    }
+          //     } else {
 
-              } else {
-
-              }
-            }
-          })
+          //     }
+          //   }
+          // })
         } else {
           userSerObject.getPartnerById(user_id, function(err, PatnerData) {
             if(err) {
@@ -138,20 +202,40 @@ router.get('/verify', verifyToken, function(req, res) {
             } else {
               if(PatnerData) {
                 if(PatnerData.receipt) {
-                  SubscripationObject.VerifyReceipt(PatnerData, function(err, VerifyData) {
-                    if(err) {
-                      res.send({
-                        status: 404,
-                        message: "something went wrong"
-                      })
-                    } else {
-                      if(VerifyData) {
+                  // SubscripationObject.VerifyReceipt(PatnerData, function(err, VerifyData) {
+                  //   if(err) {
+                  //     res.send({
+                  //       status: 404,
+                  //       message: "something went wrong"
+                  //     })
+                  //   } else {
+                  //     if(VerifyData) {
+                            if(PatnerData.expiry_time) {
+                              let date2 = current_datetime.format(new Date, 'YYYY-MM-DD HH:mm:ss', true);
+                              let date1 = new Date(PatnerData.expiry_time);
+                              date2 = new Date(date2);
+                              if(date2.getTime() < date1.getTime()) {
+                                res.send({
+                                  status: 200,
+                                  message: "Your partner Plan is Active!"
+                                })
+                              } else {
+                                res.send({
+                                  status: 200,
+                                  message: "Your patner Plan is expired!"
+                                })
+                              }
+                            } else {
+                              res.send({
+                                status: 400,
+                                message: "Please Buy subscripation"
+                              })
+                            }
+                  //     } else {
 
-                      } else {
-
-                      }
-                    }
-                  })
+                  //     }
+                  //   }
+                  // })
                 } else {
                   res.send({
                     status: 200,
