@@ -88,6 +88,18 @@ var customHelper = {
 	h_getTime(date_time) {
 		let time =  new Date(date_time).getTime();
 		return time;
+	},
+
+	check_notification_Mute(Mute_start, Mute_end) {
+		let Now = current_datetime.format(new Date, 'YYYY-MM-DD HH:mm:ss', true);
+		let end_time = new Date(Mute_end);
+		let start_time = new Date(Mute_start);
+		Now = new Date(Now);
+		if((Now.getTime() < end_time.getTime()) && (Now.getTime() > start_time.getTime())) {
+			return true;
+		} else {
+			return false; 
+		}
 	}
 };
 

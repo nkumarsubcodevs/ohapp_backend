@@ -17,6 +17,10 @@ const info_messages = database.define('info_messages',
 		type: Sequelize.STRING(100),
 		allowNull: false,
 	},
+	screen: {
+		type: Sequelize.STRING(100),
+		allowNull: false,
+	},
 	description: {
 		type: Sequelize.TEXT,
 		allowNull: false,

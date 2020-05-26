@@ -52,10 +52,13 @@ router.get('/add/:pages?',function (req,res){
 });
 router.post('/add',function (req,res){
 
-	var title = req.body.title;
-	var descripation = req.body.descripation;
-	var key = req.body.key;
-	MessagesObject.saveMessages(title ,descripation, key, function(err, response){
+	let data = {
+		title: req.body.title,
+		descripation: req.body.descripation,
+		key: req.body.key,
+		screen: req.body.screen
+	}
+	MessagesObject.saveMessages(data, function(err, response){
 		if(err)
 		{
 			req.flash('error_message','Something went wrong');

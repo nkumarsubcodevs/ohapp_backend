@@ -35,65 +35,54 @@
 
 <div class="container-fluid">
 		<div class="row">
-		  <div class="col-xs-12 col-sm-7 col-md-5 col-lg-4 authfy-panel-left" style="background-color:rgb(45, 56, 94, .9);;">
-			<!-- brand-logo start -->
-			<div class="brand-logo text-center">
-			 <a href="/"><img src="/images/logosite.png"></a>
-			</div><!-- ./brand-logo -->
+		  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 authfy-panel-left" style="background: linear-gradient(to bottom, rgba(42,188,246,1) 0%, rgba(246,81,205,1) 100%); display: flex; justify-content: center;align-items: center;">
+			<div style="width: 35%;">
+				<!-- brand-logo start -->
+				<div class="brand-logo text-center">
+				 <a href="/"><img src="/images/Group.png" width="150px"></a>
+				</div><!-- ./brand-logo -->
 
-			<% include ../partials/messagebox %>
-			
-			<!-- authfy-login start -->
-			<div class="authfy-login">
-			  <!-- panel-login start -->
-			  <div class="authfy-panel panel-login text-center active">
-				<div class="authfy-heading">
-				  <h3 class="auth-title" style="color: blanchedalmond;">Login to your account</h3>
-				</div>
+				<% include ../partials/messagebox %>
 
-				<div class="row">
-				  <div class="col-xs-12 col-sm-12">
-  
-					<form action="/users/login" method="post" name="login_form" id="login_form" autocomplete="off" class="loginForm">
-					
-					  <div class="form-group">
-  
-						<input type="email" name="email" class="form-control email" placeholder="Email">
-						
-						 
+				<!-- authfy-login start -->
+				<div class="authfy-login">
+				  <!-- panel-login start -->
+				  <div class="authfy-panel panel-login text-center active">
+					<div class="authfy-heading">
+					  <h3 class="auth-title" style="color: blanchedalmond;">Login to access you admin account.</h3>
+					</div>
+	
+					<div class="row">
+					  <div class="col-xs-12 col-sm-12">
+	
+						<form action="/users/login" method="post" name="login_form" id="login_form" autocomplete="off" class="loginForm">
+	
+						  <div class="form-group">
+	
+							<input type="email" name="email" class="form-control email" placeholder="Email">
+	
+						  </div>
+						  <div class="form-group">
+	
+						  <input type="password" name="password" class="form-control" placeholder="Password">
+						  </div>
+	
+						  <div class="form-group">
+							<button class="btn btn-lg btn-primary btn-block" type="submit">Login </button>
+						  </div>
+						</form>
 					  </div>
-					  <div class="form-group">
-					  
-					  <input type="password" name="password" class="form-control" placeholder="Password">
-					  
-						
-					  </div>
-					  
-					  <div class="form-group">
-						<button class="btn btn-lg btn-primary btn-block" type="submit">Login </button>
-					  </div>
-					</form>
-				  </div>
-				</div>
-			  </div> <!-- ./panel-login -->
-		 
-			  <div class="authfy-panel panel-forgot">
-			   
-			  </div> <!-- ./panel-forgot -->
-			</div> <!-- ./authfy-login -->
-		  </div> <!-- ./authfy-panel-left -->
-		  <div class="col-md-7 col-lg-8 authfy-panel-right hidden-xs hidden-sm">
-			<div class="hero-heading">
-			  <div class="headline">
-				<h3>OH Admin Panel</h3>
-			  </div>
+					</div>
+				  </div> <!-- ./panel-login -->
+	
+				  <div class="authfy-panel panel-forgot">
+	
+				  </div> <!-- ./panel-forgot -->
+				</div> <!-- ./authfy-login -->
 			</div>
-			
-		  </div>
+		  </div> <!-- ./authfy-panel-left -->
 		</div> <!-- ./row -->
 	  </div> <!-- ./container -->
-	 
-	
   <!-- /.login-box -->
 
 <!-- /.login-box -->

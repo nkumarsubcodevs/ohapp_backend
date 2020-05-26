@@ -192,6 +192,7 @@ router.get('/getpartnerdetail', verifyToken, function(req, res, next) {
 								'gender': partnerData.gender,
 								'image_profile': partnerData.profile_image ? `${config.site_url}profile_images/${partnerData.profile_image}`: null,
 								'status': partnerData.status,
+								'fcmID': partnerData.fcmid,
 								'stage': partnerData.stage,
 							};
 							if(partnerData.stage >= 4) {
@@ -1238,6 +1239,7 @@ router.post('/profileimageupload', verifyToken, (req, res, next) => {
 	});
 });
 
+// Remove Pairing 
 router.delete('/unparring', verifyToken, function(req, res) {
 	let user_id  = jwt.decode(req.headers['x-access-token']).id;
 	if(!user_id)
@@ -1343,6 +1345,7 @@ router.delete('/unparring', verifyToken, function(req, res) {
 	})
 })
 
+// Remove user Account
 router.delete('/removeAccount', verifyToken, function(req, res) {
 	let user_id  = jwt.decode(req.headers['x-access-token']).id;
 	if(!user_id)
@@ -1466,6 +1469,7 @@ router.delete('/removeAccount', verifyToken, function(req, res) {
 	})
 })
 
+// Get User profile data
 router.get('/getProfile', verifyToken, function(req,res) {
 	let user_id  = jwt.decode(req.headers['x-access-token']).id;
 	if(!user_id) {
@@ -1509,6 +1513,7 @@ router.get('/getProfile', verifyToken, function(req,res) {
 	})
 })
 
+// Get Dashboard data
 router.get('/dashboard', verifyToken, function(req, res) {
 	let user_id  = jwt.decode(req.headers['x-access-token']).id;
 	if(!user_id) {

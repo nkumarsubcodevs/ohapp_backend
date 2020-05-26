@@ -321,15 +321,20 @@ class UserService
 		const response = await userObject.findAndCountAll({offset: paginationData.offset, limit: paginationData.limit});
 		callback(null,response);
 	}
-	async getusersetachList(paginationData ,callback){
+
+	// Search User for Admin Panel
+	async getusersearchList(paginationData ,callback){
 		const response = await userObject.findAndCountAll({where: {first_name: paginationData.name},offset: paginationData.offset, limit: paginationData.limit});
 		callback(null,response);
 	}
+
+	// Count Total no. of user for Admin panel
 	async getuserCount(callback){
 		const response = await userObject.findAndCountAll();
 		callback(null,response);
 	}
 
+	// Update User status for Admin panel
 	async updateUserStatus(status, id, callback){
 		await userObject.update({ status: status }, { where: { id: id}});
 		const response = await userObject.findOne({ where: { id: id } });
@@ -339,6 +344,7 @@ class UserService
 			return this.updateUserStage(status, id, callback)
 		}
 	}
+
 	// Update stage value
 	async updateUserStage(stage, id, callback){
 		await userObject.update({ stage: stage }, { where: { id: id}});
@@ -348,6 +354,38 @@ class UserService
 		} else {
 			return this.updateUserStage(stage, id, callback)
 		}
+	}
+
+	// Update stage value for Both partner
+	async updateBothPartnerStage(updatedData, callback){
+
+		// await userObject.update({ stage: updatedData.stage }, { where: { id: updatedData.user_id}});
+		// const response = await userObject.findOne({ where: { id: id } });
+		// if(response.stage == stage) {
+		// 	return callback(null, response)
+		// } else {
+		// 	return this.updateUserStage(stage, id, callback)
+		// }
+		await userObject.update({
+			stage: updatedData.stage},
+			{where : {
+				[Op.or]: [
+				{
+				  id: {
+					  [Op.eq]: updatedData.user_id
+				  }
+				},
+				{
+				  id: {
+					  [Op.eq]: updatedData.partner_id
+				  }
+				}
+			  ]}
+			}).then(res => {
+				callback(null, res)
+			}).catch(err => {
+				callback(err.message, null)
+			})
 	}
 
 	// add unavailability
@@ -406,6 +444,7 @@ class UserService
 		callback(null, unparing)
 	}
 
+	// Remove Monthly Goal
 	async RemoveMonthlyGoal(userID, patner_id, callback) {
 		const unparing = await monthlyGoalObject.destroy({ where: { 
 			[Op.or]: [
@@ -424,6 +463,7 @@ class UserService
 		callback(null, unparing)
 	}
 
+	// Remove User Account
 	async RemoveAccount(userId, callback) {
 		let removeUser = await userObject.destroy({
 			where: {
@@ -433,11 +473,20 @@ class UserService
 		callback(null, removeUser)
 	}
 
+	// Update Subscripation Plan
 	async UpdateSubscripation(UpdateData, callback) {
 		const now = new Date();
+		var date = new Date();
+        if(UpdateData.subscripation_plan == "yearly") {
+			date = current_datetime.addYears(now, 1);
+        }
+        if(UpdateData.subscripation_plan == "monthly") {
+			date = current_datetime.addDays(now, 30);
+        }
 		await userObject.update({
 			device_name: UpdateData.device_name,
 			receipt: UpdateData.receipt,
+			expiry_time: date,
 			update_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss')
 		}, {where: {id: UpdateData.user_id}}).then(async res => {
 			let response = await userObject.findOne({where: {id: UpdateData.user_id}});
@@ -445,6 +494,56 @@ class UserService
 		}).catch(err => {
 			callback(err.message, null)
 		})
+	}
+
+	// Update Notification mute data
+	async UpdateNotificationMuteData(UpdatedData, callback) {
+		await userObject.update({
+			notification_mute_end: UpdatedData.end_time,
+			notification_mute_start: UpdatedData.start_time,
+			notification_mute_status: UpdatedData.mute_status},
+			{where : {
+				[Op.or]: [
+				{
+				  id: {
+					  [Op.eq]: UpdatedData.user_id
+				  }
+				},
+				{
+				  id: {
+					  [Op.eq]: UpdatedData.partner_id
+				  }
+				}
+			  ]}
+			}).then(res => {
+				callback(null, res)
+			}).catch(err => {
+				callback(err.message, null)
+			})
+	}
+
+	// Update Notification mute Status
+	async UpdateNotificationStatus(UpdatedData, callback) {
+		await userObject.update({
+			notification_mute_status: UpdatedData.status},
+			{where : {
+				[Op.or]: [
+				{
+				  id: {
+					  [Op.eq]: UpdatedData.user_id
+				  }
+				},
+				{
+				  id: {
+					  [Op.eq]: UpdatedData.partner_id
+				  }
+				}
+			  ]}
+			}).then(res => {
+				callback(null, res)
+			}).catch(err => {
+				callback(err.message, null)
+			})
 	}
 }
 

@@ -713,137 +713,144 @@ router.post('/createmonthlygoal', verifyToken, function(req, res) {
 										{
 											userSerObject.updateUserStage(4, parter_id, function(er, updateedstage){})
 											res.send({
-												status: 500,
+												status: 504,
 												message: 'something went wrong.',
 											});
 										}
 										else
 										{
-											userSerObject.getUserById(parter_id, function(err, GetpatnerData) {
-												if(err) {
-													res.send({
-														status:400,
-														message: "Something went Wrong"
-													})
-												} else {
-													if(GetpatnerData) {
-														userSerObject.updateUserStage(6, user_id, function(err, updatedStage) {
-															if(updatedStage) {
-																userSerObject.getPartnerById(user_id, function(err, patnerData) {
+											let updateStage = {
+												user_id: user_id,
+												partner_id: parter_id,
+												stage: 6
+											}
+											userSerObject.updateBothPartnerStage(updateStage ,function(err, updatedStage) {
+												if(updatedStage) {
+													userSerObject.getUserById(user_id, function(err, userData) {
+														if(err) {
+															res.send({
+																status: 400,
+																message: 'something went wrong.',
+															});
+														} else {
+															if(userData) {
+																userSerObject.getPartnerById(user_id, function(err, partnerData) {
 																	if(err) {
 																		res.send({
 																			status: 400,
-																			message: "something went wrong"
-																		})
+																			message: 'something went wrong.',
+																		});
 																	} else {
-																		if(patnerData) {
-																			userSerObject.updateUserStage(6, patnerData.id, function(err, updateedstage){
-																				const [time, modifier] = monthlyGoalDataSaved.intimate_request_time.split(' ');
-																				let [hours, minutes] = time.split(':');
-																				if (hours === '12') {
-																				hours = '00';
-																				}
-																				if (modifier === 'PM') {
-																				hours = parseInt(hours, 10) + 12;
-																				}
-																				var night = new Date(
-																					now.getFullYear(),
-																					now.getMonth(),
-																					now.getDate(),
-																					hours, minutes, 0
-																					);
-																					var date = new Date();
+																		if(partnerData) {
+																			const [time, modifier] = monthlyGoalDataSaved.intimate_request_time.split(' ');
+																			let [hours, minutes] = time.split(':');
+																			if (hours === '12') {
+																			hours = '00';
+																			}
+																			if (modifier === 'PM') {
+																			hours = parseInt(hours, 10) + 12;
+																			}
+																			var night = new Date(
+																				now.getFullYear(),
+																				now.getMonth(),
+																				now.getDate(),
+																				hours, minutes, 0
+																				);
 																				// var month = date.getMonth() + 1;
 																				// var year = date.getFullYear();
-																				// date.get
 																				var month = current_datetime.format(night, 'MM', true);
 																				var year = current_datetime.format(night, 'YYYY', true);
-																				minutes = current_datetime.format(night, 'mm', true);
-																				hours = current_datetime.format(night, 'HH', true);
-																				// console.log(minutes, hours)
-																				
+																				minutes = current_datetime.format(night, 'mm');
+																				hours = current_datetime.format(night, 'HH');
 																				let day = parseInt(new Date(year, month, 0).getDate() / monthlyGoalDataSaved.connect_number);
 																				if(day <= 0) {
 																					day = 1
 																				}
+																				let statusChecks = customHelper.check_notification_Mute(userData.notification_mute_start,userData.notification_mute_end);
+																				console.log(statusChecks)
 																				cron.schedule(`${parseInt(minutes)} ${hours} */${day} * *`, () => {
 																					// cron.schedule(`* * * * *`, (err, ress) => {
-
-																					goalSerObject.getGoalDetails(updatedStage.id, updateedstage.id, function(err, monthlyGoal_data) {
-																						if(err) {
-																							res.send({
-																								status:404,
-																								message: "Something went wrong!"
-																							})
-																						} else {
-																							if(monthlyGoal_data) {
-																								var lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
-																								var current_date = date.getDate();
-																								let remaing = lastDay - current_date;
-																								let PR;
-																								if (monthlyGoal_data.complete_count == 0) {
-																									PR = 0;
-																								} else {
-																									PR = (monthlyGoal_data.complete_count / monthlyGoal_data.connect_number) * 100;
-																								}
-																								let Notificationmessage = {
-																									PR: PR,
-																									remaing_days: remaing,
-																								}
-																								notificationObject.notification(updatedStage.fcmid, Notificationmessage, function(err, response) {
-																									let notification1 = {
-																										user_id: updatedStage.id,
-																										goal_id: monthlyGoalDataSaved.id,
-																										device_id: updatedStage.fcmid,
-																										notification_id: response.results[0].message_id,
+																		            let statusCheck = customHelper.check_notification_Mute(userData.notification_mute_start,userData.notification_mute_end);
+																					if(statusCheck) {
+																						res.send({
+																							status: 400,
+																							message: "Notificaiton is mute for some time."
+																						})
+																					} else {
+																						goalSerObject.getGoalDetails(userData.id, partnerData.id, function(err, monthlyGoal_data) {
+																							if(err) {
+																								res.send({
+																									status:404,
+																									message: "Something went wrong!"
+																								})
+																							} else {
+																								if(monthlyGoal_data) {
+																									var date = new Date();
+																									var lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+																									var current_date = date.getDate();
+																									let remaing = lastDay - current_date;
+																									let PR;
+																									if (monthlyGoal_data.complete_count == 0) {
+																										PR = 0;
+																									} else {
+																										PR = (monthlyGoal_data.complete_count / monthlyGoal_data.connect_number) * 100;
 																									}
-																									notificationObject.saveNotification(notification1, function(err, response) {
+																									let Notificationmessage = {
+																										PR: PR,
+																										remaing_days: remaing,
+																									}
+																									notificationObject.notification(userData.fcmid, Notificationmessage, function(err, response) {
+																										let notification1 = {
+																											user_id: userData.id,
+																											goal_id: monthlyGoalDataSaved.id,
+																											device_id: userData.fcmid,
+																											notification_id: response.results[0].message_id,
+																										}
+																										notificationObject.saveNotification(notification1, function(err, response) {
+																										})
 																									})
-																								})
-																								notificationObject.notification(updateedstage.fcmid, Notificationmessage,function(err, response) {
-																									let notification1 = {
-																										user_id: updateedstage.id,
-																										goal_id: monthlyGoalDataSaved.id,
-																										device_id: updateedstage.fcmid,
-																										notification_id: response.results[0].message_id,
-																									}
-																									notificationObject.saveNotification(notification1, function(err, response) {})
-																								})
-																							}
+																									notificationObject.notification(partnerData.fcmid, Notificationmessage,function(err, response) {
+																										let notification1 = {
+																											user_id: partnerData.id,
+																											goal_id: monthlyGoalDataSaved.id,
+																											device_id: partnerData.fcmid,
+																											notification_id: response.results[0].message_id,
+																										}
+																										notificationObject.saveNotification(notification1, function(err, response) {})
+																									})
+																								}
 																						}
 																					})
-																				});
-																				if(updateedstage) {
-																					res.send({
-																						status: 200,
-																						message: 'The monthly goal has been successfully created.',
-																						stage: updatedStage.stage,
-																						fcmid: GetpatnerData.fcmid,
-																						Patner1_first_name: updatedStage.first_name,
-																						Patner1_last_name: updatedStage.last_name,
-																						patner1_stage: updatedStage.stage,
-																						Patner2_first_name:updateedstage.first_name,
-																						Patner2_last_name:updateedstage.last_name,
-																						patner2_stage: updateedstage.stage
-																					});
 																				}
-																			})
+																			});
+																			res.send({
+																				status: 200,
+																				message: 'The monthly goal has been successfully created.',
+																				stage: userData.stage,
+																				fcmid: partnerData.fcmid,
+																				Patner1_first_name: userData.first_name,
+																				Patner1_last_name: userData.last_name,
+																				patner1_stage: userData.stage,
+																				Patner2_first_name:partnerData.first_name,
+																				Patner2_last_name:partnerData.last_name,
+																				patner2_stage: partnerData.stage
+																			});
 																		} else {
 																			res.send({
-																				status: 504,
-																				messgae: "partner is not found"
-																			})
+																				status: 500,
+																				message: 'Partner is not found.',
+																			});
 																		}
 																	}
-																} )
+																})
+															} else {
+																res.send({
+																	status: 500,
+																	message: 'User is not found.',
+																});
 															}
-														})
-													} else {
-														res.send({
-															status: 504,
-															messgae: "Patner is not found"
-														})
-													}
+														}
+													})
 												}
 											})
 										}
@@ -1190,26 +1197,59 @@ router.post('/updatemonthlygoal/:goal_id', verifyToken, function(req, res) {
 																}
 																cron.schedule(`${parseInt(minutes)} ${hours} */${day} * *`, () => {
 																	// cron.schedule(`* * * * *`, (err, ress) => {
-																		notificationObject.notification(GetpatnerData.fcmid, function(err, response) {
-																			let notification1 = {
-																				user_id: GetpatnerData.id,
-																				goal_id: monthlyGoalDataSaved.id,
-																				device_id: GetpatnerData.fcmid,
-																				notification_id: response.results[0].message_id,
-																			}
-																			notificationObject.saveNotification(notification1, function(err, response) {
-																			})
+																	let statusCheck = customHelper.check_notification_Mute(userData.notification_mute_start,userData.notification_mute_end);
+																	if(statusCheck) {
+																		res.send({
+																			status: 400,
+																			message: "Notificaiton is mute for some time."
 																		})
-																		notificationObject.notification(usersData.fcmid, function(err, response) {
-																			let notification1 = {
-																				user_id: usersData.id,
-																				goal_id: monthlyGoalDataSaved.id,
-																				device_id: usersData.fcmid,
-																				notification_id: response.results[0].message_id,
-																			}
-																			notificationObject.saveNotification(notification1, function(err, response) {})
-																		})
-																}, {timezone: "Asia/Kolkata"});
+																	} else {
+																		goalSerObject.getGoalDetails(userData.id, partnerData.id, function(err, monthlyGoal_data) {
+																			if(err) {
+																				res.send({
+																					status:404,
+																					message: "Something went wrong!"
+																				})
+																			} else {
+																				if(monthlyGoal_data) {
+																					var date = new Date();
+																					var lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+																					var current_date = date.getDate();
+																					let remaing = lastDay - current_date;
+																					let PR;
+																					if (monthlyGoal_data.complete_count == 0) {
+																						PR = 0;
+																					} else {
+																						PR = (monthlyGoal_data.complete_count / monthlyGoal_data.connect_number) * 100;
+																					}
+																					let Notificationmessage = {
+																						PR: PR,
+																						remaing_days: remaing,
+																					}
+																					notificationObject.notification(userData.fcmid, Notificationmessage, function(err, response) {
+																						let notification1 = {
+																							user_id: userData.id,
+																							goal_id: monthlyGoalDataSaved.id,
+																							device_id: userData.fcmid,
+																							notification_id: response.results[0].message_id,
+																						}
+																						notificationObject.saveNotification(notification1, function(err, response) {
+																						})
+																					})
+																					notificationObject.notification(partnerData.fcmid, Notificationmessage,function(err, response) {
+																						let notification1 = {
+																							user_id: partnerData.id,
+																							goal_id: monthlyGoalDataSaved.id,
+																							device_id: partnerData.fcmid,
+																							notification_id: response.results[0].message_id,
+																						}
+																						notificationObject.saveNotification(notification1, function(err, response) {})
+																					})
+																				}
+																		}
+																	})
+																}
+															});
 																res.send({
 																	status: 200,
 																	message: 'The monthly goal has been updated.',

@@ -248,6 +248,7 @@ class GoalService
 		await GoalData.save().then(res => {
 			callback(null, res);
 		}).catch(err => {
+			console.log(err)
 			callback(err.message, null);
 		})
 	}

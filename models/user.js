@@ -67,6 +67,9 @@ const User = database.define('users',
 	notification_mute_end: {
 		type: Sequelize.DATE,
 	},
+	notification_mute_start: {
+		type: Sequelize.DATE,
+	},
 	status: {
 		type: Sequelize.INTEGER,
 		allowNull: false,

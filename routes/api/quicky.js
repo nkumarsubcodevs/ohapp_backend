@@ -10,6 +10,7 @@ const GoalService = require('../../services/GoalService');
 const userService = require('../../services/UserService');
 const NotificationService = require('../../services/NotificationService');
 const formValidator = require('validator');
+const customHelper = require('../../helpers/custom_helper');
 const jwt = require('jsonwebtoken')
 const current_datetime = require('date-and-time');
 // verifytoken middleware
@@ -249,10 +250,18 @@ router.put('/updateQuicky/:id', verifyToken, function(req, res) {
                                            hours, minutes, 0
                                        );
                                        let timeout = current_datetime.subtract(night, now).toMilliseconds();
-                                       setTimeout(() => {
-                                         notificationObject.SendFeedbacknotification(partnerResponse.fcmid,quicky_id, function(err, response) {})
-                                         notificationObject.SendFeedbacknotification(userData.fcmid,quicky_id,  function(err, response) {})
-                                       }, timeout)
+                                       let statusCheck = customHelper.check_notification_Mute(userData.notification_mute_start,userData.notification_mute_end);
+                                        if(statusCheck) {
+                                          res.send({
+                                            status: 400,
+                                            message: "Notificaiton is mute for some time."
+                                          })
+                                        } else {
+                                          setTimeout(() => {
+                                            notificationObject.SendFeedbacknotification(partnerResponse.fcmid,quicky_id, function(err, response) {})
+                                            notificationObject.SendFeedbacknotification(userData.fcmid,quicky_id,  function(err, response) {})
+                                          }, timeout)
+                                        }
                                      } else {
                                        res.send({
                                          status: 400,
