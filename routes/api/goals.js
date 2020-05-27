@@ -134,7 +134,7 @@ router.get('/getgoalsettingsanswer/:goal_id', verifyToken, function(req, res, ne
 // Save user setting detail
 router.post('/savegoalsettings', verifyToken, function(req, res) {
 	let user_id     = jwt.decode(req.headers['x-access-token']).id
-
+	let skip = req.body.skip;
 	// if(!question_id) 
 	// {
 	// 	return res.send({
@@ -158,77 +158,105 @@ router.post('/savegoalsettings', verifyToken, function(req, res) {
 	// 		message: 'Answer is required',
 	// 	});
 	// }
-	req.body.map(response => {
-		// Check setting question exists or not
-		goalSerObject.getGoalSettingsQuestionById(response.question_id, function(err, goalQuestionData) 
-		{
-			if(err)
-			{
-				res.send({
-					status: 500,
-					message: 'something went wrong',
-				});
-			}
-			else
-			{
-				if(goalQuestionData) 
-				{
-					let goalSettingData = {
-						'question_id': response.question_id,
-						'answer': response.answer,
-						'user_id': user_id,
-						'custom_answer': response.custom_answer ? response.custom_answer : null
-					};
-					goalSerObject.saveSettings(goalSettingData, function(err, goalSettingDataSaved)
-					{
-						if(err)
-						{
+	if(skip) {
+		userSerObject.updateUserStage(7, user_id, function(err, updatedStage) {
+			if(updatedStage) {
+				userSerObject.getPartnerById(user_id, function(err, patnerData) {
+					if(err) {
+						res.send({
+							status: 400,
+							message: "something went wrong"
+						})
+					} else {
+						if(patnerData) {
 							res.send({
-								status: 500,
-								message: 'something went wrong',
-							});
-						}
-						else
-						{
-							userSerObject.updateUserStage(7, user_id, function(err, updatedStage) {
-								if(updatedStage) {
-									userSerObject.getPartnerById(user_id, function(err, patnerData) {
-										if(err) {
-											res.send({
-												status: 400,
-												message: "something went wrong"
-											})
-										} else {
-											if(patnerData) {
-												res.send({
-													status:200,
-													message: "Question answer is saved successfully",
-													user_stage: updatedStage.stage,
-												})
-											} else {
-												res.send({
-													status: 504,
-													messgae: "Patner is not found"
-												})
-											}
-										}
-									})
-								}
-
+								status:200,
+								message: "Question answer is saved successfully",
+								user_stage: updatedStage.stage,
+							})
+						} else {
+							res.send({
+								status: 504,
+								messgae: "Patner is not found"
 							})
 						}
+					}
+				})
+			}
+		})
+	} else {
+		req.body.map(response => {
+			// Check setting question exists or not
+			goalSerObject.getGoalSettingsQuestionById(response.question_id, function(err, goalQuestionData) 
+			{
+				if(err)
+				{
+					res.send({
+						status: 500,
+						message: 'something went wrong',
 					});
 				}
 				else
 				{
-					return res.send({
-						status: 400,
-						message: 'Question is not found',
-					});
+					if(goalQuestionData) 
+					{
+						let goalSettingData = {
+							'question_id': response.question_id,
+							'answer': response.answer,
+							'user_id': user_id,
+							'custom_answer': response.custom_answer ? response.custom_answer : null
+						};
+						goalSerObject.saveSettings(goalSettingData, function(err, goalSettingDataSaved)
+						{
+							if(err)
+							{
+								res.send({
+									status: 500,
+									message: 'something went wrong',
+								});
+							}
+							else
+							{
+								userSerObject.updateUserStage(7, user_id, function(err, updatedStage) {
+									if(updatedStage) {
+										userSerObject.getPartnerById(user_id, function(err, patnerData) {
+											if(err) {
+												res.send({
+													status: 400,
+													message: "something went wrong"
+												})
+											} else {
+												if(patnerData) {
+													res.send({
+														status:200,
+														message: "Question answer is saved successfully",
+														user_stage: updatedStage.stage,
+													})
+												} else {
+													res.send({
+														status: 504,
+														messgae: "Patner is not found"
+													})
+												}
+											}
+										})
+									}
+	
+								})
+							}
+						});
+					}
+					else
+					{
+						return res.send({
+							status: 400,
+							message: 'Question is not found',
+						});
+					}
 				}
-			}
-		});
-	})
+			});
+		})
+	}
 });
 
 // Compare user security code
@@ -924,7 +952,8 @@ router.post('/CheckingStage', verifyToken, function(req, res) {
 														res.send({
 															status: 200,
 															message: 'Sucessfully enter goal page',
-															stage: updatestageData.stage
+															userStage: updatestageData.stage,
+															partner_stage: partenerData.stage
 														})
 													} else {
 														res.send({
@@ -939,7 +968,7 @@ router.post('/CheckingStage', verifyToken, function(req, res) {
 													status: 200,
 													message: 'Goal already created',
 													userStage: userDetails.stage,
-													patner_stage: partenerData.stage
+													partner_stage: partenerData.stage
 												})
 											}
 											if(partenerData.stage === 7 && userDetails.stage === 4) {
@@ -947,22 +976,22 @@ router.post('/CheckingStage', verifyToken, function(req, res) {
 													status: 200,
 													message: 'Questionaries Saved',
 													userStage: userDetails.stage,
-													patner_stage: partenerData.stage
+													partner_stage: partenerData.stage
 												})
 											}
 											if(partenerData.stage < 4) {
 												res.send({
 													status:400,
 													messgae: "Paring is not save successfully",
-													user_stage: userDetails.stage
+													userStage: userDetails.stage
 												})
 											}
 											if(userDetails.stage > 4) {
 												res.send({
 													status:200,
 													message: "User stage already updated",
-													user_stage: userDetails.stage,
-													patner_stage:partenerData.stage
+													userStage: userDetails.stage,
+													partner_stage:partenerData.stage
 												})
 											}
 											if(partenerData.stage === 4 && userDetails.stage < 4) {
@@ -973,7 +1002,8 @@ router.post('/CheckingStage', verifyToken, function(req, res) {
 																res.send({
 																	status: 200,
 																	message: 'Sucessfully enter goal page',
-																	stage: updatestageData.stage
+																	userStage: updatestageData.stage,
+																	partner_stage: partenerData.stage
 																})
 															} else {
 																res.send({

@@ -69,6 +69,7 @@ const User = database.define('users',
 	},
 	notification_mute_start: {
 		type: Sequelize.DATE,
+		allowNull: true,
 	},
 	status: {
 		type: Sequelize.INTEGER,
@@ -81,7 +82,7 @@ const User = database.define('users',
 	},
 	expiry_time: {
 		type: Sequelize.DATE,
-		allowNull: false,
+		allowNull: true,
 	},
 	create_time: {
 		type: Sequelize.DATE,

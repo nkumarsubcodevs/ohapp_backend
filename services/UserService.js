@@ -205,7 +205,7 @@ class UserService
 					  }
 					},
 				]	
-			}});
+		}});
 		if(partnerResponse[0].partner_one_id==id)	
 		{
 			partner_id = partnerResponse[0].partner_two_id;

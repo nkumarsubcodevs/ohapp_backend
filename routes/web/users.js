@@ -71,7 +71,7 @@ passport.use(new LocalStrategy({
 	  		if (!user) {
 				return done(null, false, req.flash('error_message', 'No email is found'));
 	  		}
-		
+
 			userSerObject.comparePassword(password, user.password, function(err, isMatch) 
 			{
 				if (err) { return done(err); }
@@ -101,7 +101,7 @@ passport.deserializeUser(function(id, done) {
 // Login user
 router.post('/login', passport.authenticate('local', {
 	failureRedirect: '/users/login', failureFlash: true
-	}), 
+	}),
 	function(req, res){
   		res.redirect('/');
 	}
@@ -158,7 +158,7 @@ router.post('/search', function(req, res) {
 		'name'	: serach
 	};
 
-	userSerObject.getusersetachList(paginationData,function(err, pageData)
+	userSerObject.getusersearchList(paginationData,function(err, pageData)
 	{
 		if(pageData)
 		{
