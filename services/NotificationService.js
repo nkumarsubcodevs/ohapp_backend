@@ -15,6 +15,7 @@ var fcm = new FCM(config.firebase_server_key);
 class NotificationService
 {
 
+	// Save Notification
 	async saveNotification(data, callback) {
 		const now = new Date();
 
@@ -31,17 +32,17 @@ class NotificationService
 		callback(null, await response.save())
 	}
 
+	// Send Reminder notification
 	async notification(notificationData, GoalData,  callback) {
 		let re = notificationData
-		console.log(GoalData)
-		var message = { //this may vary according to the message type (single recipient, multicast, topic, et cetera)
+		var message = { 
 			to: re, 
 			notification: {
 				title: 'Dating', 
 				body: `You are at ${GoalData.PR}% of goal with ${GoalData.remaing_days} days left in the month.
 Would you like to make a connection tonight?`
 			},
-			data: {  //you can send only notification or only data(or include both)
+			data: { 
 				type: 'remember'
 			}
 		};
@@ -54,17 +55,18 @@ Would you like to make a connection tonight?`
 		});
 	}
 
-	async SendFeedbacknotification(notificationData, Quicky_id, callback) {
-		let re = notificationData
-		var message = { //this may vary according to the message type (single recipient, multicast, topic, et cetera)
-			to: re, 
+	// Send feedback notification
+	async Sendnotification(notificationId, NotifacationData, callback) {
+		let re = notificationId
+		var message = {
+			to: re,
 			notification: {
-				title: 'Feedback of last night', 
-				body: 'Did you connect last night? ' 
+				title: NotifacationData.title,
+				body: NotifacationData.message
 			},
-			data: {  //you can send only notification or only data(or include both)
-				type: 'feedback',
-				id: Quicky_id
+			data: {
+				type: NotifacationData.type,
+				Quicky_id: NotifacationData.quicky_id
 			}
 		};
 		fcm.send(message, function(err, response){
@@ -75,6 +77,8 @@ Would you like to make a connection tonight?`
 			}
 		});
 	}
+
+	// Update notification
 	async updateNotification(id, answer, callback) {
 		const now = new Date();
 		GoalNotification.update({answer:  answer, update_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss') }, { where: { notification_id: id }});
@@ -86,16 +90,19 @@ Would you like to make a connection tonight?`
 		}
 	}
 
+	// Get notification By User ID
 	async getNotification(id, callback) {
 		let response = await GoalNotification.findOne({where: { user_id: id, status: 1}, order : [['create_time', 'DESC']]});
 		callback(null, response)
 	}
 
+	// Get Notification By Id
 	async getNotificationById(id, callback) {
 		let response = await GoalNotification.findOne({where: { id: id, status: 1}, order : [['create_time', 'DESC']]});
 		callback(null, response)
 	}
 
+	// Update Notifacation Stage
 	async updateNotificationStage(notification, stage, callback) {
 		const now = new Date();
 		GoalNotification.update({

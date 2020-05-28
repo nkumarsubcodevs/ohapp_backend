@@ -234,7 +234,7 @@ router.put('/updateQuicky/:id', verifyToken, function(req, res) {
                                     })
                                    } else {
                                      if(Goaldata) {
-                                       const [time, modifier] = Goaldata.intimate_account_time.split(' ');
+                                       const [time, modifier] = when.split(' ');
                                           let [hours, minutes] = time.split(':');
                                           if (hours === '12') {
                                           hours = '00';
@@ -243,14 +243,21 @@ router.put('/updateQuicky/:id', verifyToken, function(req, res) {
                                             hours = parseInt(hours, 10) + 12;
                                           }
                                           var now = new Date();
-                                       var night = new Date(
-                                           now.getFullYear(),
-                                           now.getMonth(),
-                                           now.getDate() +1,
-                                           hours, minutes, 0
-                                       );
-                                       let timeout = current_datetime.subtract(night, now).toMilliseconds();
-                                       let statusCheck = customHelper.check_notification_Mute(userData.notification_mute_start,userData.notification_mute_end);
+                                          var before15 = new Date(
+                                              now.getFullYear(),
+                                              now.getMonth(),
+                                              now.getDate(),
+                                              hours, minutes-15, 0
+                                          );
+                                          var final = new Date(
+                                            now.getFullYear(),
+                                            now.getMonth(),
+                                            now.getDate(),
+                                            hours, minutes, 0
+                                        );
+                                          let timeout = current_datetime.subtract(before15, now).toMilliseconds();
+                                          let timeout1 = current_datetime.subtract(final, now).toMilliseconds();
+                                          let statusCheck = customHelper.check_notification_Mute(userData.notification_mute_start,userData.notification_mute_end);
                                         if(statusCheck) {
                                           res.send({
                                             status: 400,
@@ -258,9 +265,25 @@ router.put('/updateQuicky/:id', verifyToken, function(req, res) {
                                           })
                                         } else {
                                           setTimeout(() => {
-                                            notificationObject.SendFeedbacknotification(partnerResponse.fcmid,quicky_id, function(err, response) {})
-                                            notificationObject.SendFeedbacknotification(userData.fcmid,quicky_id,  function(err, response) {})
+                                            let data = {
+                                              title: "Reminder",
+                                              message: `Today You have a Dating with your partner at ${when}.`,
+                                              type: "Reminder",
+                                              quicky_id: quicky_id
+                                            }
+                                            notificationObject.Sendnotification(partnerResponse.fcmid, data, function(err, response) {})
+                                            notificationObject.Sendnotification(userData.fcmid, data,  function(err, response) {})
                                           }, timeout)
+                                          setTimeout(() => {
+                                            let data = {
+                                              title: "Inform",
+                                              message: "Now, Your dating starts. Best of luck.",
+                                              type: "Inform",
+                                              quicky_id: quicky_id
+                                            }
+                                            notificationObject.Sendnotification(partnerResponse.fcmid, data, function(err, response) {})
+                                            notificationObject.Sendnotification(userData.fcmid, data,  function(err, response) {})
+                                          }, timeout1)
                                         }
                                      } else {
                                        res.send({

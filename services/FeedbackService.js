@@ -30,16 +30,19 @@ class FeedBackServices
 		callback(null,await settingData.save());
 	}
 
+	// Get Feedback data by Id
 	async getfeedback(user_id, callback) {
 		let response = await feedbackObject.findOne({where: {user_id: user_id}});
 		callback(null, response);
 	}
 
+	// Update feedback
 	async updatefeedback(user_id,feedback, callback) {
 		let response = await feedbackObject.update({feedback_details: feedback},{where : {user_id: user_id}})
 		callback(null, response)
 	}
 
+	// Get All feedback data with user data for Admin panel
 	async getfeedbackWithUser(paginationData,callback) {
 		feedbackObject.belongsTo(userObject, {foreignKey: 'user_id'});
 		await feedbackObject.findAndCountAll({
@@ -54,6 +57,7 @@ class FeedBackServices
 		});
 	}
 
+	// Count Total no. of Feedback
 	async getAllFeedbackCount(callback) {
 		await feedbackObject.findAndCountAll().then(res => {
 			callback(null, res)
@@ -63,6 +67,7 @@ class FeedBackServices
 		});
 	}
 
+	// Get Today Feedback data with User data and Count Total no. of feedback for today in Admin Panel
 	async getNewfeedbackWithUser(callback) {
 		feedbackObject.belongsTo(userObject, {foreignKey: 'user_id'});
 		await feedbackObject.findAndCountAll({
@@ -79,6 +84,7 @@ class FeedBackServices
 		});
 	}
 
+	// Remove feedback data
 	async RemoveFeedback(user_id, callback) {
 		await feedbackObject.destroy({where: {user_id: user_id}}).then(res => {
 			callback(null, res);

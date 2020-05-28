@@ -979,6 +979,23 @@ router.post('/CheckingStage', verifyToken, function(req, res) {
 													partner_stage: partenerData.stage
 												})
 											}
+											if(partenerData.stage <= 7 && userDetails.stage === 7) {
+												userSerObject.updateUserStage(8, user_id, function(err, updatestageData) {
+													if(updatestageData) {
+														res.send({
+															status: 200,
+															message: 'Sucessfully enter payment page',
+															userStage: updatestageData.stage,
+															partner_stage: partenerData.stage
+														})
+													} else {
+														res.send({
+															status: 400,
+															message: 'Something Went wrong',
+														})
+													}
+												})
+											}
 											if(partenerData.stage < 4) {
 												res.send({
 													status:400,

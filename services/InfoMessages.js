@@ -21,6 +21,7 @@ class InfoMessages
 		})
 	}
 
+	// Save Info _messages for Admin Panel
 	async saveMessages(Data, callback) {
 		const now = new Date();
 		let data = new infoObject({
@@ -40,6 +41,7 @@ class InfoMessages
 		})
 	}
 
+	// Get All Ingo Messages For Admin Panel
 	async getAllMessages(paginationData,callback) {
 		await infoObject.findAndCountAll({offset: paginationData.offset, limit: paginationData.limit}).then(res => {
 			callback(null, res);
@@ -49,6 +51,7 @@ class InfoMessages
 		})
 	}
 
+	// Get MEssage for App
 	async getMessage(callback) {
 		await infoObject.findAll().then(res => {
 			callback(null, res);
@@ -58,6 +61,7 @@ class InfoMessages
 		})
 	}
 
+	// Get Singal Info Message By Id for Admin panel
 	async getSingleInfoMessageById(id, callback) {
 		await infoObject.findOne({ where: { id: id,  status:1 } }).then(res => {
 			callback(null, res);
@@ -66,6 +70,7 @@ class InfoMessages
 		})
 	}
 
+	// Update Info messaege for Admin Panel
 	async UpdateMessages(UpdateData, callback) {
 		const now = new Date();
 		await infoObject.update({
@@ -79,6 +84,7 @@ class InfoMessages
 		callback(null, response);
 	}
 
+	// Remove Info message From Admin Panel
 	async removeMessages(id, callback) {
 		await infoObject.destroy({ where: { id: id } }).then(res => {
 			callback(null, res);

@@ -49,6 +49,24 @@ class QuickyService
 				  callback(err, null)
 			  })
 	}
+
+	async updateUserIntrest(quickyData, callback){
+		await QuickyObject.update({
+		   user_id:quickyData.user_id,
+		   partner1_intrest: quickyData.partner1_intrest,
+		   partner2_intrest: quickyData.partner2_intrest,
+		   update_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss')},
+			{ where:
+			   {
+				   id: quickyData.quicky_id
+			   }
+			 }).then(async res => {
+				 let RES = await QuickyObject.findOne({where: {id: quickyData.quicky_id}});
+				 callback(null, RES)
+			 }).catch(err => {
+				 callback(err, null)
+			 })
+   }
 }
 
 module.exports = QuickyService;

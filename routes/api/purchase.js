@@ -293,4 +293,44 @@ router.get('/subscripation', verifyToken, function(req, res) {
   })
 })
 
+router.get('/faild', verifyToken, function(req, res) {
+  let user_id = jwt.decode(req.headers['x-access-token']).id;
+  userSerObject.getPartnerById(user_id, function(err, partnerData) {
+    if(err) {
+      res.send({
+        status: 400,
+        message: "Something Went wrong!"
+      })
+    } else {
+      if(partnerData) {
+        let updateStage = {
+          user_id: user_id,
+          partner_id: partnerData.id,
+          stage: 7,
+          removeStage: 8
+        }
+        userSerObject.updateBothPartnerStageByFaild(updateStage, function(err, updatedData) {
+          if(err) {
+            res.send({
+              status: 400,
+              message: "Something Went wrong!"
+            })
+          } else {
+            if(updatedData) {
+              res.send({
+                status: 200,
+                message: "stage changed"
+              })
+            }
+          }
+        })
+      } else {
+        res.send({
+          status: 500,
+          message: "Partner is not found"
+        })
+      }
+    }
+  })
+})
 module.exports = router;

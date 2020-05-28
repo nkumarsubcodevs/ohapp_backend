@@ -34,17 +34,18 @@ class GoalService
 		callback(null,response);
 	}
 
+	// Count Total Question
 	async getQuestionCount(callback) {
 		const response = await goalSettingsObject.findAndCountAll();
 		callback(null,response);
 	}
 
 	// Get Single question
-
 	async GetQuestion(question_id, callback) {
 		const response = await goalSettingsObject.findAll({where:{id: question_id}});
 		callback(null,response);
 	}
+
 	//get single question record
 	async getSingleQuestionRecord(question_id,callback) {
 		goalSettingsObject.hasMany(questionOptionsObject, {foreignKey: 'question_id'});
@@ -382,11 +383,13 @@ class GoalService
 		callback(null, await Questiona_option.save())
 	}
 
+	// Get Option By Question Id
 	async GetOptionByQuestionId(quetion_id, callback) {
 		const GetOption = await questionOptionsObject.findAll({where : {question_id:quetion_id}});
 
 		callback(null,GetOption);
 	}
+
 	// Get Question option
 	async GetQuestionOption(callback) {
 		const GetOption = await questionOptionsObject.findAll();
@@ -408,25 +411,31 @@ class GoalService
 		callback(null,data)
 	}
 
+	// Remove Questionaries
 	async removeQuestionaries(question_id, callback) {
 		let res = goalSettingsObject.destroy({where: {id: question_id}});
 		callback(null, res)
 	}
+
+	// Remove Question Option from Admin panel
 	async removeOption(question_id, callback) {
 		let res = questionOptionsObject.destroy({where: {question_id: question_id}});
 		callback(null, res)
 	}
 
+	// Remove Question Answer
 	async removeQuestionariesAnswer(question_id, callback) {
 		let res = goalSettingAnswerObject.destroy({where: {question_id: question_id}});
 		callback(null, res)
 	}
 
+	// Get Question Option By Id
 	async getQuestionOption(paginationData,id, callback) {
 		const GetOption = await questionOptionsObject.findAll({offset: paginationData.offset, limit: paginationData.limit},{where : {question_id: id}});
 		callback(null,GetOption);
 	}
 
+	// Add Contribution After connect last night
 	async updateCompleteCount(completedata, callback) {
 		monthlyGoalObject.update({
 			complete_count: completedata.complete_count,
@@ -440,6 +449,7 @@ class GoalService
 		})
 	}
 
+	// Get Previous Month Goal Data
 	async GetPreviousMonthyGoalById(id, patner, callback) {
 		const response = await monthlyGoalObject.findAll({
 			where: 
@@ -466,6 +476,8 @@ class GoalService
 		}, order: [['create_time', 'DESC']] }, {limit: 2});
 		callback(null, response[1])
 	}
+
+	// Add Uniuqe Id for Chat
 	async AddUniqueId(id, callback) {
 		
 		let unique = this.makeid(30);
@@ -492,6 +504,8 @@ class GoalService
 			this.AddUniqueId(id, callback)
 		}
 	}
+
+	// Create Unique Id
 	makeid(length) {
 		var result           = '';
 		var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -500,7 +514,7 @@ class GoalService
 		   result += characters.charAt(Math.floor(Math.random() * charactersLength));
 		}
 		return result;
-	 }
+	}
 }
 
 

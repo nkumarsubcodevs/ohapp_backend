@@ -387,7 +387,37 @@ class UserService
 				callback(err.message, null)
 			})
 	}
+	async updateBothPartnerStageByFaild(updatedData, callback){
 
+		await userObject.update({
+			stage: updatedData.stage},
+			{where : {
+				[Op.or]: [
+				{
+				  id: {
+					  [Op.eq]: updatedData.user_id
+				  }
+				},
+				{
+				  id: {
+					  [Op.eq]: updatedData.partner_id
+				  }
+				}
+			  ],
+			  [Op.and]: [
+				{
+				  stage: {
+					  [Op.eq]: updatedData.removeStage
+				  }
+				}
+			  ],
+			}
+			}).then(res => {
+				callback(null, res)
+			}).catch(err => {
+				callback(err.message, null)
+			})
+	}
 	// add unavailability
 	async addUnavailability(userData, callback){
 
