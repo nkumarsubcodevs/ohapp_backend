@@ -37,6 +37,22 @@ const quicky = database.define('quickies',
 		type: Sequelize.BOOLEAN,
 		allowNull: true,
 	},
+	partner1_answer1: {
+		type: Sequelize.BOOLEAN,
+		allowNull: true,
+	},
+	partner1_answer2: {
+		type: Sequelize.BOOLEAN,
+		allowNull: true,
+	},
+	partner2_answer1: {
+		type: Sequelize.BOOLEAN,
+		allowNull: true,
+	},
+	partner2_answer2: {
+		type: Sequelize.BOOLEAN,
+		allowNull: true,
+	},
 	create_time: {
 		type: Sequelize.DATE,
 		allowNull: false,

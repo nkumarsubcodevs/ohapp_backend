@@ -418,16 +418,28 @@ router.post('/checkUserIntrest/:id', verifyToken, function(req, res) {
                                                    message: "Notificaiton is mute for some time."
                                                  })
                                                } else {
-                                                 setTimeout(() => {
-                                                   let data = {
-                                                     title: "FeedBack for last night",
-                                                     message: `Did you connect last night?`,
-                                                     type: "feedback",
-                                                     quicky_id: quicky_id
-                                                   }
-                                                   notificationObject.Sendnotification(partnerData.fcmid, data, function(err, response) {})
-                                                   notificationObject.Sendnotification(userData.fcmid, data,  function(err, response) {})
-                                                 }, timeout)
+                                                 if(Quickies.partner1_intrest == true && Quickies.partner2_intrest == null) {
+                                                   setTimeout(() => {
+                                                     let data = {
+                                                       title: "FeedBack for last night",
+                                                       message: `Did you connect last night?`,
+                                                       type: "feedback",
+                                                       quicky_id: quicky_id
+                                                     }
+                                                     notificationObject.Sendnotification(partnerData.fcmid, data, function(err, response) {})
+                                                     notificationObject.Sendnotification(userData.fcmid, data,  function(err, response) {})
+                                                   }, timeout)
+                                                 } else {
+                                                  setTimeout(() => {
+                                                    let data = {
+                                                      title: "FeedBack for last night",
+                                                      message: `Did you connect last night?`,
+                                                      type: "feedback",
+                                                      quicky_id: quicky_id
+                                                    }
+                                                    notificationObject.Sendnotification(userData.fcmid, data,  function(err, response) {})
+                                                  }, timeout)
+                                                 }
                                                }
                                             } else {
                                               res.send({
@@ -452,7 +464,7 @@ router.post('/checkUserIntrest/:id', verifyToken, function(req, res) {
                       }
                     }
                   })
-                }, 900000)
+                }, 1000)
                 res.send({
                   status: 200,
                   message: "User intrest save successfully"

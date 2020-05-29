@@ -9,6 +9,7 @@ const GoalService = require('../../services/GoalService');
 const NotificationService = require('../../services/NotificationService');
 const UserService = require('../../services/UserService');
 const completionService = require('../../services/CompletionService');
+const quickyService = require('../../services/QuickyService');
 const customHelper = require('../../helpers/custom_helper');
 const formValidator = require('validator');
 const current_datetime = require('date-and-time');
@@ -33,6 +34,9 @@ var userSerObject = new UserService();
 var completionSerObject = new completionService();
 
 var notificationObject = new NotificationService();
+
+// Create Quicky model
+var quickynObject = new quickyService();
 
 // Get user setting detail
 router.get('/getgoalsettings', verifyToken, function(req, res, next) {
@@ -650,7 +654,6 @@ router.post('/createmonthlygoal', verifyToken, function(req, res) {
 
 	if(!initiator_count1) 
 	{
-		console.log(initiator_count1)
 		return res.send({
 			status: 400,
 			message: 'Please enter a valid information.',
@@ -795,7 +798,6 @@ router.post('/createmonthlygoal', verifyToken, function(req, res) {
 																					day = 1
 																				}
 																				let statusChecks = customHelper.check_notification_Mute(userData.notification_mute_start,userData.notification_mute_end);
-																				console.log(statusChecks)
 																				cron.schedule(`${parseInt(minutes)} ${hours} */${day} * *`, () => {
 																					// cron.schedule(`* * * * *`, (err, ress) => {
 																		            let statusCheck = customHelper.check_notification_Mute(userData.notification_mute_start,userData.notification_mute_end);
@@ -1140,7 +1142,6 @@ router.post('/updatemonthlygoal/:goal_id', verifyToken, function(req, res) {
 
 	if(!initiator_count1) 
 	{
-		console.log(initiator_count1)
 		return res.send({
 			status: 400,
 			message: 'Initiator count 1 is required.',
@@ -1737,10 +1738,11 @@ router.put('/updateGoalSetting/', verifyToken, function(req, res) {
 });
 
 // Update Complete goal count
-router.put('/updateCompletedGoal', verifyToken, function(req,res) {
+router.put('/updateCompletedGoal/:id', verifyToken, function(req,res) {
 	let user_id = jwt.decode(req.headers['x-access-token']).id;
 	let answer1 = req.body.didYouConnectLastNight;
 	let answer2 = req.body.WhoInitiative;
+	let quicky_id = req.params.id;
 	if(!answer1) 
 	{
 		return res.send({
@@ -1786,52 +1788,288 @@ router.put('/updateCompletedGoal', verifyToken, function(req,res) {
 											} else {
 												userID = partner_data.id
 											}
-											let comepletion_goal = {
-												user_id: userID,
-												goal_id: monthly_goal_data.id,
-												partner_mapping_id: patner_mapping_data.id,
-												didYouConnectLastNight: answer1,
-												WhoInitiative: answer2
-											}
-											let completeData = {
-												id: monthly_goal_data.id,
-												complete_count: parseInt(monthly_goal_data.complete_count) + 1,
-												contribution1: monthly_goal_data.user_id === user_id ? parseInt(monthly_goal_data.contribution1) + 1 : parseInt(monthly_goal_data.contribution1),
-												contribution2: monthly_goal_data.user_id === user_id ? parseInt(monthly_goal_data.contribution2) : parseInt(monthly_goal_data.contribution2) +1,
-											}
-											goalSerObject.updateCompleteCount(completeData, function(err, update_monthly_data) {
+											quickynObject.getSingleQuickyRecord(quicky_id, function(err, QuickyData) {
 												if(err) {
-													res.send({
-														status:400,
-														message: err
-													})
+
 												} else {
-													if(update_monthly_data) {
-														completionSerObject.saveCompletionGoal(comepletion_goal, function(err, save_data) {
+													if(QuickyData) {
+														let updateQuickyData ={
+															partner1_answer1 : QuickyData.user_id == user_id ? answer1 : QuickyData.partner1_answer1,
+															partner1_answer2 : QuickyData.user_id == user_id ? answer2 : QuickyData.partner1_answer2,
+															partner2_answer1 : QuickyData.user_id == user_id ? QuickyData.partner2_answer1 : answer1,
+															partner2_answer2 : QuickyData.user_id == user_id ? QuickyData.partner2_answer2 : answer2,
+															quicky_id: quicky_id
+														}
+														quickynObject.updatePartnerDatainQuicky(updateQuickyData, function(err, UpdateData) {
 															if(err) {
 																res.send({
-																	status: 504,
-																	message: "something Went Wrong"
+																	status: 400,
+																	message: "Something Went Wrong!"
 																})
 															} else {
-																if(save_data) {
-																	res.send({
-																		status: 200,
-																		message: "Update successfully"
-																	})
-																} else {
-																	res.send({
-																		status: 504,
-																		message: "something Went Wrong"
-																	})
+																if(UpdateData) {
+																	if(UpdateData.partner1_answer2 != null && UpdateData.partner2_answer2 != null) {
+																		res.send({
+																			status: 200,
+																			message: "Update quicky successfully"
+																		})
+																	} else {
+																		setTimeout(() => {
+																			quickynObject.getSingleQuickyRecord(quicky_id, function(err, quickyData) {
+																				if(err) {
+																					res.send({
+																						status: 400,
+																						message: "Something Went Wrong!"
+																					})
+																				} else {
+																					if(quickyData) {
+																						if(quickyData.partner1_answer1 == false ||quickyData. partner2_answer1 == false) {
+																							res.send({
+																								status: 200,
+																								message: "Partner is not intrested"
+																							})
+																						} else {
+																							if((quickyData.partner1_answer2 == false && quickyData.partner2_answer2 == false) || (quickyData.partner2_answer2 == true && quickyData.partner1_answer2 == true)) {
+																								console.log(quickyData.partner1_answer2)
+																								console.log(quickyData.partner2_answer2)
+																								console.log(quickyData.partner2_answer2)
+																								console.log(quickyData.partner1_answer2)
+																								res.send({
+																									status: 200,
+																									message: "Both answer save"
+																								})
+																							} else {
+																								if(quickyData.user_id == user_id) {
+																									if(quickyData.partner1_answer2 == true || quickyData.partner2_answer2 == null ) {
+																										let comepletion_goal = {
+																											user_id: userID,
+																											goal_id: monthly_goal_data.id,
+																											partner_mapping_id: patner_mapping_data.id,
+																											didYouConnectLastNight: answer1,
+																											WhoInitiative: answer2
+																										}
+																										let completeData = {
+																											id: monthly_goal_data.id,
+																											complete_count: parseInt(monthly_goal_data.complete_count) + 1,
+																											contribution1: monthly_goal_data.user_id === user_id ? parseInt(monthly_goal_data.contribution1) + 1 : parseInt(monthly_goal_data.contribution1),
+																											contribution2: monthly_goal_data.user_id === user_id ? parseInt(monthly_goal_data.contribution2) : parseInt(monthly_goal_data.contribution2) +1,
+																										}
+																										goalSerObject.updateCompleteCount(completeData, function(err, update_monthly_data) {
+																											if(err) {
+																												res.send({
+																													status:400,
+																													message: err
+																												})
+																											} else {
+																												if(update_monthly_data) {
+																													completionSerObject.saveCompletionGoal(comepletion_goal, function(err, save_data) {
+																														if(err) {
+																															res.send({
+																																status: 504,
+																																message: "something Went Wrong"
+																															})
+																														} else {
+																															if(save_data) {
+																																res.send({
+																																	status: 200,
+																																	message: "Update successfully"
+																																})
+																															} else {
+																																res.send({
+																																	status: 504,
+																																	message: "something Went Wrong"
+																																})
+																															}
+																														}
+																													})
+																												} else {
+																													res.send({
+																														status: 504,
+																														message: "something Went Wrong"
+																													})
+																												}
+																											}
+																										})
+																									} else if(quickyData.partner1_answer2 == false || quickyData.partner2_answer2 == null ){
+																										let comepletion_goal = {
+																											user_id: userID,
+																											goal_id: monthly_goal_data.id,
+																											partner_mapping_id: patner_mapping_data.id,
+																											didYouConnectLastNight: answer1,
+																											WhoInitiative: answer2
+																										}
+																										let completeData = {
+																											id: monthly_goal_data.id,
+																											complete_count: parseInt(monthly_goal_data.complete_count) + 1,
+																											contribution1: monthly_goal_data.user_id === user_id ? parseInt(monthly_goal_data.contribution1) + 1 : parseInt(monthly_goal_data.contribution1),
+																											contribution2: monthly_goal_data.user_id === user_id ? parseInt(monthly_goal_data.contribution2) : parseInt(monthly_goal_data.contribution2) +1,
+																										}
+																										goalSerObject.updateCompleteCount(completeData, function(err, update_monthly_data) {
+																											if(err) {
+																												res.send({
+																													status:400,
+																													message: err
+																												})
+																											} else {
+																												if(update_monthly_data) {
+																													completionSerObject.saveCompletionGoal(comepletion_goal, function(err, save_data) {
+																														if(err) {
+																															res.send({
+																																status: 504,
+																																message: "something Went Wrong"
+																															})
+																														} else {
+																															if(save_data) {
+																																res.send({
+																																	status: 200,
+																																	message: "Update successfully"
+																																})
+																															} else {
+																																res.send({
+																																	status: 504,
+																																	message: "something Went Wrong"
+																																})
+																															}
+																														}
+																													})
+																												} else {
+																													res.send({
+																														status: 504,
+																														message: "something Went Wrong"
+																													})
+																												}
+																											}
+																										})
+																									}
+																								} else {
+																									if(quickyData.partner2_answer2 == true || quickyData.partner1_answer2 == null ) {
+																										let comepletion_goal = {
+																											user_id: userID,
+																											goal_id: monthly_goal_data.id,
+																											partner_mapping_id: patner_mapping_data.id,
+																											didYouConnectLastNight: answer1,
+																											WhoInitiative: answer2
+																										}
+																										let completeData = {
+																											id: monthly_goal_data.id,
+																											complete_count: parseInt(monthly_goal_data.complete_count) + 1,
+																											contribution1: monthly_goal_data.user_id === user_id ? parseInt(monthly_goal_data.contribution1) + 1 : parseInt(monthly_goal_data.contribution1),
+																											contribution2: monthly_goal_data.user_id === user_id ? parseInt(monthly_goal_data.contribution2) : parseInt(monthly_goal_data.contribution2) +1,
+																										}
+																										goalSerObject.updateCompleteCount(completeData, function(err, update_monthly_data) {
+																											if(err) {
+																												res.send({
+																													status:400,
+																													message: err
+																												})
+																											} else {
+																												if(update_monthly_data) {
+																													completionSerObject.saveCompletionGoal(comepletion_goal, function(err, save_data) {
+																														if(err) {
+																															res.send({
+																																status: 504,
+																																message: "something Went Wrong"
+																															})
+																														} else {
+																															if(save_data) {
+																																res.send({
+																																	status: 200,
+																																	message: "Update successfully"
+																																})
+																															} else {
+																																res.send({
+																																	status: 504,
+																																	message: "something Went Wrong"
+																																})
+																															}
+																														}
+																													})
+																												} else {
+																													res.send({
+																														status: 504,
+																														message: "something Went Wrong"
+																													})
+																												}
+																											}
+																										})
+																									} else if(quickyData.partner2_answer2 == false || quickyData.partner1_answer2 == null){
+																										let comepletion_goal = {
+																											user_id: userID,
+																											goal_id: monthly_goal_data.id,
+																											partner_mapping_id: patner_mapping_data.id,
+																											didYouConnectLastNight: answer1,
+																											WhoInitiative: answer2
+																										}
+																										let completeData = {
+																											id: monthly_goal_data.id,
+																											complete_count: parseInt(monthly_goal_data.complete_count) + 1,
+																											contribution1: monthly_goal_data.user_id === user_id ? parseInt(monthly_goal_data.contribution1) + 1 : parseInt(monthly_goal_data.contribution1),
+																											contribution2: monthly_goal_data.user_id === user_id ? parseInt(monthly_goal_data.contribution2) : parseInt(monthly_goal_data.contribution2) +1,
+																										}
+																										goalSerObject.updateCompleteCount(completeData, function(err, update_monthly_data) {
+																											if(err) {
+																												res.send({
+																													status:400,
+																													message: err
+																												})
+																											} else {
+																												if(update_monthly_data) {
+																													completionSerObject.saveCompletionGoal(comepletion_goal, function(err, save_data) {
+																														if(err) {
+																															res.send({
+																																status: 504,
+																																message: "something Went Wrong"
+																															})
+																														} else {
+																															if(save_data) {
+																																res.send({
+																																	status: 200,
+																																	message: "Update1 successfully"
+																																})
+																															} else {
+																																res.send({
+																																	status: 504,
+																																	message: "something Went Wrong"
+																																})
+																															}
+																														}
+																													})
+																												} else {
+																													res.send({
+																														status: 504,
+																														message: "something Went Wrong"
+																													})
+																												}
+																											}
+																										})
+																									} else {
+																										res.send({
+																											status: 504,
+																											message: "something Went Wrong"
+																										})
+																									}
+																								}
+																							}
+																						}
+																					} else {
+																						res.send({
+																							status: 500,
+																							message: "Quicky is not found!"
+																						})
+																					}
+																				}
+																			})
+																		}, 21600000);
+																		res.send({
+																			status: 200,
+																			message: "Update Quicky successfully"
+																		})
+																	}
 																}
 															}
 														})
 													} else {
-														res.send({
-															status: 504,
-															message: "something Went Wrong"
-														})
+
 													}
 												}
 											})

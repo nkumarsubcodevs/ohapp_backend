@@ -266,8 +266,8 @@ router.put('/updateQuicky/:id', verifyToken, function(req, res) {
                                         } else {
                                           setTimeout(() => {
                                             let data = {
-                                              title: "Reminder",
-                                              message: `Today You have a Dating with your partner at ${when}.`,
+                                              title: "Congratulations on scheduling a connection!",
+                                              message: `It’s (${userData.first_name}) turn to initiate.`,
                                               type: "Reminder",
                                               quicky_id: quicky_id
                                             }
@@ -276,8 +276,8 @@ router.put('/updateQuicky/:id', verifyToken, function(req, res) {
                                           }, timeout)
                                           setTimeout(() => {
                                             let data = {
-                                              title: "Inform",
-                                              message: "Now, Your dating starts. Best of luck.",
+                                              title: "Congratulations on scheduling a connection!",
+                                              message: `It’s (${userData.first_name}) turn to initiate.`,
                                               type: "Inform",
                                               quicky_id: quicky_id
                                             }

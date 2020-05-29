@@ -67,6 +67,24 @@ class QuickyService
 				 callback(err, null)
 			 })
    }
+   async updatePartnerDatainQuicky(quickyData, callback){
+	await QuickyObject.update({
+	   partner1_answer1: quickyData.partner1_answer1,
+	   partner1_answer2: quickyData.partner1_answer2,
+	   partner2_answer1: quickyData.partner2_answer1,
+	   partner2_answer2: quickyData.partner2_answer2,
+	   update_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss')},
+		{ where:
+		   {
+			   id: quickyData.quicky_id
+		   }
+		}).then(async res => {
+			let RES = await QuickyObject.findOne({where: {id: quickyData.quicky_id}});
+			callback(null, RES)
+		}).catch(err => {
+			callback(err, null)
+		})
+}
 }
 
 module.exports = QuickyService;
