@@ -1790,7 +1790,10 @@ router.put('/updateCompletedGoal/:id', verifyToken, function(req,res) {
 											}
 											quickynObject.getSingleQuickyRecord(quicky_id, function(err, QuickyData) {
 												if(err) {
-
+													res.send({
+														status: 400,
+														message: "Something Went Wrong!"
+													})
 												} else {
 													if(QuickyData) {
 														let updateQuickyData ={
@@ -1809,9 +1812,72 @@ router.put('/updateCompletedGoal/:id', verifyToken, function(req,res) {
 															} else {
 																if(UpdateData) {
 																	if(UpdateData.partner1_answer2 != null && UpdateData.partner2_answer2 != null) {
-																		res.send({
-																			status: 200,
-																			message: "Update quicky successfully"
+																		quickynObject.Addcontribution(quicky_id, function(err, ContributionData) {
+																			if(err) {
+																				res.send({
+																					status: 400,
+																					message: "Something Went Wrong!"
+																				})
+																			} else {
+																				if(ContributionData) {
+																					if(ContributionData.partner1_answer2 != ContributionData.partner2_answer2) {
+																						let comepletion_goal = {
+																							user_id: userID,
+																							goal_id: monthly_goal_data.id,
+																							partner_mapping_id: patner_mapping_data.id,
+																							didYouConnectLastNight: answer1,
+																							WhoInitiative: answer2
+																						}
+																						let completeData = {
+																							id: monthly_goal_data.id,
+																							complete_count: parseInt(monthly_goal_data.complete_count) + 1,
+																							contribution1: monthly_goal_data.user_id === user_id ? parseInt(monthly_goal_data.contribution1) + 1 : parseInt(monthly_goal_data.contribution1),
+																							contribution2: monthly_goal_data.user_id === user_id ? parseInt(monthly_goal_data.contribution2) : parseInt(monthly_goal_data.contribution2) +1,
+																						}
+																						goalSerObject.updateCompleteCount(completeData, function(err, update_monthly_data) {
+																							if(err) {
+																								res.send({
+																									status:400,
+																									message: err
+																								})
+																							} else {
+																								if(update_monthly_data) {
+																									completionSerObject.saveCompletionGoal(comepletion_goal, function(err, save_data) {
+																										if(err) {
+																											res.send({
+																												status: 504,
+																												message: "something Went Wrong"
+																											})
+																										} else {
+																											if(save_data) {
+																												res.send({
+																													status: 200,
+																													message: "Update successfully"
+																												})
+																											} else {
+																												res.send({
+																													status: 504,
+																													message: "something Went Wrong"
+																												})
+																											}
+																										}
+																									})
+																								} else {
+																									res.send({
+																										status: 504,
+																										message: "something Went Wrong"
+																									})
+																								}
+																							}
+																						})
+																					} else {
+																						res.send({
+																							status: 200,
+																							message: "Both Partner answer are same"
+																						})
+																					}
+																				}
+																			}
 																		})
 																	} else {
 																		setTimeout(() => {
@@ -1823,216 +1889,39 @@ router.put('/updateCompletedGoal/:id', verifyToken, function(req,res) {
 																					})
 																				} else {
 																					if(quickyData) {
-																						if(quickyData.partner1_answer1 == false ||quickyData. partner2_answer1 == false) {
-																							res.send({
-																								status: 200,
-																								message: "Partner is not intrested"
-																							})
-																						} else {
-																							if((quickyData.partner1_answer2 == false && quickyData.partner2_answer2 == false) || (quickyData.partner2_answer2 == true && quickyData.partner1_answer2 == true)) {
-																								console.log(quickyData.partner1_answer2)
-																								console.log(quickyData.partner2_answer2)
-																								console.log(quickyData.partner2_answer2)
-																								console.log(quickyData.partner1_answer2)
-																								res.send({
-																									status: 200,
-																									message: "Both answer save"
-																								})
-																							} else {
-																								if(quickyData.user_id == user_id) {
-																									if(quickyData.partner1_answer2 == true || quickyData.partner2_answer2 == null ) {
-																										let comepletion_goal = {
-																											user_id: userID,
-																											goal_id: monthly_goal_data.id,
-																											partner_mapping_id: patner_mapping_data.id,
-																											didYouConnectLastNight: answer1,
-																											WhoInitiative: answer2
-																										}
-																										let completeData = {
-																											id: monthly_goal_data.id,
-																											complete_count: parseInt(monthly_goal_data.complete_count) + 1,
-																											contribution1: monthly_goal_data.user_id === user_id ? parseInt(monthly_goal_data.contribution1) + 1 : parseInt(monthly_goal_data.contribution1),
-																											contribution2: monthly_goal_data.user_id === user_id ? parseInt(monthly_goal_data.contribution2) : parseInt(monthly_goal_data.contribution2) +1,
-																										}
-																										goalSerObject.updateCompleteCount(completeData, function(err, update_monthly_data) {
-																											if(err) {
-																												res.send({
-																													status:400,
-																													message: err
-																												})
-																											} else {
-																												if(update_monthly_data) {
-																													completionSerObject.saveCompletionGoal(comepletion_goal, function(err, save_data) {
-																														if(err) {
-																															res.send({
-																																status: 504,
-																																message: "something Went Wrong"
-																															})
-																														} else {
-																															if(save_data) {
-																																res.send({
-																																	status: 200,
-																																	message: "Update successfully"
-																																})
-																															} else {
-																																res.send({
-																																	status: 504,
-																																	message: "something Went Wrong"
-																																})
-																															}
-																														}
-																													})
-																												} else {
-																													res.send({
-																														status: 504,
-																														message: "something Went Wrong"
-																													})
-																												}
-																											}
-																										})
-																									} else if(quickyData.partner1_answer2 == false || quickyData.partner2_answer2 == null ){
-																										let comepletion_goal = {
-																											user_id: userID,
-																											goal_id: monthly_goal_data.id,
-																											partner_mapping_id: patner_mapping_data.id,
-																											didYouConnectLastNight: answer1,
-																											WhoInitiative: answer2
-																										}
-																										let completeData = {
-																											id: monthly_goal_data.id,
-																											complete_count: parseInt(monthly_goal_data.complete_count) + 1,
-																											contribution1: monthly_goal_data.user_id === user_id ? parseInt(monthly_goal_data.contribution1) + 1 : parseInt(monthly_goal_data.contribution1),
-																											contribution2: monthly_goal_data.user_id === user_id ? parseInt(monthly_goal_data.contribution2) : parseInt(monthly_goal_data.contribution2) +1,
-																										}
-																										goalSerObject.updateCompleteCount(completeData, function(err, update_monthly_data) {
-																											if(err) {
-																												res.send({
-																													status:400,
-																													message: err
-																												})
-																											} else {
-																												if(update_monthly_data) {
-																													completionSerObject.saveCompletionGoal(comepletion_goal, function(err, save_data) {
-																														if(err) {
-																															res.send({
-																																status: 504,
-																																message: "something Went Wrong"
-																															})
-																														} else {
-																															if(save_data) {
-																																res.send({
-																																	status: 200,
-																																	message: "Update successfully"
-																																})
-																															} else {
-																																res.send({
-																																	status: 504,
-																																	message: "something Went Wrong"
-																																})
-																															}
-																														}
-																													})
-																												} else {
-																													res.send({
-																														status: 504,
-																														message: "something Went Wrong"
-																													})
-																												}
-																											}
-																										})
-																									}
+																						if(quickyData.contribution != 1 && quickyData.partner2_answer1 != false) {
+																							let comepletion_goal = {
+																								user_id: userID,
+																								goal_id: monthly_goal_data.id,
+																								partner_mapping_id: patner_mapping_data.id,
+																								didYouConnectLastNight: answer1,
+																								WhoInitiative: answer2
+																							}
+																							let completeData = {
+																								id: monthly_goal_data.id,
+																								complete_count: parseInt(monthly_goal_data.complete_count) + 1,
+																								contribution1: monthly_goal_data.user_id === user_id ? parseInt(monthly_goal_data.contribution1) + 1 : parseInt(monthly_goal_data.contribution1),
+																								contribution2: monthly_goal_data.user_id === user_id ? parseInt(monthly_goal_data.contribution2) : parseInt(monthly_goal_data.contribution2) +1,
+																							}
+																							goalSerObject.updateCompleteCount(completeData, function(err, update_monthly_data) {
+																								if(err) {
+																									res.send({
+																										status:400,
+																										message: err
+																									})
 																								} else {
-																									if(quickyData.partner2_answer2 == true || quickyData.partner1_answer2 == null ) {
-																										let comepletion_goal = {
-																											user_id: userID,
-																											goal_id: monthly_goal_data.id,
-																											partner_mapping_id: patner_mapping_data.id,
-																											didYouConnectLastNight: answer1,
-																											WhoInitiative: answer2
-																										}
-																										let completeData = {
-																											id: monthly_goal_data.id,
-																											complete_count: parseInt(monthly_goal_data.complete_count) + 1,
-																											contribution1: monthly_goal_data.user_id === user_id ? parseInt(monthly_goal_data.contribution1) + 1 : parseInt(monthly_goal_data.contribution1),
-																											contribution2: monthly_goal_data.user_id === user_id ? parseInt(monthly_goal_data.contribution2) : parseInt(monthly_goal_data.contribution2) +1,
-																										}
-																										goalSerObject.updateCompleteCount(completeData, function(err, update_monthly_data) {
+																									if(update_monthly_data) {
+																										completionSerObject.saveCompletionGoal(comepletion_goal, function(err, save_data) {
 																											if(err) {
 																												res.send({
-																													status:400,
-																													message: err
+																													status: 504,
+																													message: "something Went Wrong"
 																												})
 																											} else {
-																												if(update_monthly_data) {
-																													completionSerObject.saveCompletionGoal(comepletion_goal, function(err, save_data) {
-																														if(err) {
-																															res.send({
-																																status: 504,
-																																message: "something Went Wrong"
-																															})
-																														} else {
-																															if(save_data) {
-																																res.send({
-																																	status: 200,
-																																	message: "Update successfully"
-																																})
-																															} else {
-																																res.send({
-																																	status: 504,
-																																	message: "something Went Wrong"
-																																})
-																															}
-																														}
-																													})
-																												} else {
+																												if(save_data) {
 																													res.send({
-																														status: 504,
-																														message: "something Went Wrong"
-																													})
-																												}
-																											}
-																										})
-																									} else if(quickyData.partner2_answer2 == false || quickyData.partner1_answer2 == null){
-																										let comepletion_goal = {
-																											user_id: userID,
-																											goal_id: monthly_goal_data.id,
-																											partner_mapping_id: patner_mapping_data.id,
-																											didYouConnectLastNight: answer1,
-																											WhoInitiative: answer2
-																										}
-																										let completeData = {
-																											id: monthly_goal_data.id,
-																											complete_count: parseInt(monthly_goal_data.complete_count) + 1,
-																											contribution1: monthly_goal_data.user_id === user_id ? parseInt(monthly_goal_data.contribution1) + 1 : parseInt(monthly_goal_data.contribution1),
-																											contribution2: monthly_goal_data.user_id === user_id ? parseInt(monthly_goal_data.contribution2) : parseInt(monthly_goal_data.contribution2) +1,
-																										}
-																										goalSerObject.updateCompleteCount(completeData, function(err, update_monthly_data) {
-																											if(err) {
-																												res.send({
-																													status:400,
-																													message: err
-																												})
-																											} else {
-																												if(update_monthly_data) {
-																													completionSerObject.saveCompletionGoal(comepletion_goal, function(err, save_data) {
-																														if(err) {
-																															res.send({
-																																status: 504,
-																																message: "something Went Wrong"
-																															})
-																														} else {
-																															if(save_data) {
-																																res.send({
-																																	status: 200,
-																																	message: "Update1 successfully"
-																																})
-																															} else {
-																																res.send({
-																																	status: 504,
-																																	message: "something Went Wrong"
-																																})
-																															}
-																														}
+																														status: 200,
+																														message: "Update successfully"
 																													})
 																												} else {
 																													res.send({
@@ -2049,7 +1938,12 @@ router.put('/updateCompletedGoal/:id', verifyToken, function(req,res) {
 																										})
 																									}
 																								}
-																							}
+																							})
+																						} else {
+																							res.send({
+																								status: 200,
+																								message: "Contribution is alredy added"
+																							})
 																						}
 																					} else {
 																						res.send({

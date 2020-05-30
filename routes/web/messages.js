@@ -13,8 +13,16 @@ const custom_helper = require('../../helpers/custom_helper');
 let router =  express.Router();
 var MessagesObject = new MessageService();
 
-// Display new register screen
-router.get('/:page', function(req, res){
+var sessionChecker = (req, res, next) => {
+    if (!req.session.passport ) {
+        res.redirect('/');
+    } else {
+        next();
+    }
+};
+
+// Display new Info messages screen
+router.get('/:page', sessionChecker,function(req, res){
 
 	var perPage = 10;
 	var page = req.params.page || 1;
@@ -45,12 +53,16 @@ router.get('/:page', function(req, res){
 			}
 		});
 });
-router.get('/add/:pages?',function (req,res){
+
+// Display New info message screen
+router.get('/add/:pages?', sessionChecker, function (req,res){
 	res.render('messages/addlist', {
 		option: 7
 	});
 });
-router.post('/add',function (req,res){
+
+// Add New info message on DB
+router.post('/add', sessionChecker, function (req,res){
 
 	let data = {
 		title: req.body.title,
@@ -70,7 +82,9 @@ router.post('/add',function (req,res){
 		}
 	});
 });
-router.get('/edit/:id',function(req,res)
+
+// Display Edit info message screen
+router.get('/edit/:id', sessionChecker,function(req,res)
 {
 	var page_id = req.params.id;
 	MessagesObject.getSingleInfoMessageById(page_id,function(err,pageData)
@@ -88,7 +102,9 @@ router.get('/edit/:id',function(req,res)
 			}
 		});
 });
-router.post('/update',function (req,res){
+
+// Update info message on DB
+router.post('/update', sessionChecker, function (req,res){
 
 	var page_id = req.body.page_id;
 	var title = req.body.title;
@@ -115,7 +131,8 @@ router.post('/update',function (req,res){
 	})
 });
 
-router.get('/delete/:id',function (req,res){
+// Delete info message on DB
+router.get('/delete/:id', sessionChecker, function (req,res){
 
 	var id = req.params.id;
 	MessagesObject.removeMessages(id , function(err, response){
@@ -132,4 +149,6 @@ router.get('/delete/:id',function (req,res){
 		}
 	});
 });
+
+
 module.exports = router;

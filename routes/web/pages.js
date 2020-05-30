@@ -14,9 +14,16 @@ let router =  express.Router();
 var pageSerObject = new PageService();
 var GoalObject = new GoalService();
 
-// page listing
-router.get('/:page', function(req, res){
+var sessionChecker = (req, res, next) => {
+    if (!req.session.passport ) {
+        res.redirect('/');
+    } else {
+        next();
+    }
+};
 
+// page listing
+router.get('/:page',sessionChecker, function(req, res){
 	var perPage = 10;
 	var page = req.params.page || 1;
 
@@ -47,7 +54,7 @@ router.get('/:page', function(req, res){
 		});
 });
 
-router.get('/edit/:id',function(req,res)
+router.get('/edit/:id', sessionChecker, function(req,res)
 {
 	var page_id = req.params.id;
 	GoalObject.getSingleQuestionRecord(page_id,function(err,pageData)
@@ -75,7 +82,7 @@ router.get('/edit/:id',function(req,res)
 			}
 		});
 });
-router.post('/update',function (req,res){
+router.post('/update', sessionChecker, function (req,res){
 
 	var page_id = req.body.page_id;
 	var title = req.body.title;
@@ -109,18 +116,18 @@ router.post('/update',function (req,res){
 		}
 	})
 });
-router.get('/add/:pages?',function (req,res){
+router.get('/add/:pages?', sessionChecker, function (req,res){
 	res.render('pages/addlist', {
 		option: 7,
 		step: 1
 	});
 });
-router.get('/add/options/:data', function(req, res) {
+router.get('/add/options/:data', sessionChecker, function(req, res) {
 	res.render('pages/addlist', {
 		option: parseInt(req.params.data) + 1
 	})
 })
-router.post('/add/question',function (req,res){
+router.post('/add/question',sessionChecker, function (req,res){
 
 	var title = req.body.title;
 	var status = req.body.status;
@@ -188,7 +195,7 @@ router.post('/add/question',function (req,res){
 	// 	}
 	// });
 });
-router.get('/option/:id?',function (req,res){
+router.get('/option/:id?', sessionChecker, function (req,res){
 	var page_id = req.params.id;
 
 	GoalObject.GetQuestion(page_id,function(err,pageData)
@@ -207,7 +214,7 @@ router.get('/option/:id?',function (req,res){
 		});
 
 });
-router.post('/option',function (req,res){
+router.post('/option',sessionChecker, function (req,res){
 
 	var title = req.body.title;
 	var id =  req.body.question_id
@@ -221,7 +228,7 @@ router.post('/option',function (req,res){
 		}
 	});
 });
-router.get('/delete/:id',function (req,res){
+router.get('/delete/:id',sessionChecker, function (req,res){
 
 	var id = req.params.id;
 	GoalObject.removeQuestionaries(id , function(err, response){
@@ -260,7 +267,7 @@ router.get('/delete/:id',function (req,res){
 		}
 	});
 });
-router.get('/view/:id/:page', function(req, res) {
+router.get('/view/:id/:page', sessionChecker, function(req, res) {
 let id = req.params.id
 var perPage = 5;
 var page = req.params.page || 1;

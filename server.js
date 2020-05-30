@@ -56,7 +56,7 @@ app.use(session({
 	secret: 'ohapp_admin',
 	resave: true,
 	saveUninitialized: true,
-	cookie: { maxAge: 8*60*60*1000 },
+	cookie: { maxAge: 8*60*60*1000,	expires:8*60*60*1000 },
 }));
 
 app.use(passport.initialize());

@@ -84,7 +84,22 @@ class QuickyService
 		}).catch(err => {
 			callback(err, null)
 		})
-}
+	}
+	async Addcontribution(quicky_id, callback) {
+		await QuickyObject.update({
+			contribution: 1,
+			update_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss')},
+			 { where:
+				{
+					id: quicky_id
+				}
+			 }).then(async res => {
+				 let RES = await QuickyObject.findOne({where: {id: quicky_id}});
+				 callback(null, RES)
+			 }).catch(err => {
+				 callback(err, null)
+			 })
+	}
 }
 
 module.exports = QuickyService;

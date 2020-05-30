@@ -53,6 +53,10 @@ const quicky = database.define('quickies',
 		type: Sequelize.BOOLEAN,
 		allowNull: true,
 	},
+	contribution: {
+		type: Sequelize.BIGINT,
+		allowNull: true,
+	},
 	create_time: {
 		type: Sequelize.DATE,
 		allowNull: false,

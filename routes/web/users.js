@@ -6,15 +6,24 @@
 
 const express = require('express');
 const userService = require('../../services/UserService');
+const User = require('../../models/user')
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 
 let router =  express.Router();
 var userSerObject = new userService();
 
+var sessionChecker = (req, res, next) => {
+    if (!req.session.passport ) {
+        res.redirect('/');
+    } else {
+        next();
+    }
+};
+
 // Display new register screen
 router.get('/register', function(req, res){
-  	res.render('pages/register');
+  	res.render('users/register');
 });
 
 // Register new user
@@ -43,10 +52,11 @@ router.post('/register', function(req, res){
 		email: email,
 		password: password
 		});
-		createUser(user, function(err, user){
-			if(err) throw err;
-			else console.log(user);
-		});
+		user.save().then(user =>{
+			console.log(user)
+		}).catch(err => {
+				throw err
+			})
 		req.flash('success_message','You have registered, Now please login');
 		res.redirect('login');
 	}
@@ -71,17 +81,20 @@ passport.use(new LocalStrategy({
 	  		if (!user) {
 				return done(null, false, req.flash('error_message', 'No email is found'));
 	  		}
-
-			userSerObject.comparePassword(password, user.password, function(err, isMatch) 
-			{
-				if (err) { return done(err); }
-				if(isMatch){
-		  			return done(null, user, req.flash('success_message', 'You have successfully logged in!!'));
-				}
-				else{
-		  			return done(null, false, req.flash('error_message', 'Incorrect Password'));
-				}
-			}); 
+			if (user.role_id == 1) {
+				userSerObject.comparePassword(password, user.password, function(err, isMatch) 
+				{
+					if (err) { return done(err); }
+					if(isMatch){
+						  return done(null, user, req.flash('success_message', 'You have successfully logged in!!'));
+					}
+					else{
+						  return done(null, false, req.flash('error_message', 'Incorrect Password'));
+					}
+				});
+			} else {
+				return done(null, false, req.flash('error_message', 'You are not able to login In Admin Panel'));
+			}
 		});
   	}
 ));
@@ -114,8 +127,8 @@ router.get('/logout', function(req, res){
 	res.redirect('/users/login');
 });
 
-
-router.get('/:page?',function(req, res){
+// Display User screen
+router.get('/:page?', sessionChecker, function(req, res){
 
 	var perPage = 10;
 	var page = req.params.page || 1;
@@ -147,7 +160,8 @@ router.get('/:page?',function(req, res){
 	});
 });
 
-router.post('/search', function(req, res) {
+// Implemented Seach for user screen
+router.post('/search', sessionChecker, function(req, res) {
 
 	var perPage = 10;
 	var page = req.params.page || 1;
@@ -180,7 +194,8 @@ router.post('/search', function(req, res) {
 	});
 })
 
-router.get('/status/:status?/:id', function(req, res) {
+// Update User Account is active or deactive
+router.get('/status/:status?/:id', sessionChecker, function(req, res) {
 	userSerObject.updateUserStatus(req.params.status, req.params.id, function(err, response) {
 		if(err) {
 			req.flash('error_message','Error Occured: Unable to fetch users list');

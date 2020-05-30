@@ -11,8 +11,16 @@ const custom_helper = require('../../helpers/custom_helper');
 let router =  express.Router();
 var FeedbackObject = new FeedbackService();
 
-// Display new register screen
-router.get('/:page', function(req, res){
+var sessionChecker = (req, res, next) => {
+    if (!req.session.passport ) {
+        res.redirect('/');
+    } else {
+        next();
+    }
+};
+
+// Display new Feedback screen
+router.get('/:page', sessionChecker, function(req, res){
 
 	var perPage = 10;
 	var page = req.params.page || 1;
