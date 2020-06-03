@@ -407,12 +407,28 @@ router.post('/checkUserIntrest/:id', verifyToken, function(req, res) {
                                                  var final = new Date(
                                                    now.getFullYear(),
                                                    now.getMonth(),
-                                                   now.getDate(),
-                                                   hours, minutes, 0
+                                                   now.getDate() + 1,
+                                                   hours, minutes, 0  
                                                );
                                                  let timeout = current_datetime.subtract(final, now).toMilliseconds();
+                                                 const [time1, modifier1] = QuickyResponse.when.split(' ');
+                                                 let [hours1, minutes1] = time1.split(':');
+                                                 if (hours === '12') {
+                                                 hours1 = '00';
+                                                 }
+                                                 if (modifier1 === 'PM') {
+                                                   hours1 = parseInt(hours1, 10) + 12;
+                                                 }
+                                                 var now = new Date();
+                                                 var onTime = new Date(
+                                                   now.getFullYear(),
+                                                   now.getMonth(),
+                                                   now.getDate(),
+                                                   hours1, minutes1, 0
+                                               );
+                                                 let timeout1 = current_datetime.subtract(onTime, now).toMilliseconds();
                                                  let statusCheck = customHelper.check_notification_Mute(userData.notification_mute_start,userData.notification_mute_end);
-                                               if(statusCheck) {
+                                                 if(statusCheck) {
                                                  res.send({
                                                    status: 400,
                                                    message: "Notificaiton is mute for some time."
@@ -429,6 +445,16 @@ router.post('/checkUserIntrest/:id', verifyToken, function(req, res) {
                                                      notificationObject.Sendnotification(partnerData.fcmid, data, function(err, response) {})
                                                      notificationObject.Sendnotification(userData.fcmid, data,  function(err, response) {})
                                                    }, timeout)
+                                                   setTimeout(() => {
+                                                    let data = {
+                                                      title: "Congratulations on scheduling a connection!",
+                                                      message: `It’s ${userData.first_name}'s turn to initiate.`,
+                                                      type: "Inform",
+                                                      quicky_id: quicky_id
+                                                    }
+                                                    notificationObject.Sendnotification(partnerData.fcmid, data, function(err, response) {})
+                                                    notificationObject.Sendnotification(userData.fcmid, data,  function(err, response) {})
+                                                  }, timeout1);
                                                  } else {
                                                   setTimeout(() => {
                                                     let data = {
@@ -439,6 +465,15 @@ router.post('/checkUserIntrest/:id', verifyToken, function(req, res) {
                                                     }
                                                     notificationObject.Sendnotification(userData.fcmid, data,  function(err, response) {})
                                                   }, timeout)
+                                                  setTimeout(() => {
+                                                    let data = {
+                                                      title: "Congratulations on scheduling a connection!",
+                                                      message: `It’s ${userData.first_name}'s turn to initiate.`,
+                                                      type: "Inform",
+                                                      quicky_id: quicky_id
+                                                    }
+                                                    notificationObject.Sendnotification(userData.fcmid, data,  function(err, response) {})
+                                                  }, timeout1);
                                                  }
                                                }
                                             } else {

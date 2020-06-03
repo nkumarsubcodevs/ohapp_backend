@@ -267,23 +267,23 @@ router.put('/updateQuicky/:id', verifyToken, function(req, res) {
                                           setTimeout(() => {
                                             let data = {
                                               title: "Congratulations on scheduling a connection!",
-                                              message: `It’s (${userData.first_name}) turn to initiate.`,
+                                              message: `It’s ${userData.first_name}'s turn to initiate.`,
                                               type: "Reminder",
                                               quicky_id: quicky_id
                                             }
                                             notificationObject.Sendnotification(partnerResponse.fcmid, data, function(err, response) {})
                                             notificationObject.Sendnotification(userData.fcmid, data,  function(err, response) {})
                                           }, timeout)
-                                          setTimeout(() => {
-                                            let data = {
-                                              title: "Congratulations on scheduling a connection!",
-                                              message: `It’s (${userData.first_name}) turn to initiate.`,
-                                              type: "Inform",
-                                              quicky_id: quicky_id
-                                            }
-                                            notificationObject.Sendnotification(partnerResponse.fcmid, data, function(err, response) {})
-                                            notificationObject.Sendnotification(userData.fcmid, data,  function(err, response) {})
-                                          }, timeout1)
+                                          // setTimeout(() => {
+                                          //   let data = {
+                                          //     title: "Congratulations on scheduling a connection!",
+                                          //     message: `It’s ${userData.first_name}'s turn to initiate.`,
+                                          //     type: "Inform",
+                                          //     quicky_id: quicky_id
+                                          //   }
+                                          //   notificationObject.Sendnotification(partnerResponse.fcmid, data, function(err, response) {})
+                                          //   notificationObject.Sendnotification(userData.fcmid, data,  function(err, response) {})
+                                          // }, timeout1);
                                         }
                                      } else {
                                        res.send({

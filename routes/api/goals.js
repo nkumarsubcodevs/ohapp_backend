@@ -797,7 +797,8 @@ router.post('/createmonthlygoal', verifyToken, function(req, res) {
 																				if(day <= 0) {
 																					day = 1
 																				}
-																				let statusChecks = customHelper.check_notification_Mute(userData.notification_mute_start,userData.notification_mute_end);
+ let statusChecks = customHelper.check_notification_Mute(userData.notification_mute_start,userData.notification_mute_end);
+console.log(minutes, hours, day);
 																				cron.schedule(`${parseInt(minutes)} ${hours} */${day} * *`, () => {
 																					// cron.schedule(`* * * * *`, (err, ress) => {
 																		            let statusCheck = customHelper.check_notification_Mute(userData.notification_mute_start,userData.notification_mute_end);
@@ -1227,7 +1228,7 @@ router.post('/updatemonthlygoal/:goal_id', verifyToken, function(req, res) {
 																messgae: "Something Went wrong"
 															})
 														} else {
-															if(usersData) {
+ 															if(usersData) {
 																const [time, modifier] = monthlyGoalDataSaved.intimate_request_time.split(' ');
 																let [hours, minutes] = time.split(':');
 																if (hours === '12') {
@@ -1243,16 +1244,16 @@ router.post('/updatemonthlygoal/:goal_id', verifyToken, function(req, res) {
 																if(day <= 0) {
 																	day = 1
 																}
-																cron.schedule(`${parseInt(minutes)} ${hours} */${day} * *`, () => {
+																	cron.schedule(`${parseInt(minutes)} ${hours} */${day} * *`, () => {
 																	// cron.schedule(`* * * * *`, (err, ress) => {
-																	let statusCheck = customHelper.check_notification_Mute(userData.notification_mute_start,userData.notification_mute_end);
+																	let statusCheck = customHelper.check_notification_Mute(usersData .notification_mute_start,usersData .notification_mute_end);
 																	if(statusCheck) {
 																		res.send({
 																			status: 400,
 																			message: "Notificaiton is mute for some time."
 																		})
 																	} else {
-																		goalSerObject.getGoalDetails(userData.id, partnerData.id, function(err, monthlyGoal_data) {
+																		goalSerObject.getGoalDetails(usersData .id, GetpatnerData.id, function(err, monthlyGoal_data) {
 																			if(err) {
 																				res.send({
 																					status:404,
@@ -1274,21 +1275,21 @@ router.post('/updatemonthlygoal/:goal_id', verifyToken, function(req, res) {
 																						PR: PR,
 																						remaing_days: remaing,
 																					}
-																					notificationObject.notification(userData.fcmid, Notificationmessage, function(err, response) {
+																					notificationObject.notification(usersData .fcmid, Notificationmessage, function(err, response) {
 																						let notification1 = {
-																							user_id: userData.id,
+																							user_id: usersData.id,
 																							goal_id: monthlyGoalDataSaved.id,
-																							device_id: userData.fcmid,
+																							device_id: usersData.fcmid,
 																							notification_id: response.results[0].message_id,
 																						}
 																						notificationObject.saveNotification(notification1, function(err, response) {
 																						})
 																					})
-																					notificationObject.notification(partnerData.fcmid, Notificationmessage,function(err, response) {
+																					notificationObject.notification(GetpatnerData .fcmid, Notificationmessage,function(err, response) {
 																						let notification1 = {
-																							user_id: partnerData.id,
+																							user_id: GetpatnerData.id,
 																							goal_id: monthlyGoalDataSaved.id,
-																							device_id: partnerData.fcmid,
+																							device_id: GetpatnerData.fcmid,
 																							notification_id: response.results[0].message_id,
 																						}
 																						notificationObject.saveNotification(notification1, function(err, response) {})
@@ -2103,5 +2104,328 @@ router.get('/previousMonthlyGoal', verifyToken, function(req, res) {
 	})
 
 })
+
+router.post('/createNewmonthlygoal', verifyToken, function(req, res) {
+
+	// let partner_mapping_id = req.body.partner_mapping_id;
+	let user_id  = jwt.decode(req.headers['x-access-token']).id;
+	let connect_number     = req.body.connect_number;
+	// let percentage         = req.body.percentage;/
+	let intimate_account_time = req.body.intimate_account_time;
+	let intimate_request_time = req.body.intimate_request_time;
+	let intimate_time = req.body.intimate_time;
+	let initiator_count = req.body.initiator_count;
+	let initiator_count1 = req.body.initiator_count1;
+
+
+	if(!user_id) 
+	{
+		return res.send({
+			status: 400,
+			message: 'User id is required.',
+		});
+	}
+
+	if(!formValidator.isInt(user_id))   
+	{
+		return res.send({
+			status: 400,
+			message: 'Please enter a valid user id.',
+		});
+	}
+
+	if(!connect_number) 
+	{
+		return res.send({
+			status: 400,
+			message: 'Please enter a valid information.',
+		});
+	}
+
+	if(!formValidator.isInt(connect_number))   
+	{
+		return res.send({
+			status: 400,
+			message: 'Please enter a valid information.',
+		});
+	}
+
+	if(!intimate_account_time) 
+	{
+		return res.send({
+			status: 400,
+			message: 'Please enter a valid information.',
+		});
+	}
+
+	if(!intimate_request_time) 
+	{
+		return res.send({
+			status: 400,
+			message: 'Please enter a valid information.',
+		});
+	}
+
+	if(!intimate_time) 
+	{
+		return res.send({
+			status: 400,
+			message: 'Please enter a valid information.',
+		});
+	}
+
+	if(!initiator_count) 
+	{
+		return res.send({
+			status: 400,
+			message: 'Please enter a valid information.',
+		});
+	}
+
+	if(!initiator_count1) 
+	{
+		return res.send({
+			status: 400,
+			message: 'Please enter a valid information.',
+		});
+	}
+	// Check goal exists or not
+	goalSerObject.checkParternstage(user_id, function(err, partnerMappingData) 
+	{
+		if(err)
+		{
+			res.send({
+				status: 500,
+				message: 'something went wrong',
+			});
+		}
+		else
+		{
+			if(partnerMappingData) 
+			{
+				userSerObject.getUserById(partnerMappingData.partner_two_id, function(err, partenerData) {
+					if(err) {
+						res.send({
+							status: 400,
+							message: 'Invalid partner id provided',
+						});
+					} else {
+						if(partenerData) {
+							if(partenerData.stage === 5) {
+								res.send({
+									status: 400,
+									message: 'Please Wait! The goal setup is already in progress by your partner.',
+								});
+							} else {
+								var user_checker = 0
+								if(partnerMappingData.partner_one_id==user_id) 
+								{
+									user_checker++;
+								}
+
+								if(partnerMappingData.partner_two_id==user_id) 
+								{
+									user_checker++;
+								}
+
+								if(user_checker==0)
+								{
+									res.send({
+										status: 400,
+										message: 'Invalid partner id provided',
+									});
+								}
+								else
+								{
+									const now = new Date();
+									var   parter_id = 0;
+									if(partnerMappingData.partner_one_id!=user_id)
+									{
+										parter_id = partnerMappingData.partner_one_id;
+									}
+									if(partnerMappingData.partner_two_id!=user_id)
+									{
+										parter_id = partnerMappingData.partner_two_id;
+									}
+									// var initiator_count = customHelper.h_getNumberOfTimesPercentage(connect_number, percentage);
+									// var partner_percentage = 100 - percentage;
+									// var partner_initiator_count = connect_number - initiator_count;
+									let monthlyGoalData = {
+										'partner_mapping_id': partnerMappingData.id,
+										'user_id': user_id,
+										'month_start': current_datetime.format(now, 'YYYY-MM-DD'),
+										'month_end': customHelper.h_get30daysAdvanceDate(),
+										'connect_number': connect_number,
+										// 'percentage': percentage,
+										'initiator_count': initiator_count,
+										'initiator_count1': initiator_count1,
+										'status': 1,
+										'intimate_time': intimate_time,
+										'intimate_request_time': intimate_request_time,
+										'intimate_account_time': intimate_account_time,
+										'partner_id': parter_id,
+										// 'partner_percentage': partner_percentage,
+										'partner_initiator_count': initiator_count,
+									};
+									goalSerObject.createMonthlyGoal(monthlyGoalData, function(err, monthlyGoalDataSaved)
+									{
+										if(err)
+										{
+											res.send({
+												status: 504,
+												message: 'something went wrong.',
+											});
+										}
+										else
+										{
+											if(monthlyGoalDataSaved) {
+												userSerObject.getUserById(user_id, function(err, userData) {
+													if(err) {
+														res.send({
+															status: 400,
+															message: 'something went wrong.',
+														});
+													} else {
+														if(userData) {
+															userSerObject.getPartnerById(user_id, function(err, partnerData) {
+																if(err) {
+																	res.send({
+																		status: 400,
+																		message: 'something went wrong.',
+																	});
+																} else {
+																	if(partnerData) {
+																		const [time, modifier] = monthlyGoalDataSaved.intimate_request_time.split(' ');
+																		let [hours, minutes] = time.split(':');
+																		if (hours === '12') {
+																		hours = '00';
+																		}
+																		if (modifier === 'PM') {
+																		hours = parseInt(hours, 10) + 12;
+																		}
+																		var night = new Date(
+																			now.getFullYear(),
+																			now.getMonth(),
+																			now.getDate(),
+																			hours, minutes, 0
+																			);
+																			// var month = date.getMonth() + 1;
+																			// var year = date.getFullYear();
+																			var month = current_datetime.format(night, 'MM', true);
+																			var year = current_datetime.format(night, 'YYYY', true);
+																			minutes = current_datetime.format(night, 'mm');
+																			hours = current_datetime.format(night, 'HH');
+																			let day = parseInt(new Date(year, month, 0).getDate() / monthlyGoalDataSaved.connect_number);
+																			if(day <= 0) {
+																				day = 1
+																			}
+																			cron.schedule(`${parseInt(minutes)} ${hours} */${day} * *`, () => {
+																				// cron.schedule(`* * * * *`, (err, ress) => {
+																				let statusCheck = customHelper.check_notification_Mute(userData.notification_mute_start,userData.notification_mute_end);
+																				if(statusCheck) {
+																					res.send({
+																						status: 400,
+																						message: "Notificaiton is mute for some time."
+																					})
+																				} else {
+																					goalSerObject.getGoalDetails(userData.id, partnerData.id, function(err, monthlyGoal_data) {
+																						if(err) {
+																							res.send({
+																								status:404,
+																								message: "Something went wrong!"
+																							})
+																						} else {
+																							if(monthlyGoal_data) {
+																								var date = new Date();
+																								var lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+																								var current_date = date.getDate();
+																								let remaing = lastDay - current_date;
+																								let PR;
+																								if (monthlyGoal_data.complete_count == 0) {
+																									PR = 0;
+																								} else {
+																									PR = (monthlyGoal_data.complete_count / monthlyGoal_data.connect_number) * 100;
+																								}
+																								let Notificationmessage = {
+																									PR: PR,
+																									remaing_days: remaing,
+																								}
+																								notificationObject.notification(userData.fcmid, Notificationmessage, function(err, response) {
+																									let notification1 = {
+																										user_id: userData.id,
+																										goal_id: monthlyGoalDataSaved.id,
+																										device_id: userData.fcmid,
+																										notification_id: response.results[0].message_id,
+																									}
+																									notificationObject.saveNotification(notification1, function(err, response) {
+																									})
+																								})
+																								notificationObject.notification(partnerData.fcmid, Notificationmessage,function(err, response) {
+																									let notification1 = {
+																										user_id: partnerData.id,
+																										goal_id: monthlyGoalDataSaved.id,
+																										device_id: partnerData.fcmid,
+																										notification_id: response.results[0].message_id,
+																									}
+																									notificationObject.saveNotification(notification1, function(err, response) {})
+																								})
+																							}
+																					}
+																				})
+																			}
+																		});
+																		res.send({
+																			status: 200,
+																			message: 'The monthly goal has been successfully created.',
+																			stage: userData.stage,
+																			fcmid: partnerData.fcmid,
+																			Patner1_first_name: userData.first_name,
+																			Patner1_last_name: userData.last_name,
+																			patner1_stage: userData.stage,
+																			Patner2_first_name:partnerData.first_name,
+																			Patner2_last_name:partnerData.last_name,
+																			patner2_stage: partnerData.stage
+																		});
+																	} else {
+																		res.send({
+																			status: 500,
+																			message: 'Partner is not found.',
+																		});
+																	}
+																}
+															})
+														} else {
+															res.send({
+																status: 500,
+																message: 'User is not found.',
+															});
+														}
+													}
+												})
+											}
+										}
+									});
+								}
+							}
+						} else {
+							res.send({
+								status: 504,
+								messgae: "Patner is not found"
+							})
+						}
+					}
+				})
+                // check if user-id is found or not in partner mapping table
+			}
+			else
+			{
+				return res.send({
+					status: 400,
+					message: 'This mapping has been expired',
+				});
+			}
+		}
+	});
+});
 
 module.exports = router;
