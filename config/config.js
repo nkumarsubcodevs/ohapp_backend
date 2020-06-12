@@ -7,6 +7,7 @@
 module.exports = {
   'site_url': 'http://localhost:5000/',
   'site_logo': 'http://localhost:5000/images/logosite.png',
+  'signUp_Template_Image': "http://localhost:5000/images/header.png",
 
   'postgres_host': 'localhost',
   'postgres_database': 'ohhp_app',

@@ -10,7 +10,7 @@ const goalService = require('../../services/GoalService');
 const userService = require('../../services/UserService');
 const quickyService = require('../../services/QuickyService');
 const jwt = require('jsonwebtoken');
-const formValidator = require('validator');
+const formValidator= require('validator');
 const current_datetime = require('date-and-time');
 const customHelper = require('../../helpers/custom_helper');
 
@@ -342,6 +342,7 @@ router.post('/checkUserIntrest/:id', verifyToken, function(req, res) {
             partner2_intrest: QuickyResponse.user_id == user_id ? QuickyResponse.partner2_intrest : response,
             quicky_id: quicky_id
           }
+          console.log(quickData, user_id)
           quickyObject.updateUserIntrest(quickData, function(err, UpdatedQuicky) {
             if(err) {
               res.send({
@@ -350,124 +351,363 @@ router.post('/checkUserIntrest/:id', verifyToken, function(req, res) {
               })
             } else {
               if(UpdatedQuicky) {
-                setTimeout(() => {
-                  quickyObject.getSingleQuickyRecord(quicky_id, function(err, Quickies) {
-                    if(err) {
-                      res.send({
-                        status: 400,
-                        message: "Something Went Wrong!"
-                      })
-                    } else {
-                      if(Quickies) {
-                        if(Quickies.partner1_intrest == false || Quickies.partner2_intrest == false) {
-                          res.send({
-                            status: 200,
-                            message: "Any one partner is not intrested."
-                          })
-                        } else if(Quickies.partner1_intrest == null && Quickies.partner2_intrest == null) {
-                          res.send({
-                            status: 200,
-                            message: "Any one partner is not choosed option."
-                          })
-                        }
-                        else {
-                            userServiceObject.getUserById(user_id, function(err, userData) {
-                              if(err) {
-                                res.send({
-                                  status: 400,
-                                  message: "Something Went Wrong!"
-                                })
-                              } else {
-                                if(userData) {
-                                  userServiceObject.getPartnerById(user_id, function(err, partnerData) {
-                                    if(err) {
+                userServiceObject.getPartnerById(user_id, function(err, PartnerData) {
+                  if(err) {
+                    res.send({
+                      status: 400,
+                      message: "Something Went Wrong!"
+                    })
+                  } else {
+                    if(PartnerData) {
+                      if(response == true) {
+                        console.log(UpdatedQuicky.partner2_intrest);
+                        console.log(UpdatedQuicky.partner1_intrest);
+                        if(QuickyResponse.user_id == user_id) {
+                          if(UpdatedQuicky.partner2_intrestU == false) {
+                            console.log(false)
+                              res.send({
+                                status:200,
+                                message: "Your partner is not intrest for connect tonight",
+                                fcmid: PartnerData.fcmid,
+                              })
+                          } else if(UpdatedQuicky.partner2_intrest == true) {
+                            console.log("hello True")
+                            res.send({
+                                status: 200,
+                                message: "User intrest save successfully",
+                                fcmid: PartnerData.fcmid,
+                              })
+                          } else {
+                            let When = customHelper.Get_HoursMinutes(UpdatedQuicky.when);
+                            var now = new Date();
+                            var onTime = new Date(
+                              now.getFullYear(),
+                              now.getMonth(),
+                              now.getDate(),
+                              When.hours, When.minutes, 0
+                            );
+                            let timeout1 = current_datetime.subtract(onTime, now).toMilliseconds();
+                            setTimeout(() => {
+                              quickyObject.getSingleQuickyRecord(quicky_id, function(err, Quickies) {
+                                if(err) {
+                                  res.send({
+                                    status: 400,
+                                    message: "Something Went Wrong!"
+                                  })
+                                } else {
+                                  if(Quickies) {
+                                    if(Quickies.partner1_intrest == false || Quickies.partner2_intrest == false) {
                                       res.send({
-                                        status: 400,
-                                        message: "Something Went Wrong!"
+                                        status: 200,
+                                        message: "Any one partner is not intrested.",
+                                        fcmid: PartnerData.fcmid,
                                       })
-                                    } else {
-                                      if(partnerData) {
-                                        goalServiceObject.getGoalDetails(user_id, partnerData.id, function(err, Goaldata) {
+                                    } else if(Quickies.partner1_intrest == null && Quickies.partner2_intrest == null) {
+                                      res.send({
+                                        status: 200,
+                                        message: "Any one partner is not choosed option.",
+                                        fcmid: PartnerData.fcmid,
+                                      })
+                                    }
+                                    else {
+                                        userServiceObject.getUserById(user_id, function(err, userData) {
                                           if(err) {
-                                           res.send({
-                                             status: 404,
-                                             message: "Something went wrong!"
-                                           })
+                                            res.send({
+                                              status: 400,
+                                              message: "Something Went Wrong!"
+                                            })
                                           } else {
-                                            if(Goaldata) {
-                                              const [time, modifier] = Goaldata.intimate_account_time.split(' ');
-                                                 let [hours, minutes] = time.split(':');
-                                                 if (hours === '12') {
-                                                 hours = '00';
-                                                 }
-                                                 if (modifier === 'PM') {
-                                                   hours = parseInt(hours, 10) + 12;
-                                                 }
-                                                 var now = new Date();
-                                                 var final = new Date(
-                                                   now.getFullYear(),
-                                                   now.getMonth(),
-                                                   now.getDate(),
-                                                   hours, minutes, 0
-                                               );
-                                                 let timeout = current_datetime.subtract(final, now).toMilliseconds();
-                                                 let statusCheck = customHelper.check_notification_Mute(userData.notification_mute_start,userData.notification_mute_end);
-                                               if(statusCheck) {
-                                                 res.send({
-                                                   status: 400,
-                                                   message: "Notificaiton is mute for some time."
-                                                 })
-                                               } else {
-                                                 if(Quickies.partner1_intrest == true && Quickies.partner2_intrest == null) {
-                                                   setTimeout(() => {
-                                                     let data = {
-                                                       title: "FeedBack for last night",
-                                                       message: `Did you connect last night?`,
-                                                       type: "feedback",
-                                                       quicky_id: quicky_id
-                                                     }
-                                                     notificationObject.Sendnotification(partnerData.fcmid, data, function(err, response) {})
-                                                     notificationObject.Sendnotification(userData.fcmid, data,  function(err, response) {})
-                                                   }, timeout)
-                                                 } else {
-                                                  setTimeout(() => {
-                                                    let data = {
-                                                      title: "FeedBack for last night",
-                                                      message: `Did you connect last night?`,
-                                                      type: "feedback",
-                                                      quicky_id: quicky_id
-                                                    }
-                                                    notificationObject.Sendnotification(userData.fcmid, data,  function(err, response) {})
-                                                  }, timeout)
-                                                 }
-                                               }
-                                            } else {
-                                              res.send({
-                                                status: 400,
-                                                message: "Goal is not found"
+                                            if(userData) {
+                                              userServiceObject.getPartnerById(user_id, function(err, partnerData) {
+                                                if(err) {
+                                                  res.send({
+                                                    status: 400,
+                                                    message: "Something Went Wrong!"
+                                                  })
+                                                } else {
+                                                  if(partnerData) {
+                                                    goalServiceObject.getGoalDetails(user_id, partnerData.id, function(err, Goaldata) {
+                                                      if(err) {
+                                                      res.send({
+                                                        status: 404,
+                                                        message: "Something went wrong!"
+                                                      })
+                                                      } else {
+                                                        if(Goaldata) {
+                                                            let acounttime = customHelper.Get_HoursMinutes(Goaldata.hours);
+                                                            let RequsestTime = customHelper.Get_HoursMinutes(Goaldata.intimate_request_time);
+                                                            console.log(RequsestTime);
+                                                            console.log(acounttime)
+                                                            let hours = RequsestTime.hours + acounttime.hours;
+                                                            let minutes = RequsestTime.minutes + acounttime.minutes;
+                                                            var now = new Date();
+                                                            var final = new Date(
+                                                              now.getFullYear(),
+                                                              now.getMonth(),
+                                                              now.getDate(),
+                                                              hours, minutes, 0  
+                                                          );
+                                                            let timeout = current_datetime.subtract(final, now).toMilliseconds();
+                                                            console.log(timeout, hours, minutes)
+                                                            let statusCheck = customHelper.check_notification_Mute(userData.notification_mute_start,userData.notification_mute_end);
+                                                            if(statusCheck) {
+                                                            res.send({
+                                                              status: 400,
+                                                              message: "Notificaiton is mute for some time."
+                                                            })
+                                                          } else {
+                                                            console.log(partnerData.fcmid);
+                                                            console.log(userData.fcmid);
+                                                            if(Quickies.partner1_intrest == null || Quickies.partner2_intrest == null) {
+                                                              setTimeout(() => {
+                                                                let data = {
+                                                                  title: "FeedBack for last night",
+                                                                  message: `Did you connect last night?`,
+                                                                  type: "feedback",
+                                                                  quicky_id: quicky_id
+                                                                }
+                                                                notificationObject.Sendnotification(partnerData.fcmid, data, function(err, response) {})
+                                                                notificationObject.Sendnotification(userData.fcmid, data,  function(err, response) {})
+                                                              }, timeout)
+                                                                let data = {
+                                                                  title: "Congratulations on scheduling a connection!",
+                                                                  message: `It’s ${userData.first_name}'s turn to initiate.`,
+                                                                  type: "Inform",
+                                                                  quicky_id: quicky_id
+                                                                }
+                                                                notificationObject.Sendnotification(partnerData.fcmid, data, function(err, response) {console.log("combo", response);})
+                                                                notificationObject.Sendnotification(userData.fcmid, data,  function(err, response) {console.log("combo", response);})
+                                                            } else {
+                                                              setTimeout(() => {
+                                                                let data = {
+                                                                  title: "FeedBack for last night",
+                                                                  message: `Did you connect last night?`,
+                                                                  type: "feedback",
+                                                                  quicky_id: quicky_id
+                                                                }
+                                                                notificationObject.Sendnotification(partnerData.fcmid, data,  function(err, response) {})
+                                                                notificationObject.Sendnotification(userData.fcmid, data,  function(err, response) {})
+                                                              }, timeout)
+                                                                let data = {
+                                                                  title: "Congratulations on scheduling a connection!",
+                                                                  message: `It’s ${userData.first_name}'s turn to initiate.`,
+                                                                  type: "Inform",
+                                                                  quicky_id: quicky_id
+                                                                }
+                                                                notificationObject.Sendnotification(partnerData.fcmid, data, function(err, response) {console.log("Singal", response);})
+                                                                notificationObject.Sendnotification(userData.fcmid, data,  function(err, response) {console.log("Singal", response);})
+                                                            }
+                                                          }
+                                                        } else {
+                                                          res.send({
+                                                            status: 400,
+                                                            message: "Goal is not found"
+                                                          })
+                                                        }
+                                                      }
+                                                    })
+                                                  }
+                                                }
                                               })
                                             }
                                           }
                                         })
-                                      }
                                     }
-                                  })
+                                  }else {
+                                    res.send({
+                                      status: 400,
+                                      message: "Quicky data is not found"
+                                    })
+                                  }
                                 }
-                              }
+                              })
+                            }, timeout1)
+                            res.send({
+                              status: 200,
+                              message: "User intrest save successfully",
+                              fcmid: PartnerData.fcmid,
                             })
+                          }
+                        } else {
+                          if(UpdatedQuicky.partner1_intrest == false) {
+                            res.send({
+                              status:200,
+                              message: "User intrest save successfully",
+                              fcmid: PartnerData.fcmid,
+                            })
+                          } else if(UpdatedQuicky.partner1_intrest == true) {
+                            res.send({
+                              status: 200,
+                              message: "User intrest save successfully",
+                              fcmid: PartnerData.fcmid,
+                            }) 
+                          } else {
+                            let When = customHelper.Get_HoursMinutes(UpdatedQuicky.when);
+                            var now = new Date();
+                            var onTime = new Date(
+                              now.getFullYear(),
+                              now.getMonth(),
+                              now.getDate(),
+                              When.hours, When.minutes, 0
+                            );
+                            let timeout1 = current_datetime.subtract(onTime, now).toMilliseconds();
+                            console.log(timeout1)
+                            setTimeout(() => {
+                              quickyObject.getSingleQuickyRecord(quicky_id, function(err, Quickies) {
+                                if(err) {
+                                  res.send({
+                                    status: 400,
+                                    message: "Something Went Wrong!"
+                                  })
+                                } else {
+                                  if(Quickies) {
+                                    if(Quickies.partner1_intrest == false || Quickies.partner2_intrest == false) {
+                                      res.send({
+                                        status: 200,
+                                        message: "Any one partner is not intrested.",
+                                        fcmid: PartnerData.fcmid,
+                                      })
+                                    } else if(Quickies.partner1_intrest == null && Quickies.partner2_intrest == null) {
+                                      res.send({
+                                        status: 200,
+                                        message: "Any one partner is not choosed option.",
+                                        fcmid: PartnerData.fcmid,
+                                      })
+                                    }
+                                    else {
+                                        userServiceObject.getUserById(user_id, function(err, userData) {
+                                          if(err) {
+                                            res.send({
+                                              status: 400,
+                                              message: "Something Went Wrong!"
+                                            })
+                                          } else {
+                                            if(userData) {
+                                              userServiceObject.getPartnerById(user_id, function(err, partnerData) {
+                                                if(err) {
+                                                  res.send({
+                                                    status: 400,
+                                                    message: "Something Went Wrong!"
+                                                  })
+                                                } else {
+                                                  if(partnerData) {
+                                                    goalServiceObject.getGoalDetails(user_id, partnerData.id, function(err, Goaldata) {
+                                                      if(err) {
+                                                      res.send({
+                                                        status: 404,
+                                                        message: "Something went wrong!"
+                                                      })
+                                                      } else {
+                                                        if(Goaldata) {
+                                                          let acounttime = customHelper.Get_HoursMinutes(Goaldata.hours);
+                                                          let RequsestTime = customHelper.Get_HoursMinutes(Goaldata.intimate_request_time);
+                                                          let hours = RequsestTime.hours + acounttime.hours;
+                                                          let minutes = RequsestTime.minutes + acounttime.minutes;
+                                                            var now = new Date();
+                                                            var final = new Date(
+                                                              now.getFullYear(),
+                                                              now.getMonth(),
+                                                              now.getDate(),
+                                                              hours, minutes, 0  
+                                                            );
+                                                        
+                                                            let  timeout = current_datetime.subtract(final, now).toMilliseconds();
+                                                            
+                                                           console.log(timeout, hours, minutes);
+                                                            let statusCheck = customHelper.check_notification_Mute(userData.notification_mute_start,userData.notification_mute_end);
+                                                            if(statusCheck) {
+                                                            res.send({
+                                                              status: 400,
+                                                              message: "Notificaiton is mute for some time."
+                                                            })
+                                                          } else {
+                                                            console.log(partnerData.fcmid);
+                                                            console.log(userData.fcmid);
+                                                            if(Quickies.partner1_intrest == null || Quickies.partner2_intrest == null) {
+                                                              setTimeout(() => {
+                                                                let data = {
+                                                                  title: "FeedBack for last night",
+                                                                  message: `Did you connect last night?`,
+                                                                  type: "feedback",
+                                                                  quicky_id: quicky_id
+                                                                }
+                                                                notificationObject.Sendnotification(partnerData.fcmid, data, function(err, response) {})
+                                                                notificationObject.Sendnotification(userData.fcmid, data,  function(err, response) {})
+                                                              }, timeout)
+                                                                let data = {
+                                                                  title: "Congratulations on scheduling a connection!",
+                                                                  message: `It’s ${userData.first_name}'s turn to initiate.`,
+                                                                  type: "Inform",
+                                                                  quicky_id: quicky_id
+                                                                }
+                                                                notificationObject.Sendnotification(partnerData.fcmid, data, function(err, response) {console.log("combo", response);})
+                                                                notificationObject.Sendnotification(userData.fcmid, data,  function(err, response) {console.log("combo",response);})
+                                                            } else {
+                                                              setTimeout(() => {
+                                                                let data = {
+                                                                  title: "FeedBack for last night",
+                                                                  message: `Did you connect last night?`,
+                                                                  type: "feedback",
+                                                                  quicky_id: quicky_id
+                                                                }
+                                                                notificationObject.Sendnotification(partnerData.fcmid, data, function(err, response) {})
+                                                                notificationObject.Sendnotification(userData.fcmid, data,  function(err, response) {})
+                                                              }, timeout)
+                                                                let data = {
+                                                                  title: "Congratulations on scheduling a connection!",
+                                                                  message: `It’s ${userData.first_name}'s turn to initiate.`,
+                                                                  type: "Inform",
+                                                                  quicky_id: quicky_id
+                                                                }
+                                                                notificationObject.Sendnotification(partnerData.fcmid, data, function(err, response) {console.log("Singal", response);})
+                                                                notificationObject.Sendnotification(userData.fcmid, data,  function(err, response) {console.log("singal", response);})
+                                                            }
+                                                          }
+                                                        } else {
+                                                          res.send({
+                                                            status: 400,
+                                                            message: "Goal is not found"
+                                                          })
+                                                        }
+                                                      }
+                                                    })
+                                                  }
+                                                }
+                                              })
+                                            }
+                                          }
+                                        })
+                                    }
+                                  }else {
+                                    res.send({
+                                      status: 400,
+                                      message: "Quicky data is not found"
+                                    })
+                                  }
+                                }
+                              })
+                            }, timeout1)
+                            res.send({
+                              status: 200,
+                              message: "User intrest save successfully",
+                              fcmid: PartnerData.fcmid,
+                            })
+                          }
                         }
-                      }else {
+                      } else {
                         res.send({
-                          status: 400,
-                          message: "Quicky data is not found"
+                            status: 200,
+                            message: "User intrest save successfully",
+                            fcmid: PartnerData.fcmid,
                         })
                       }
+                    } else {
+                      res.send({
+                        status: 400,
+                        message: "Partner is not found"
+                      })
                     }
-                  })
-                }, 1000)
-                res.send({
-                  status: 200,
-                  message: "User intrest save successfully"
+                  }
                 })
               } else {
                 res.send({

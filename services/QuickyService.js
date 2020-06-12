@@ -46,6 +46,7 @@ class QuickyService
 				  let RES = await QuickyObject.findOne({where: {id: quickyData.quicky_id}});
 				  callback(null, RES)
 			  }).catch(err => {
+				  console.log(err)
 				  callback(err, null)
 			  })
 	}
@@ -64,6 +65,7 @@ class QuickyService
 				 let RES = await QuickyObject.findOne({where: {id: quickyData.quicky_id}});
 				 callback(null, RES)
 			 }).catch(err => {
+				 console.log(err)
 				 callback(err, null)
 			 })
    }
@@ -103,7 +105,3 @@ class QuickyService
 }
 
 module.exports = QuickyService;
-
-
-
-
