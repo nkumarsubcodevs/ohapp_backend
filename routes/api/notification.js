@@ -417,7 +417,6 @@ router.post('/checkUserIntrest/:id', verifyToken, function(req, res) {
                                               message: "Something Went Wrong!"
                                             })
                                           } else {
-<<<<<<< HEAD
                                             if(userData) {
                                               userServiceObject.getPartnerById(user_id, function(err, partnerData) {
                                                 if(err) {
@@ -509,94 +508,6 @@ router.post('/checkUserIntrest/:id', verifyToken, function(req, res) {
                                                     })
                                                   }
                                                 }
-=======
-                                            if(Goaldata) {
-                                              const [time, modifier] = Goaldata.intimate_account_time.split(' ');
-                                                 let [hours, minutes] = time.split(':');
-                                                 if (hours === '12') {
-                                                 hours = '00';
-                                                 }
-                                                 if (modifier === 'PM') {
-                                                   hours = parseInt(hours, 10) + 12;
-                                                 }
-                                                 var now = new Date();
-                                                 var final = new Date(
-                                                   now.getFullYear(),
-                                                   now.getMonth(),
-                                                   now.getDate() + 1,
-                                                   hours, minutes, 0  
-                                               );
-                                                 let timeout = current_datetime.subtract(final, now).toMilliseconds();
-                                                 const [time1, modifier1] = QuickyResponse.when.split(' ');
-                                                 let [hours1, minutes1] = time1.split(':');
-                                                 if (hours === '12') {
-                                                 hours1 = '00';
-                                                 }
-                                                 if (modifier1 === 'PM') {
-                                                   hours1 = parseInt(hours1, 10) + 12;
-                                                 }
-                                                 var now = new Date();
-                                                 var onTime = new Date(
-                                                   now.getFullYear(),
-                                                   now.getMonth(),
-                                                   now.getDate(),
-                                                   hours1, minutes1, 0
-                                               );
-                                                 let timeout1 = current_datetime.subtract(onTime, now).toMilliseconds();
-                                                 let statusCheck = customHelper.check_notification_Mute(userData.notification_mute_start,userData.notification_mute_end);
-                                                 if(statusCheck) {
-                                                 res.send({
-                                                   status: 400,
-                                                   message: "Notificaiton is mute for some time."
-                                                 })
-                                               } else {
-                                                 if(Quickies.partner1_intrest == true && Quickies.partner2_intrest == null) {
-                                                   setTimeout(() => {
-                                                     let data = {
-                                                       title: "FeedBack for last night",
-                                                       message: `Did you connect last night?`,
-                                                       type: "feedback",
-                                                       quicky_id: quicky_id
-                                                     }
-                                                     notificationObject.Sendnotification(partnerData.fcmid, data, function(err, response) {})
-                                                     notificationObject.Sendnotification(userData.fcmid, data,  function(err, response) {})
-                                                   }, timeout)
-                                                   setTimeout(() => {
-                                                    let data = {
-                                                      title: "Congratulations on scheduling a connection!",
-                                                      message: `It’s ${userData.first_name}'s turn to initiate.`,
-                                                      type: "Inform",
-                                                      quicky_id: quicky_id
-                                                    }
-                                                    notificationObject.Sendnotification(partnerData.fcmid, data, function(err, response) {})
-                                                    notificationObject.Sendnotification(userData.fcmid, data,  function(err, response) {})
-                                                  }, timeout1);
-                                                 } else {
-                                                  setTimeout(() => {
-                                                    let data = {
-                                                      title: "FeedBack for last night",
-                                                      message: `Did you connect last night?`,
-                                                      type: "feedback",
-                                                      quicky_id: quicky_id
-                                                    }
-                                                    notificationObject.Sendnotification(userData.fcmid, data,  function(err, response) {})
-                                                  }, timeout)
-                                                  setTimeout(() => {
-                                                    let data = {
-                                                      title: "Congratulations on scheduling a connection!",
-                                                      message: `It’s ${userData.first_name}'s turn to initiate.`,
-                                                      type: "Inform",
-                                                      quicky_id: quicky_id
-                                                    }
-                                                    notificationObject.Sendnotification(userData.fcmid, data,  function(err, response) {})
-                                                  }, timeout1);
-                                                 }
-                                               }
-                                            } else {
-                                              res.send({
-                                                status: 400,
-                                                message: "Goal is not found"
->>>>>>> 9cf046859cea99950fb2658377a03d81152c5493
                                               })
                                             }
                                           }
