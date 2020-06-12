@@ -798,8 +798,14 @@ router.post('/createmonthlygoal', verifyToken, function(req, res) {
 																				if(day <= 0) {
 																					day = 1
 																				}
+<<<<<<< HEAD
 																				console.log(minutes, hours, day);
 																				schedules = cron.schedule(`${parseInt(minutes)} ${hours} */${day} * *`, () => {
+=======
+ let statusChecks = customHelper.check_notification_Mute(userData.notification_mute_start,userData.notification_mute_end);
+console.log(minutes, hours, day);
+																				cron.schedule(`${parseInt(minutes)} ${hours} */${day} * *`, () => {
+>>>>>>> 9cf046859cea99950fb2658377a03d81152c5493
 																					// cron.schedule(`* * * * *`, (err, ress) => {
 																		            let statusCheck = customHelper.check_notification_Mute(userData.notification_mute_start,userData.notification_mute_end);
 																					if(statusCheck) {
@@ -1248,7 +1254,11 @@ router.post('/updatemonthlygoal/:goal_id', verifyToken, function(req, res) {
 																if(day <= 0) {
 																	day = 1
 																}
+<<<<<<< HEAD
 																schedules = cron.schedule(`${parseInt(minutes)} ${hours} */${day} * *`, () => {
+=======
+																	cron.schedule(`${parseInt(minutes)} ${hours} */${day} * *`, () => {
+>>>>>>> 9cf046859cea99950fb2658377a03d81152c5493
 																	// cron.schedule(`* * * * *`, (err, ress) => {
 																	let statusCheck = customHelper.check_notification_Mute(usersData .notification_mute_start,usersData .notification_mute_end);
 																	if(statusCheck) {
