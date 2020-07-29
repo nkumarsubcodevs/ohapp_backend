@@ -474,7 +474,12 @@ class GoalService
 				},
 			]	
 		}, order: [['create_time', 'DESC']] }, {limit: 2});
-		callback(null, response[1])
+		if(response[0].connect_number === response[0].complete_count){
+			callback(null, response[0])
+		}else{
+			callback(null, response[1])
+
+		}
 	}
 
 	// Add Uniuqe Id for Chat

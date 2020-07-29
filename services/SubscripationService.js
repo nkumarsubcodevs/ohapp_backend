@@ -39,29 +39,48 @@ class subscripationService
 
 	//get single page record
 	async VerifyReceipt(UserData, callback) {
-		if(UserData.device_name == "apple") {
-            iap.config({
-              applePassword: ''
-            });
-            iap.setup(function (error) {
-              if (error) {
-               console.log("Setup", error)
-              }
-              iap.validate(UserData.receipt, function (error, response) {
-                if (error) {
+		iap.config({
+			googlePublicKeyPath: '/home/globalia-15/snap/skype/common/oh-app-e402b-6cb90fac6f17.json'
+		  });
+		  iap.setup(function (error) {
+			if (error) {
+				console.log("errror message",error);
+			  // Don't forget to catch error here
+			}
+			// As of v1.4.0+ .validate and .validateOnce detects service automatically from the receipt
+			iap.validate(UserData.receipt, function (error, response) {
+			  if (error) {
+				console.log("errror message",error);
+				// Failed to validate
+			  }
+			  if (iap.isValidated(response)) {
+				  console.log("successful");
+				// Succuessful validation
+			  }
+			});
+		  });
+		// if(UserData.device_name == "apple") {
+        //     iap.config({
+        //       applePassword: '1891906ec2a247fda3a41747cf8d6866'
+        //     });
+        //     iap.setup(function (error) {
+        //       if (error) {
+        //        console.log("Setup", error)
+        //       }
+        //       iap.validate(UserData.receipt, function (error, response) {
+        //         if (error) {
+        //           console.log("Error", error)
+        //         }
+        //         if (iap.isValidated(response)) {
+        //            console.log("Validated", response)
+        //         }
+        //       });
+        //     });
+        //   } else if(UserData.device_name == "google"){
 
-                  console.log("Error", error.message)
-                }
-                if (iap.isValidated(response)) {
-                   console.log("Validated", response)
-                }
-              });
-            });
-          } else if(UserData.device_name == "goole"){
-
-          } else {
-            console.log('Invalid res', UserData)
-          }
+        //   } else {
+        //     console.log('Invalid res', UserData)
+        //   }
 	}
 
 	//update page details

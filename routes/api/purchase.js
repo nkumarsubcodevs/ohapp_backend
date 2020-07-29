@@ -113,14 +113,14 @@ router.get('/verify', verifyToken, function(req, res) {
     } else {
       if(UserData) {
         if(UserData.receipt) {
-          // SubscripationObject.VerifyReceipt(UserData, function(err, VerifyData) {
-          //   if(err) {
-          //     res.send({
-          //       status: 404,
-          //       message: "something went wrong"
-          //     })
-          //   } else {
-          //     if(VerifyData) {
+          SubscripationObject.VerifyReceipt(UserData, function(err, VerifyData) {
+            if(err) {
+              res.send({
+                status: 404,
+                message: "something went wrong"
+              })
+            } else {
+              if(VerifyData) {
                     let date2 = current_datetime.format(new Date, 'YYYY-MM-DD HH:mm:ss', true);
                     let date1 = new Date(UserData.expiry_time);
                     date2 = new Date(date2);
@@ -139,14 +139,14 @@ router.get('/verify', verifyToken, function(req, res) {
                         } else {
                           if(PatnerData) {
                             if(PatnerData.receipt) {
-                              // SubscripationObject.VerifyReceipt(PatnerData, function(err, VerifyData) {
-                              //   if(err) {
-                              //     res.send({
-                              //       status: 404,
-                              //       message: "something went wrong"
-                              //     })
-                              //   } else {
-                              //     if(VerifyData) {
+                              SubscripationObject.VerifyReceipt(PatnerData, function(err, VerifyData) {
+                                if(err) {
+                                  res.send({
+                                    status: 404,
+                                    message: "something went wrong"
+                                  })
+                                } else {
+                                  if(VerifyData) {
                                         if(PatnerData.expiry_time) {
                                           let date2 = current_datetime.format(new Date, 'YYYY-MM-DD HH:mm:ss', true);
                                           let date1 = new Date(PatnerData.expiry_time);
@@ -168,10 +168,10 @@ router.get('/verify', verifyToken, function(req, res) {
                                             message: "Please Buy subscripation"
                                           })
                                         }
-                              //     } else {
-                              //     }
-                              //   }
-                              // })
+                                  } else {
+                                  }
+                                }
+                              })
                             } else {
                               res.send({
                                 status: 200,
@@ -187,11 +187,11 @@ router.get('/verify', verifyToken, function(req, res) {
                         }
                       })
                     }
-          //     } else {
+              } else {
 
-          //     }
-          //   }
-          // })
+              }
+            }
+          })
         } else {
           userSerObject.getPartnerById(user_id, function(err, PatnerData) {
             if(err) {
@@ -202,14 +202,14 @@ router.get('/verify', verifyToken, function(req, res) {
             } else {
               if(PatnerData) {
                 if(PatnerData.receipt) {
-                  // SubscripationObject.VerifyReceipt(PatnerData, function(err, VerifyData) {
-                  //   if(err) {
-                  //     res.send({
-                  //       status: 404,
-                  //       message: "something went wrong"
-                  //     })
-                  //   } else {
-                  //     if(VerifyData) {
+                  SubscripationObject.VerifyReceipt(PatnerData, function(err, VerifyData) {
+                    if(err) {
+                      res.send({
+                        status: 404,
+                        message: "something went wrong"
+                      })
+                    } else {
+                      if(VerifyData) {
                             if(PatnerData.expiry_time) {
                               let date2 = current_datetime.format(new Date, 'YYYY-MM-DD HH:mm:ss', true);
                               let date1 = new Date(PatnerData.expiry_time);
@@ -231,11 +231,11 @@ router.get('/verify', verifyToken, function(req, res) {
                                 message: "Please Buy subscripation"
                               })
                             }
-                  //     } else {
+                      } else {
 
-                  //     }
-                  //   }
-                  // })
+                      }
+                    }
+                  })
                 } else {
                   res.send({
                     status: 200,

@@ -417,6 +417,27 @@ router.post('/checkuseruniquecode', verifyToken, function(req, res) {
 																} else {
 																	if(response) {
 																		if(response.stage !== 3) {
+																			setTimeout(()=>{
+																				console.log("setTimeOut");
+																				console.log("userStageupdatedata", userStageupdatedata.stage, userStageupdatedata.id);
+																				console.log("response stage", response.stage, response.id);
+																				userSerObject.getUserById(uniqueCodeData.id, function(err, responseData){
+																					if(responseData.stage < 4 ){
+																						userSerObject.getPartnerById(user_id, function(err, userStageupdatedata) {
+																							userSerObject.RemoveParring(user_id, function(err, removeUserData){
+																								if(err){
+																									console.log(err);
+																								}
+																							})
+																								userSerObject.updateUserStage(2, user_id, function(err, updatepatnerStage){
+																									if(err){
+																										console.log(err);
+																									}
+																								})
+																						})
+																					}
+																				})
+																			},30000);
 																			return res.send({
 																				status: 200,
 																				message: 'Please Wait, Your parten is not entered code!',
