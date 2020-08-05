@@ -6,18 +6,17 @@
 */
 
 
-const feedbackObject  = require('../models/feedback');
-const userObject  = require('../models/user');
+const feedbackObject = require('../models/feedback');
+const userObject = require('../models/user');
 const current_datetime = require('date-and-time');
 const db = require('../config/database');
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op
 
-class FeedBackServices
-{
+class FeedBackServices {
 
 	// Save Goal Setting
-	async saveFeedback(userID, feedback, callback){
+	async saveFeedback(userID, feedback, callback) {
 
 		const now = new Date();
 		let settingData = new feedbackObject({
@@ -27,32 +26,31 @@ class FeedBackServices
 			update_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss')
 		});
 
-		callback(null,await settingData.save());
+		callback(null, await settingData.save());
 	}
 
 	// Get Feedback data by Id
 	async getfeedback(user_id, callback) {
-		let response = await feedbackObject.findOne({where: {user_id: user_id}});
+		let response = await feedbackObject.findOne({ where: { user_id: user_id } });
 		callback(null, response);
 	}
 
 	// Update feedback
-	async updatefeedback(user_id,feedback, callback) {
-		let response = await feedbackObject.update({feedback_details: feedback},{where : {user_id: user_id}})
+	async updatefeedback(user_id, feedback, callback) {
+		let response = await feedbackObject.update({ feedback_details: feedback }, { where: { user_id: user_id } })
 		callback(null, response)
 	}
 
 	// Get All feedback data with user data for Admin panel
-	async getfeedbackWithUser(paginationData,callback) {
-		feedbackObject.belongsTo(userObject, {foreignKey: 'user_id'});
+	async getfeedbackWithUser(paginationData, callback) {
+		feedbackObject.belongsTo(userObject, { foreignKey: 'user_id' });
 		await feedbackObject.findAndCountAll({
 			include: [{
-						model: userObject,
-					 }]
+				model: userObject,
+			}]
 		}).then(res => {
 			callback(null, res)
-		}).catch(err => {
-			console.log(err)
+		}).catch(err => {		
 			callback(err.message, null)
 		});
 	}
@@ -62,21 +60,22 @@ class FeedBackServices
 		await feedbackObject.findAndCountAll().then(res => {
 			callback(null, res)
 		}).catch(err => {
-			console.log(err)
 			callback(err.message, null)
 		});
 	}
 
 	// Get Today Feedback data with User data and Count Total no. of feedback for today in Admin Panel
 	async getNewfeedbackWithUser(callback) {
-		feedbackObject.belongsTo(userObject, {foreignKey: 'user_id'});
+		feedbackObject.belongsTo(userObject, { foreignKey: 'user_id' });
 		await feedbackObject.findAndCountAll({
 			include: [{
-						model: userObject,
-					 }],
-					 where : {create_time:  {
-						[Op.gte]: current_datetime.format(new Date(), "YYYY-MM-DD", true)
-					}}
+				model: userObject,
+			}],
+			where: {
+				create_time: {
+					[Op.gte]: current_datetime.format(new Date(), "YYYY-MM-DD", true)
+				}
+			}
 		}).then(res => {
 			callback(null, res)
 		}).catch(err => {
@@ -86,7 +85,7 @@ class FeedBackServices
 
 	// Remove feedback data
 	async RemoveFeedback(user_id, callback) {
-		await feedbackObject.destroy({where: {user_id: user_id}}).then(res => {
+		await feedbackObject.destroy({ where: { user_id: user_id } }).then(res => {
 			callback(null, res);
 		}).catch(err => {
 			callback(err.message, null)

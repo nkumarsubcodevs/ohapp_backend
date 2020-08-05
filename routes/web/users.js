@@ -53,7 +53,7 @@ router.post('/register', function(req, res){
 		password: password
 		});
 		user.save().then(user =>{
-			console.log(user)
+			
 		}).catch(err => {
 				throw err
 			})

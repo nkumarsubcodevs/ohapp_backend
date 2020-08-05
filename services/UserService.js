@@ -358,7 +358,6 @@ class UserService
 
 	// Update stage value for Both partner
 	async updateBothPartnerStage(updatedData, callback){
-
 		// await userObject.update({ stage: updatedData.stage }, { where: { id: updatedData.user_id}});
 		// const response = await userObject.findOne({ where: { id: id } });
 		// if(response.stage == stage) {
@@ -418,7 +417,7 @@ class UserService
 				callback(err.message, null)
 			})
 	}
-	// add unavailability
+	// add unavailabilityddd
 	async addUnavailability(userData, callback){
 
 		const now = new Date();

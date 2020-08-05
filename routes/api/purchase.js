@@ -14,6 +14,7 @@ var iap = require('in-app-purchase');
 
 // verifytoken middleware
 const verifyToken = require('./verifytoken');
+const helmet = require('helmet');
 
 // Create route object
 let router =  express.Router();
@@ -69,11 +70,27 @@ router.post('/', verifyToken, function(req, res) {
                   })
                 } else {
                   if(UpdateData) {
-                    res.send({
-                      status: 200,
-                      message: "Plan save successfully",
-                      result: responseData
-                    })
+                    const bothPartnerId = {
+                      stage: 5,
+                      user_id: partnerMappingData. partner_one_id,
+                      partner_id: partnerMappingData. partner_two_id,
+                    }
+                    userSerObject.updateBothPartnerStage(bothPartnerId, function(err, updatedData){
+                      if(err){
+                        res.send({
+                          status: 400,
+                          message: "Something went wrong"
+                        });
+                      }else{
+                        if(updatedData){
+                          res.send({
+                            status: 200,
+                            message: "Plan save successfully",
+                            result: responseData
+                          })
+                        }
+                      }
+                    });
                   } else {
                     res.send({
                       status: 504,
@@ -115,6 +132,7 @@ router.get('/verify', verifyToken, function(req, res) {
         if(UserData.receipt) {
           SubscripationObject.VerifyReceipt(UserData, function(err, VerifyData) {
             if(err) {
+              console.log(err)
               res.send({
                 status: 404,
                 message: "something went wrong"
@@ -127,7 +145,8 @@ router.get('/verify', verifyToken, function(req, res) {
                     if(date2.getTime() < date1.getTime()) {
                       res.send({
                         status: 200,
-                        message: "Your Plan is Active!"
+                        message: "Your Plan is Active!",
+                        result: VerifyData
                       })
                     } else {
                       userSerObject.getPartnerById(user_id, function(err, PatnerData) {
@@ -147,19 +166,19 @@ router.get('/verify', verifyToken, function(req, res) {
                                   })
                                 } else {
                                   if(VerifyData) {
-                                        if(PatnerData.expiry_time) {
-                                          let date2 = current_datetime.format(new Date, 'YYYY-MM-DD HH:mm:ss', true);
-                                          let date1 = new Date(PatnerData.expiry_time);
-                                          date2 = new Date(date2);
-                                          if(date2.getTime() < date1.getTime()) {
+                                        if(VerifyData.data.expire_at) {
+                                          let currentDate = current_datetime.format(new Date, 'YYYY-MM-DD HH:mm:ss', true);
+                                          let expiryDate = new Date(VerifyData.expiryTimeMillis);
+                                          currentDate = new Date(currentDate);
+                                          if(currentDate.getTime() < expiryDate.getTime()) {
                                             res.send({
                                               status: 200,
-                                              message: "You and Your Patner Plan are Active!"
+                                              message: "You and Your Patner's plan are Active!"
                                             })
                                           } else {
                                             res.send({
                                               status: 200,
-                                              message: "You and Your Patner Plan are expired!"
+                                              message: "You and Your Patner's plan are expired!"
                                             })
                                           }
                                         } else {

@@ -104,6 +104,7 @@ class GoalService
 	// get setting question by id
 	async getGoalSettingsQuestionById(id, callback) {
 		const response = await goalSettingsObject.findOne({ where: { id: id } });
+		
 		callback(null, response);
 	}
 
@@ -115,7 +116,6 @@ class GoalService
 
 	// update setting answer quetion
 	async updatesetting(updatedData, callback) {
-
 		const now = new Date();
 		await goalSettingAnswerObject.update({
 			goal_id: updatedData.goal_id,
@@ -152,7 +152,6 @@ class GoalService
 	async createPartnerMapping(partnerData, callback){
 
 		const now = new Date();
-		
 		let monthlyGoalData = new partnerMappingObject({
 			partner_one_id: partnerData.partner_one_id,
 			partner_two_id: partnerData.partner_two_id,

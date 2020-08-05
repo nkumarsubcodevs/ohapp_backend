@@ -16,7 +16,6 @@ class InfoMessages
 		await infoObject.findOne({ where: { title: title,  status:1 } }).then(res => {
 			callback(null, res);
 		}).catch(err => {
-			console.log(err)
 			callback(err.message, null);
 		})
 	}
@@ -36,7 +35,6 @@ class InfoMessages
 		await data.save().then(res => {
 			callback(null, res)
 		}).catch(err => {
-			console.log(err)
 			callback(err.message, null);
 		})
 	}
@@ -46,7 +44,6 @@ class InfoMessages
 		await infoObject.findAndCountAll({offset: paginationData.offset, limit: paginationData.limit}).then(res => {
 			callback(null, res);
 		}).catch(err => {
-			console.log(err)
 			callback(err.message, null);
 		})
 	}
@@ -56,7 +53,6 @@ class InfoMessages
 		await infoObject.findAll().then(res => {
 			callback(null, res);
 		}).catch(err => {
-			console.log(err)
 			callback(err.message, null);
 		})
 	}

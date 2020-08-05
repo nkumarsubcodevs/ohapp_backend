@@ -163,7 +163,7 @@ router.post('/savegoalsettings', verifyToken, function(req, res) {
 	// 	});
 	// }
 	if(skip) {
-		userSerObject.updateUserStage(7, user_id, function(err, updatedStage) {
+		userSerObject.updateUserStage(8, user_id, function(err, updatedStage) {
 			if(updatedStage) {
 				userSerObject.getPartnerById(user_id, function(err, patnerData) {
 					if(err) {
@@ -202,7 +202,8 @@ router.post('/savegoalsettings', verifyToken, function(req, res) {
 				}
 				else
 				{
-					if(goalQuestionData) 
+				
+					if(goalQuestionData)
 					{
 						let goalSettingData = {
 							'question_id': response.question_id,
@@ -221,7 +222,7 @@ router.post('/savegoalsettings', verifyToken, function(req, res) {
 							}
 							else
 							{
-								userSerObject.updateUserStage(7, user_id, function(err, updatedStage) {
+								userSerObject.updateUserStage(8, user_id, function(err, updatedStage) {
 									if(updatedStage) {
 										userSerObject.getPartnerById(user_id, function(err, patnerData) {
 											if(err) {
@@ -418,9 +419,7 @@ router.post('/checkuseruniquecode', verifyToken, function(req, res) {
 																	if(response) {
 																		if(response.stage !== 3) {
 																			setTimeout(()=>{
-																				console.log("setTimeOut");
-																				console.log("userStageupdatedata", userStageupdatedata.stage, userStageupdatedata.id);
-																				console.log("response stage", response.stage, response.id);
+																		
 																				userSerObject.getUserById(uniqueCodeData.id, function(err, responseData){
 																					if(responseData.stage < 4 ){
 																						userSerObject.getPartnerById(user_id, function(err, userStageupdatedata) {
@@ -702,7 +701,7 @@ router.post('/createmonthlygoal', verifyToken, function(req, res) {
 						});
 					} else {
 						if(partenerData) {
-							if(partenerData.stage === 5) {
+							if(partenerData.stage === 6) {
 								res.send({
 									status: 400,
 									message: 'Please Wait! The goal setup is already in progress by your partner.',
@@ -774,7 +773,7 @@ router.post('/createmonthlygoal', verifyToken, function(req, res) {
 											let updateStage = {
 												user_id: user_id,
 												partner_id: parter_id,
-												stage: 6
+												stage: 7
 											}
 											userSerObject.updateBothPartnerStage(updateStage ,function(err, updatedStage) {
 												if(updatedStage) {
@@ -964,14 +963,14 @@ router.post('/CheckingStage', verifyToken, function(req, res) {
 									});
 								} else {
 									if(partenerData) {
-										if(partenerData.stage === 5 && userDetails.stage === 4) {
+										if(partenerData.stage === 6 && userDetails.stage === 5) {
 											res.send({
 												status: 400,
 												message: 'Please Wait, Your partner is already setting goal',
 											});
 										} else {
-											if(partenerData.stage === 4 && userDetails.stage === 4) {
-												userSerObject.updateUserStage(5, user_id, function(err, updatestageData) {
+											if(partenerData.stage === 5 && userDetails.stage === 5) {
+												userSerObject.updateUserStage(6, user_id, function(err, updatestageData) {
 													if(updatestageData) {
 														res.send({
 															status: 200,
@@ -987,7 +986,7 @@ router.post('/CheckingStage', verifyToken, function(req, res) {
 													}
 												}) 
 											}
-											if(partenerData.stage === 6 && userDetails.stage === 4) {
+											if(partenerData.stage === 7 && userDetails.stage === 5) {
 												res.send({
 													status: 200,
 													message: 'Goal already created',
@@ -995,7 +994,7 @@ router.post('/CheckingStage', verifyToken, function(req, res) {
 													partner_stage: partenerData.stage
 												})
 											}
-											if(partenerData.stage === 7 && userDetails.stage === 4) {
+											if(partenerData.stage === 8 && userDetails.stage === 5) {
 												res.send({
 													status: 200,
 													message: 'Questionaries Saved',
@@ -1003,8 +1002,8 @@ router.post('/CheckingStage', verifyToken, function(req, res) {
 													partner_stage: partenerData.stage
 												})
 											}
-											if(partenerData.stage <= 7 && userDetails.stage === 7) {
-												userSerObject.updateUserStage(8, user_id, function(err, updatestageData) {
+											if(partenerData.stage <= 8 && userDetails.stage === 8) {
+												userSerObject.updateUserStage(9, user_id, function(err, updatestageData) {
 													if(updatestageData) {
 														res.send({
 															status: 200,
@@ -1020,14 +1019,14 @@ router.post('/CheckingStage', verifyToken, function(req, res) {
 													}
 												})
 											}
-											if(partenerData.stage < 4) {
+											if(partenerData.stage < 5) {
 												res.send({
 													status:400,
 													messgae: "Paring is not save successfully",
 													userStage: userDetails.stage
 												})
 											}
-											if(userDetails.stage > 4) {
+											if(userDetails.stage > 5) {
 												res.send({
 													status:200,
 													message: "User stage already updated",
@@ -1035,10 +1034,10 @@ router.post('/CheckingStage', verifyToken, function(req, res) {
 													partner_stage:partenerData.stage
 												})
 											}
-											if(partenerData.stage === 4 && userDetails.stage < 4) {
-												userSerObject.updateUserStage(4, userDetails.id, function(err, updatestageData) {
+											if(partenerData.stage === 5 && userDetails.stage < 5) {
+												userSerObject.updateUserStage(5, userDetails.id, function(err, updatestageData) {
 													if(updatestageData) {
-														userSerObject.updateUserStage(5, user_id, function(err, updatestageData) {
+														userSerObject.updateUserStage(6, user_id, function(err, updatestageData) {
 															if(updatestageData) {
 																res.send({
 																	status: 200,
