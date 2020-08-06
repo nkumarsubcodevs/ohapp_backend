@@ -332,7 +332,7 @@ class GoalService
 		const response = await monthlyGoalObject.findAll({ 
 			where: { user_id: user_id, status: 0 }
 		});
-		
+
 		await Promise.all(response.map(async (element) => {
 
 			monthlyGoalObject.belongsTo(userObject, {foreignKey: 'user_id'});
@@ -479,7 +479,6 @@ class GoalService
 			callback(null, response[0])
 		}else{
 			callback(null, response[1])
-
 		}
 	}
 
@@ -522,6 +521,5 @@ class GoalService
 		return result;
 	}
 }
-
 
 module.exports = GoalService;

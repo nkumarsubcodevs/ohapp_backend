@@ -202,7 +202,6 @@ router.post('/savegoalsettings', verifyToken, function(req, res) {
 				}
 				else
 				{
-				
 					if(goalQuestionData)
 					{
 						let goalSettingData = {
@@ -419,7 +418,6 @@ router.post('/checkuseruniquecode', verifyToken, function(req, res) {
 																	if(response) {
 																		if(response.stage !== 3) {
 																			setTimeout(()=>{
-																		
 																				userSerObject.getUserById(uniqueCodeData.id, function(err, responseData){
 																					if(responseData.stage < 4 ){
 																						userSerObject.getPartnerById(user_id, function(err, userStageupdatedata) {
@@ -436,7 +434,7 @@ router.post('/checkuseruniquecode', verifyToken, function(req, res) {
 																						})
 																					}
 																				})
-																			},30000);
+																			},108000);
 																			return res.send({
 																				status: 200,
 																				message: 'Please Wait, Your parten is not entered code!',
@@ -1623,6 +1621,7 @@ router.post('/saveQuestionaries', verifyToken, function(req, res) {
 		}
 	})
 })
+
 router.get('/CheckQuetionariesFlag', verifyToken, function(req, res) {
 	let user_id  = jwt.decode(req.headers['x-access-token']).id;
 	if(!user_id) {

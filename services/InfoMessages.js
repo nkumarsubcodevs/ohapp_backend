@@ -90,9 +90,4 @@ class InfoMessages
 	}
 }
 
-
 module.exports = InfoMessages;
-
-
-
-
