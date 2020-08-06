@@ -126,7 +126,7 @@ class UserService
 							username: newUser.first_name,
 							user_email: newUser.email,
 							user_password: user_password,
-							site_logo: config.site_logo,
+							site_logo: config.signUp_Template_Image,
 						};
 						var htmlToSend = template(replacements);
 			
@@ -577,7 +577,3 @@ class UserService
 }
 
 module.exports = UserService;
-
-
-
-

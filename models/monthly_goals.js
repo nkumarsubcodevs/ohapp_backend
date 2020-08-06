@@ -54,10 +54,10 @@ const MonthlyGoal = database.define('monthly_goals',
 		type: Sequelize.STRING(50),
 		allowNull: true,
 	},
-	// percentage: {
-	// 	type: Sequelize.STRING(50),
-	// 	allowNull: true,
-	// },
+	hours: {
+		type: Sequelize.STRING(200),
+		allowNull: true,
+	},
 	contribution1: {
 		type: Sequelize.BIGINT,
 		allowNull: false,

@@ -37,7 +37,7 @@ var notificationObject = new NotificationService();
 
 // Create Quicky model
 var quickynObject = new quickyService();
-
+let schedules;
 // Get user setting detail
 router.get('/getgoalsettings', verifyToken, function(req, res, next) {
 
@@ -606,7 +606,7 @@ router.post('/createmonthlygoal', verifyToken, function(req, res) {
 	let intimate_time = req.body.intimate_time;
 	let initiator_count = req.body.initiator_count;
 	let initiator_count1 = req.body.initiator_count1;
-
+	let hours = req.body.hours;
 
 	if(!user_id) 
 	{
@@ -757,6 +757,7 @@ router.post('/createmonthlygoal', verifyToken, function(req, res) {
 										'partner_id': parter_id,
 										// 'partner_percentage': partner_percentage,
 										'partner_initiator_count': initiator_count,
+										'hours': hours
 									};
 									goalSerObject.createMonthlyGoal(monthlyGoalData, function(err, monthlyGoalDataSaved)
 									{
@@ -817,9 +818,8 @@ router.post('/createmonthlygoal', verifyToken, function(req, res) {
 																				if(day <= 0) {
 																					day = 1
 																				}
- let statusChecks = customHelper.check_notification_Mute(userData.notification_mute_start,userData.notification_mute_end);
-console.log(minutes, hours, day);
-																				cron.schedule(`${parseInt(minutes)} ${hours} */${day} * *`, () => {
+																				console.log(minutes, hours, day);
+																				schedules = cron.schedule(`${parseInt(minutes)} ${hours} */${day} * *`, () => {
 																					// cron.schedule(`* * * * *`, (err, ress) => {
 																		            let statusCheck = customHelper.check_notification_Mute(userData.notification_mute_start,userData.notification_mute_end);
 																					if(statusCheck) {
@@ -837,9 +837,10 @@ console.log(minutes, hours, day);
 																							} else {
 																								if(monthlyGoal_data) {
 																									var date = new Date();
-																									var lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
-																									var current_date = date.getDate();
-																									let remaing = lastDay - current_date;
+																									var Startdate = new Date(monthlyGoal_data.month_start).getTime();
+																									var lastDay = new Date(monthlyGoal_data.month_end).getTime();
+																									var current_date = lastDay - Startdate;
+																									let remaing =  current_date / (1000 * 3600 * 24);
 																									let PR;
 																									if (monthlyGoal_data.complete_count == 0) {
 																										PR = 0;
@@ -847,7 +848,7 @@ console.log(minutes, hours, day);
 																										PR = (monthlyGoal_data.complete_count / monthlyGoal_data.connect_number) * 100;
 																									}
 																									let Notificationmessage = {
-																										PR: PR,
+																										PR: PR.toFixed(2),
 																										remaing_days: remaing,
 																									}
 																									notificationObject.notification(userData.fcmid, Notificationmessage, function(err, response) {
@@ -1098,6 +1099,7 @@ router.post('/updatemonthlygoal/:goal_id', verifyToken, function(req, res) {
 	let intimate_time = req.body.intimate_time;
 	let initiator_count = req.body.initiator_count;
 	let initiator_count1 = req.body.initiator_count1;
+	let hours = req.body.hours;
 	if(!goal_id) 
 	{
 		return res.send({
@@ -1220,6 +1222,7 @@ router.post('/updatemonthlygoal/:goal_id', verifyToken, function(req, res) {
 									'intimate_account_time': intimate_account_time,
 									'id': goal_id,
 									'partner_initiator_count': initiator_count,
+									'hours': hours
 								};
 								goalSerObject.updateMonthlyGoal(monthlyGoalData, function(err, monthlyGoalDataSaved)
 								{
@@ -1233,6 +1236,7 @@ router.post('/updatemonthlygoal/:goal_id', verifyToken, function(req, res) {
 									else
 									{
 									if(monthlyGoalDataSaved) {
+										schedules.stop();
 										userSerObject.getUserById(partnerResponse.id, function(err, GetpatnerData) {
 											if(err) {
 												res.send({
@@ -1264,7 +1268,7 @@ router.post('/updatemonthlygoal/:goal_id', verifyToken, function(req, res) {
 																if(day <= 0) {
 																	day = 1
 																}
-																	cron.schedule(`${parseInt(minutes)} ${hours} */${day} * *`, () => {
+																schedules = cron.schedule(`${parseInt(minutes)} ${hours} */${day} * *`, () => {
 																	// cron.schedule(`* * * * *`, (err, ress) => {
 																	let statusCheck = customHelper.check_notification_Mute(usersData .notification_mute_start,usersData .notification_mute_end);
 																	if(statusCheck) {
@@ -1281,10 +1285,10 @@ router.post('/updatemonthlygoal/:goal_id', verifyToken, function(req, res) {
 																				})
 																			} else {
 																				if(monthlyGoal_data) {
-																					var date = new Date();
-																					var lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
-																					var current_date = date.getDate();
-																					let remaing = lastDay - current_date;
+																					var Startdate = new Date(monthlyGoal_data.month_start).getTime();
+																									var lastDay = new Date(monthlyGoal_data.month_end).getTime();
+																									var current_date = lastDay - Startdate;
+																									let remaing =  current_date / (1000 * 3600 * 24);
 																					let PR;
 																					if (monthlyGoal_data.complete_count == 0) {
 																						PR = 0;
@@ -1292,7 +1296,7 @@ router.post('/updatemonthlygoal/:goal_id', verifyToken, function(req, res) {
 																						PR = (monthlyGoal_data.complete_count / monthlyGoal_data.connect_number) * 100;
 																					}
 																					let Notificationmessage = {
-																						PR: PR,
+																						PR: PR.toFixed(2),
 																						remaing_days: remaing,
 																					}
 																					notificationObject.notification(usersData .fcmid, Notificationmessage, function(err, response) {
@@ -1977,7 +1981,7 @@ router.put('/updateCompletedGoal/:id', verifyToken, function(req,res) {
 																		}, 21600000);
 																		res.send({
 																			status: 200,
-																			message: "Update Quicky successfully"
+																			message: "Update successfully"
 																		})
 																	}
 																}

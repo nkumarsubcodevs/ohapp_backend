@@ -1,7 +1,7 @@
 /** 
-  * @desc this file will contains the routes for feedback api
+  * @desc this file will contains the routes for Quicky api
   * @author Navneet Kumar navneet.kumar@subcodevs.com
-  * @file feedback.js
+  * @file Quicky.js
 */
 
 const express = require('express');
@@ -247,7 +247,7 @@ router.put('/updateQuicky/:id', verifyToken, function(req, res) {
                                               now.getFullYear(),
                                               now.getMonth(),
                                               now.getDate(),
-                                              hours, minutes-15, 0
+                                              hours, minutes - 15, 0
                                           );
                                           var final = new Date(
                                             now.getFullYear(),

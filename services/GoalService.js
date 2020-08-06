@@ -242,6 +242,7 @@ class GoalService
 			contribution1:0,
 			contribution2:0,
 			status: 1,
+			hours: monthlyGoalData.hours,
 			create_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss'),
 			update_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss')
 		})
@@ -282,6 +283,7 @@ class GoalService
 			complete_count     : 0,
 			complete_percentage: 0,
 			status: 1,
+			hours: monthlyGoalData.hours,
 			update_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss')
 		},
 		{ where: { id:monthlyGoalData.id}}).then(async res => {

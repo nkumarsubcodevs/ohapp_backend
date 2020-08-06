@@ -100,6 +100,36 @@ var customHelper = {
 		} else {
 			return false; 
 		}
+	},
+	Get_HoursMinute(Time){
+		const [time, modifier] = Time.split(' ');
+		let [hours, minutes] = time.split('.');
+		if (hours === '12') {
+		hours = '00';
+		}
+		if (modifier === 'PM') {
+		hours = parseInt(hours, 10) + 12;
+		}
+		let data = {
+			hours: parseInt(hours),
+			minutes: parseInt(minutes)
+		}
+		return data
+	},
+	Get_HoursMinutes(Time){
+		const [time, modifier] = Time.split(' ');
+		let [hours, minutes] = time.split(':');
+		if (hours === '12') {
+		hours = '00';
+		}
+		if (modifier === 'PM') {
+		hours = parseInt(hours, 10) + 12;
+		}
+		let data = {
+			hours: parseInt(hours),
+			minutes: parseInt(minutes)
+		}
+		return data
 	}
 };
 
