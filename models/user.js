@@ -80,6 +80,11 @@ const User = database.define('users',
 		allowNull: true,
 		default: 1
 	},
+	paymentStage: {
+		type: Sequelize.INTEGER,
+		allowNull: true,
+		default: 1
+	},
 	expiry_time: {
 		type: Sequelize.DATE,
 		allowNull: true,

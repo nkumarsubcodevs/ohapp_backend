@@ -10,6 +10,8 @@ const NotificationService = require('../../services/NotificationService');
 const UserService = require('../../services/UserService');
 const completionService = require('../../services/CompletionService');
 const quickyService = require('../../services/QuickyService');
+const subscripationService = require('../../services/SubscripationService');
+
 const customHelper = require('../../helpers/custom_helper');
 const formValidator = require('validator');
 const current_datetime = require('date-and-time');
@@ -34,6 +36,8 @@ var userSerObject = new UserService();
 var completionSerObject = new completionService();
 
 var notificationObject = new NotificationService();
+
+var SubscripationObject = new subscripationService();
 
 // Create Quicky model
 var quickynObject = new quickyService();
@@ -163,7 +167,7 @@ router.post('/savegoalsettings', verifyToken, function(req, res) {
 	// 	});
 	// }
 	if(skip) {
-		userSerObject.updateUserStage(8, user_id, function(err, updatedStage) {
+		userSerObject.updateUserStage(9, user_id, function(err, updatedStage) {
 			if(updatedStage) {
 				userSerObject.getPartnerById(user_id, function(err, patnerData) {
 					if(err) {
@@ -221,7 +225,7 @@ router.post('/savegoalsettings', verifyToken, function(req, res) {
 							}
 							else
 							{
-								userSerObject.updateUserStage(8, user_id, function(err, updatedStage) {
+								userSerObject.updateUserStage(9, user_id, function(err, updatedStage) {
 									if(updatedStage) {
 										userSerObject.getPartnerById(user_id, function(err, patnerData) {
 											if(err) {
@@ -366,7 +370,8 @@ router.post('/checkuseruniquecode', verifyToken, function(req, res) {
 													if(response.stage !== 3) {
 														return res.send({
 															status: 200,
-															message: 'Please Wait, Your parten is not entered code!'
+															message: 'Please Wait, Your parten is not entered code!',
+															paring: 0
 														})
 													}
 													if(response.stage === 3) {
@@ -376,7 +381,7 @@ router.post('/checkuseruniquecode', verifyToken, function(req, res) {
 																	return res.send({
 																		status: 400,
 																		message: 'These users are already linked.',
-																		stage: userStageupdatedata.stage
+																		stage: userStageupdatedata.stage,
 																	})
 																}
 															});
@@ -417,28 +422,29 @@ router.post('/checkuseruniquecode', verifyToken, function(req, res) {
 																} else {
 																	if(response) {
 																		if(response.stage !== 3) {
-																			setTimeout(()=>{
-																				userSerObject.getUserById(uniqueCodeData.id, function(err, responseData){
-																					if(responseData.stage < 4 ){
-																						userSerObject.getPartnerById(user_id, function(err, userStageupdatedata) {
-																							userSerObject.RemoveParring(user_id, function(err, removeUserData){
-																								if(err){
-																									console.log(err);
-																								}
-																							})
-																								userSerObject.updateUserStage(2, user_id, function(err, updatepatnerStage){
-																									if(err){
-																										console.log(err);
-																									}
-																								})
-																						})
-																					}
-																				})
-																			},108000);
+																			// setTimeout(()=>{
+																			// 	userSerObject.getUserById(uniqueCodeData.id, function(err, responseData){
+																			// 		if(responseData.stage < 4 ){
+																			// 			userSerObject.getPartnerById(user_id, function(err, userStageupdatedata) {
+																			// 				userSerObject.RemoveParring(user_id, function(err, removeUserData){
+																			// 					if(err){
+																			// 						console.log(err);
+																			// 					}
+																			// 				})
+																			// 				userSerObject.updateUserStage(2, user_id, function(err, updatepatnerStage){
+																			// 					if(err){
+																			// 						console.log(err);
+																			// 					}
+																			// 				})
+																			// 			})
+																			// 		}
+																			// 	})	
+																			// },108000);
 																			return res.send({
 																				status: 200,
 																				message: 'Please Wait, Your parten is not entered code!',
-																				FCMID: uniqueCodeData.fcmid
+																				FCMID: uniqueCodeData.fcmid,
+																				paring: 0
 																			})
 																		}
 																		if(response.stage === 3) {
@@ -453,7 +459,8 @@ router.post('/checkuseruniquecode', verifyToken, function(req, res) {
 																												status: 200,
 																												message: 'Paring sucessfully',
 																												stage: userStageupdatedata.stage,
-																												FCMID: uniqueCodeData.fcmid
+																												FCMID: uniqueCodeData.fcmid,
+																												paring: 1
 																											})
 																								}
 																							})
@@ -497,6 +504,7 @@ router.post('/checkuseruniquecode', verifyToken, function(req, res) {
 							return res.send({
 								status: 400,
 								message: "Your Partner's code does not match",
+								paring: 2
 							});
 						}
 					}
@@ -699,7 +707,7 @@ router.post('/createmonthlygoal', verifyToken, function(req, res) {
 						});
 					} else {
 						if(partenerData) {
-							if(partenerData.stage === 6) {
+							if(partenerData.stage === 7) {
 								res.send({
 									status: 400,
 									message: 'Please Wait! The goal setup is already in progress by your partner.',
@@ -772,7 +780,7 @@ router.post('/createmonthlygoal', verifyToken, function(req, res) {
 											let updateStage = {
 												user_id: user_id,
 												partner_id: parter_id,
-												stage: 7
+												stage: 8
 											}
 											userSerObject.updateBothPartnerStage(updateStage ,function(err, updatedStage) {
 												if(updatedStage) {
@@ -816,7 +824,6 @@ router.post('/createmonthlygoal', verifyToken, function(req, res) {
 																				if(day <= 0) {
 																					day = 1
 																				}
-																				console.log(minutes, hours, day);
 																				schedules = cron.schedule(`${parseInt(minutes)} ${hours} */${day} * *`, () => {
 																					// cron.schedule(`* * * * *`, (err, ress) => {
 																		            let statusCheck = customHelper.check_notification_Mute(userData.notification_mute_start,userData.notification_mute_end);
@@ -962,47 +969,173 @@ router.post('/CheckingStage', verifyToken, function(req, res) {
 									});
 								} else {
 									if(partenerData) {
-										if(partenerData.stage === 6 && userDetails.stage === 5) {
-											res.send({
-												status: 400,
-												message: 'Please Wait, Your partner is already setting goal',
-											});
-										} else {
-											if(partenerData.stage === 5 && userDetails.stage === 5) {
-												userSerObject.updateUserStage(6, user_id, function(err, updatestageData) {
-													if(updatestageData) {
-														res.send({
-															status: 200,
-															message: 'Sucessfully enter goal page',
-															userStage: updatestageData.stage,
-															partner_stage: partenerData.stage
-														})
+										if(partenerData.stage === 4 && userDetails.stage === 4 ){
+											if(userDetails.receipt || partenerData.receipt) {
+												let PatnerData = userDetails.receipt ? userDetails : partenerData;
+												SubscripationObject.VerifyReceipt(PatnerData, function(err, VerifyData) {
+													if(err) {
+													  res.send({
+														status: 404,
+														message: "something went wrong"
+													  })
 													} else {
-														res.send({
-															status: 400,
-															message: 'Something Went wrong',
-														})
+													  if(VerifyData) {
+															if(VerifyData.data.expire_at) {
+																let currentDate = current_datetime.format(new Date, 'YYYY-MM-DD HH:mm:ss', true);
+																let expiryDate = current_datetime.format(new Date(parseInt(VerifyData.data.expire_at)), 'YYYY-MM-DD HH:mm:ss', true);
+																currentDate = new Date(currentDate);
+																expiryDate = new Date(expiryDate);
+																if(currentDate.getTime() < expiryDate.getTime()) {
+																	userSerObject.updateUserStage(7, user_id, function(err, updatestageData) {
+																		if(updatestageData) {
+																			res.send({
+																				status: 200,
+																				message: "You and Your Patner's plan is active! and Sucessfully enter Goal page",
+																				userStage: updatestageData.stage,
+																				partner_stage: partenerData.stage
+																			})
+																		} else {
+																			res.send({
+																				status: 400,
+																				message: 'Something Went wrong',
+																			})
+																		}
+																	});
+															    } else {
+																	if(partenerData.receipt) {
+																		SubscripationObject.VerifyReceipt(PatnerData, function(err, VerifyData) {
+																			if(err) {
+																			  res.send({
+																				status: 404,
+																				message: "something went wrong"
+																			  })
+																			} else {
+																			  if(VerifyData) {
+																					if(VerifyData.data.expire_at) {
+																						let currentDate = current_datetime.format(new Date, 'YYYY-MM-DD HH:mm:ss', true);
+																						let expiryDate = current_datetime.format(new Date(parseInt(VerifyData.data.expire_at)), 'YYYY-MM-DD HH:mm:ss', true);
+																						currentDate = new Date(currentDate);
+																						expiryDate = new Date(expiryDate);
+																						if(currentDate.getTime() < expiryDate.getTime()) {
+																							userSerObject.updateUserStage(7, user_id, function(err, updatestageData) {
+																								if(updatestageData) {
+																									res.send({
+																										status: 200,
+																										message: "You and Your Patner's plan is active! and Sucessfully enter Goal page",
+																										userStage: updatestageData.stage,
+																										partner_stage: partenerData.stage
+																									})
+																								} else {
+																									res.send({
+																										status: 400,
+																										message: 'Something Went wrong',
+																									})
+																								}
+																							});
+																						} else {
+																							userSerObject.getPartnerById(user_id, function(err, userPartnerData) {
+																								if(err) {
+																									res.send({
+																										status: 404,
+																										message: "Something went wrong!"
+																									})
+																								} else {
+																									if(userPartnerData) {
+																										if(userPartnerData.stage == 5) {
+																											res.send({
+																												status: 400,
+																												message: 'Please Wait, Your partner is doing payment',
+																											});
+																										} else {
+																											userSerObject.updateUserStage(5, user_id, function(err, updatestageData) {
+																												if(updatestageData) {
+																													res.send({
+																														status: 200,
+																														message: "You and Your Patner's plan are expired! and Sucessfully enter payment page",
+																														userStage: updatestageData.stage,
+																														partner_stage: partenerData.stage
+																													})
+																												} else {
+																													res.send({
+																														status: 400,
+																														message: 'Something Went wrong',
+																													})
+																												}
+																											})
+																										}
+																									} else {
+																										res.send({
+																											status: 404,
+																											message: "Partner is not found!"
+																										})
+																									}
+																								}
+																							})
+																						// res.send({
+																						//   status: 200,
+																						//   message: "You and Your Patner's plan are expired!"
+																						// })
+																					  }
+																					} else {
+																					  res.send({
+																						status: 200,
+																						message: "Please Buy subscripation"
+																					  })
+																					}
+																			  } else {
+																			  }
+																			}
+																		})
+																	} else {
+																		userSerObject.updateUserStage(5, user_id, function(err, updatestageData) {
+																			if(updatestageData) {
+																				res.send({
+																					status: 200,
+																					message: "You and Your Patner's plan are expired! and Sucessfully enter payment page",
+																					userStage: updatestageData.stage,
+																					partner_stage: partenerData.stage
+																				})
+																			} else {
+																				res.send({
+																					status: 400,
+																					message: 'Something Went wrong',
+																				})
+																			}
+																		})
+																	}
+																	////
+																	// userSerObject.updateUserStage(5, user_id, function(err, updatestageData) {
+																	// 	if(updatestageData) {
+																	// 		res.send({
+																	// 			status: 200,
+																	// 			message: "You and Your Patner's plan are expired! and Sucessfully enter payment page",
+																	// 			userStage: updatestageData.stage,
+																	// 			partner_stage: partenerData.stage
+																	// 		})
+																	// 	} else {
+																	// 		res.send({
+																	// 			status: 400,
+																	// 			message: 'Something Went wrong',
+																	// 		})
+																	// 	}
+																	// })
+																// res.send({
+																//   status: 200,
+																//   message: "You and Your Patner's plan are expired!"
+																// })
+															  }
+															} else {
+															  res.send({
+																status: 200,
+																message: "Please Buy subscripation"
+															  })
+															}
+													  } else {
+													  }
 													}
-												}) 
-											}
-											if(partenerData.stage === 7 && userDetails.stage === 5) {
-												res.send({
-													status: 200,
-													message: 'Goal already created',
-													userStage: userDetails.stage,
-													partner_stage: partenerData.stage
 												})
-											}
-											if(partenerData.stage === 8 && userDetails.stage === 5) {
-												res.send({
-													status: 200,
-													message: 'Questionaries Saved',
-													userStage: userDetails.stage,
-													partner_stage: partenerData.stage
-												})
-											}
-											if(partenerData.stage <= 8 && userDetails.stage === 8) {
-												userSerObject.updateUserStage(9, user_id, function(err, updatestageData) {
+											} else {
+												userSerObject.updateUserStage(5, user_id, function(err, updatestageData) {
 													if(updatestageData) {
 														res.send({
 															status: 200,
@@ -1018,22 +1151,82 @@ router.post('/CheckingStage', verifyToken, function(req, res) {
 													}
 												})
 											}
-											if(partenerData.stage < 5) {
-												res.send({
-													status:400,
-													messgae: "Paring is not save successfully",
-													userStage: userDetails.stage
-												})
-											}
-											if(userDetails.stage > 5) {
-												res.send({
-													status:200,
-													message: "User stage already updated",
-													userStage: userDetails.stage,
-													partner_stage:partenerData.stage
-												})
-											}
-											if(partenerData.stage === 5 && userDetails.stage < 5) {
+										}
+										if(partenerData.stage === 5 && userDetails.stage === 4 ){
+											res.send({
+												status: 400,
+												message: 'Please Wait, Your partner is doing payment',
+											});
+										}
+										if(partenerData.stage === 4 && userDetails.stage === 5 ){
+											res.send({
+												status: 200,
+												message: 'You are already on payment page',
+											});
+										}
+										if(partenerData.stage === 6 && userDetails.stage === 6) {
+											userSerObject.updateUserStage(7, user_id, function(err, updatestageData) {
+												if(updatestageData) {
+													res.send({
+														status: 200,
+														message: 'Sucessfully enter goal page',
+														userStage: updatestageData.stage,
+														partner_stage: partenerData.stage
+													})
+												} else {
+													res.send({
+														status: 400,
+														message: 'Something Went wrong',
+													})
+												}
+											}) 
+										}
+										if(partenerData.stage === 7 && userDetails.stage < 7) {
+											res.send({
+												status: 400,
+												message: 'Please Wait, Your partner is already setting goal',
+											});
+										}
+										if(partenerData.stage < 7 && userDetails.stage === 7) {
+											res.send({
+												status: 200,
+												message: 'You are already on Goal page',
+												userStage: userDetails.stage,
+												partner_stage: partenerData.stage
+											});
+										}
+										if(partenerData.stage === 8 && userDetails.stage === 8) {
+											res.send({
+												status: 200,
+												message: 'Goal already created',
+												userStage: userDetails.stage,
+												partner_stage: partenerData.stage
+											})
+										}
+										if(partenerData.stage === 8 && userDetails.stage === 5) {
+											res.send({
+												status: 200,
+												message: 'Questionaries Saved',
+												userStage: userDetails.stage,
+												partner_stage: partenerData.stage
+											})
+										}
+										if(partenerData.stage < 4) {
+											res.send({
+												status:400,
+												messgae: "Paring is not save successfully",
+												userStage: userDetails.stage
+											})
+										}
+										if(userDetails.stage > 4 && userDetails.stage < 8) {
+											res.send({
+												status:200,
+												message: "User stage already updated",
+												userStage: userDetails.stage,
+												partner_stage:partenerData.stage
+											})
+										}
+										if(partenerData.stage === 6 && userDetails.stage < 6) {
 												userSerObject.updateUserStage(5, userDetails.id, function(err, updatestageData) {
 													if(updatestageData) {
 														userSerObject.updateUserStage(6, user_id, function(err, updatestageData) {
@@ -1058,6 +1251,181 @@ router.post('/CheckingStage', verifyToken, function(req, res) {
 														})
 													}
 												}) 
+										}
+										if(userDetails.stage >= 8 ) {
+											if(userDetails.receipt || partenerData.receipt) {
+												let PatnerData = userDetails.receipt ? userDetails : partenerData;
+												SubscripationObject.VerifyReceipt(PatnerData, function(err, VerifyData) {
+													if(err) {
+													  res.send({
+														status: 404,
+														message: "something went wrong"
+													  })
+													} else {
+													  if(VerifyData) {
+															if(VerifyData.data.expire_at) {
+																let currentDate = current_datetime.format(new Date, 'YYYY-MM-DD HH:mm:ss', true);
+																let expiryDate = current_datetime.format(new Date(parseInt(VerifyData.data.expire_at)), 'YYYY-MM-DD HH:mm:ss', true);
+																currentDate = new Date(currentDate);
+																expiryDate = new Date(expiryDate);
+																if(currentDate.getTime() < expiryDate.getTime()) {
+																	res.send({
+																		status: 200,
+																		message: "You and Your Patner's plan is active! and Sucessfully enter Goal page",
+																		userStage: userDetails.stage,
+																		partner_stage: partenerData.stage
+																	})
+															    } else {
+																	if(partenerData.receipt) {
+																		SubscripationObject.VerifyReceipt(PatnerData, function(err, VerifyData) {
+																			if(err) {
+																			  res.send({
+																				status: 404,
+																				message: "something went wrong"
+																			  })
+																			} else {
+																			  if(VerifyData) {
+																					if(VerifyData.data.expire_at) {
+																						let currentDate = current_datetime.format(new Date, 'YYYY-MM-DD HH:mm:ss', true);
+																						let expiryDate = current_datetime.format(new Date(parseInt(VerifyData.data.expire_at)), 'YYYY-MM-DD HH:mm:ss', true);
+																						currentDate = new Date(currentDate);
+																						expiryDate = new Date(expiryDate);
+																						if(currentDate.getTime() < expiryDate.getTime()) {
+																							res.send({
+																								status: 200,
+																								message: "You and Your Patner's plan is active! and Sucessfully enter Goal page",
+																								userStage: userDetails.stage,
+																								partner_stage: partenerData.stage
+																							})
+																						} else {
+																							userSerObject.getPartnerById(user_id, function(err, userPartnerData) {
+																								if(err) {
+																									res.send({
+																										status: 404,
+																										message: "Something went wrong!"
+																									})
+																								} else {
+																									if(userPartnerData) {
+																										if(partenerData.paymentStage != 2) {
+																											userSerObject.updatePaymentStage(2, user_id, function(err, updatestageData) {
+																												if(updatestageData) {
+																													res.send({
+																														status: 200,
+																														message: "You and Your Patner's plan are expired! and Sucessfully enter payment page",
+																														userStage: updatestageData.stage,
+																														partner_stage: partenerData.stage,
+																														userPaymentStage: updatestageData.paymentStage,
+																														partnerPaymentStage: partenerData.paymentStage,
+																													})
+																												} else {
+																													res.send({
+																														status: 400,
+																														message: 'Something Went wrong',
+																													})
+																												}
+																											})
+																										} else {
+																											res.send({
+																												status: 400,
+																												message: "Please wait! your partner is doing payment.",
+																												userStage: userDetails.stage,
+																												partner_stage: partenerData.stage,
+																												userPaymentStage: userDetails.paymentStage,
+																												partnerPaymentStage: partenerData.paymentStage,
+																											})
+																										}
+																									} else {
+																										res.send({
+																											status: 404,
+																											message: "Partner is not found!"
+																										})
+																									}
+																								}
+																							})
+																					  }
+																					} else {
+																					  res.send({
+																						status: 200,
+																						message: "Please Buy subscripation"
+																					  })
+																					}
+																			  } else {
+																			  }
+																			}
+																		})
+																	} else {
+																		userSerObject.updateUserStage(5, user_id, function(err, updatestageData) {
+																			if(updatestageData) {
+																				res.send({
+																					status: 200,
+																					message: "You and Your Patner's plan are expired! and Sucessfully enter payment page",
+																					userStage: updatestageData.stage,
+																					partner_stage: partenerData.stage
+																				})
+																			} else {
+																				res.send({
+																					status: 400,
+																					message: 'Something Went wrong',
+																				})
+																			}
+																		})
+																	}
+																	// kello
+																	if(partenerData.paymentStage != 2) {
+																		userSerObject.updatePaymentStage(2, user_id, function(err, updatestageData) {
+																			if(updatestageData) {
+																				res.send({
+																					status: 200,
+																					message: "You and Your Patner's plan are expired! and Sucessfully enter payment page",
+																					userStage: updatestageData.stage,
+																					partner_stage: partenerData.stage,
+																					userPaymentStage: updatestageData.paymentStage,
+																					partnerPaymentStage: partenerData.paymentStage,
+																				})
+																			} else {
+																				res.send({
+																					status: 400,
+																					message: 'Something Went wrong',
+																				})
+																			}
+																		})
+																	} else {
+																		res.send({
+																			status: 400,
+																			message: "Please wait! your partner is doing payment.",
+																			userStage: userDetails.stage,
+																			partner_stage: partenerData.stage,
+																			userPaymentStage: userDetails.paymentStage,
+																			partnerPaymentStage: partenerData.paymentStage,
+																		})
+																	}
+															  }
+															} else {
+															  res.send({
+																status: 200,
+																message: "Please Buy subscripation"
+															  })
+															}
+													  } else {
+													  }
+													}
+												  })
+											} else {
+												// userSerObject.updateUserStage(5, user_id, function(err, updatestageData) {
+												// 	if(updatestageData) {
+														res.send({
+															status: 200,
+															message: 'Sucessfully enter payment page',
+															userStage: updatestageData.stage,
+															partner_stage: partenerData.stage
+														})
+												// 	} else {
+												// 		res.send({
+												// 			status: 400,
+												// 			message: 'Something Went wrong',
+												// 		})
+												// 	}
+												// })
 											}
 										}
 									} else {
@@ -2234,7 +2602,7 @@ router.post('/createNewmonthlygoal', verifyToken, function(req, res) {
 						});
 					} else {
 						if(partenerData) {
-							if(partenerData.stage === 5) {
+							if(partenerData.stage === 7) {
 								res.send({
 									status: 400,
 									message: 'Please Wait! The goal setup is already in progress by your partner.',

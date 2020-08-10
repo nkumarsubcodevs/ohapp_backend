@@ -555,6 +555,7 @@ router.post('/login', function(req, res) {
 	{
 		if(err)
 		{
+			console.log("Error", err);
 			res.send({
 				status: 500,
 				message: 'something went wrong',
@@ -568,6 +569,7 @@ router.post('/login', function(req, res) {
 				{
 					if(err)
 					{
+						console.log("Error", err);
 						res.send({
 							status: 500,
 							message: 'something went wrong',

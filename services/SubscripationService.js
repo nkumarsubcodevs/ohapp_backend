@@ -39,8 +39,7 @@ class subscripationService {
 
   //get single page record
   async VerifyReceipt(UserData, callback) {
-
-    if (UserData.device_name == "apple") {
+    if (UserData.device_name == "ios") {
       iap.config({
         appleExcludeOldTransactions: true,
         applePassword: "1891906ec2a247fda3a41747cf8d6866",
@@ -113,7 +112,7 @@ class subscripationService {
           callback(error, null)
         });
     } else {
-      
+     callback("Device name is undefine", null);
     }
   }
 

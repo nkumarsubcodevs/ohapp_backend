@@ -166,9 +166,8 @@ class GoalService
 	// get partner mapping by id
 	async getPartnerById(id, callback) {
 		// const response = await partnerMappingObject.findOne({ where: { id: id } });
-
 		var partner_id = 0;
-		const partnerResponse = await partnerMappingObject.findOne({ where: { 
+		const partnerResponse = await partnerMappingObject.findOne({ where: {
 			    [Op.or]: [
 				  {
 					partner_one_id: {
@@ -187,7 +186,7 @@ class GoalService
 						  [Op.eq]: 1
 					  }
 					},
-				]	
+				]
 			}});
 		callback(null, partnerResponse);
 	}
@@ -208,7 +207,7 @@ class GoalService
 						  [Op.eq]: 1
 					  }
 					},
-				]	
+				]
 			}});
 		callback(null, partnerResponse);
 	}
@@ -299,8 +298,8 @@ class GoalService
 
 		monthlyGoalObject.belongsTo(userObject, {foreignKey: 'user_id'});
 		const response = await monthlyGoalObject.findOne({
-			where: 
-			{ 
+			where:
+			{
 			[Op.or]: [
 			  {
 				user_id: {

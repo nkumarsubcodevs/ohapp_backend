@@ -15,6 +15,7 @@ var iap = require('in-app-purchase');
 // verifytoken middleware
 const verifyToken = require('./verifytoken');
 const helmet = require('helmet');
+const User = require('../../models/user');
 
 // Create route object
 let router =  express.Router();
@@ -28,7 +29,7 @@ var goalObject = new GoalService();
 // Create USer model object
 var userSerObject = new UserService();
 
-// Save quicky data
+// Save Plan   data
 router.post('/', verifyToken, function(req, res) {
   let purchase_plan_id = req.body.purchase_plan_id;
   let receipt = req.body.receipt;
@@ -70,27 +71,98 @@ router.post('/', verifyToken, function(req, res) {
                   })
                 } else {
                   if(UpdateData) {
-                    const bothPartnerId = {
-                      stage: 5,
-                      user_id: partnerMappingData. partner_one_id,
-                      partner_id: partnerMappingData. partner_two_id,
-                    }
-                    userSerObject.updateBothPartnerStage(bothPartnerId, function(err, updatedData){
-                      if(err){
+                    userSerObject.getUserById(user_id, function(err, UserData) {
+                      if(err) {
                         res.send({
                           status: 400,
-                          message: "Something went wrong"
-                        });
-                      }else{
-                        if(updatedData){
+                          message: "Something went wrong!"
+                        })
+                      } else {
+                        if(UserData) {
+                          if(UserData.paymentStage == 2) {
+                            userSerObject.updatePaymentStage(1, partnerMappingData.partner_one_id, function(err, updateStage) {
+                              if(err){
+                                res.send({
+                                  status: 400,
+                                  message: "Something went wrong"
+                                });
+                              }else{
+                                if(updateStage){
+                                  userSerObject.getPartnerById(user_id, (err, PartnersData) => {
+                                    if(err) {
+                                      res.send({
+                                        status: 404,
+                                        message: "Something went wrong!"
+                                      })
+                                    } else {
+                                      if(PartnersData) {
+                                        res.send({
+                                          status: 200,
+                                          message: "Plan save successfully",
+                                          result: responseData,
+                                          partnerFCMToken: PartnersData.fcmid,
+                                          userFCMToken: UserData.fcmid
+                                        })
+                                      } else {
+                                        res.send({
+                                          status: 400,
+                                          message: "Partner is not found!"
+                                        })
+                                      }
+                                    }
+                                  })
+                                }
+                              }
+                            })
+                          } else {
+                            const bothPartnerId = {
+                              stage: 6,
+                              user_id: partnerMappingData. partner_one_id,
+                              partner_id: partnerMappingData. partner_two_id,
+                            }
+                            userSerObject.updateBothPartnerStage(bothPartnerId, function(err, updatedData){
+                              if(err){
+                                res.send({
+                                  status: 400,
+                                  message: "Something went wrong"
+                                });
+                              }else{
+                                if(updatedData){
+                                  userSerObject.getPartnerById(user_id, (err, PartnersData) => {
+                                    if(err) {
+                                      res.send({
+                                        status: 404,
+                                        message: "Something went wrong!"
+                                      })
+                                    } else {
+                                      if(PartnersData) {
+                                        res.send({
+                                          status: 200,
+                                          message: "Plan save successfully",
+                                          result: responseData,
+                                          partnerFCMToken: PartnersData.fcmid,
+                                          userFCMToken: UserData.fcmid
+                                        })
+                                      } else {
+                                        res.send({
+                                          status: 400,
+                                          message: "Partner is not found!"
+                                        })
+                                      }
+                                    }
+                                  })
+                                }
+                              }
+                            });
+                          }
+                        } else {
                           res.send({
-                            status: 200,
-                            message: "Plan save successfully",
-                            result: responseData
+                            status: 400,
+                            message: "User is not found"
                           })
                         }
                       }
-                    });
+                    })
                   } else {
                     res.send({
                       status: 504,
@@ -118,7 +190,7 @@ router.post('/', verifyToken, function(req, res) {
 	})
 })
 
-router.get('/verify', verifyToken, function(req, res) {
+router.get('/verify', verifyToken, function(req, res) { 
   let user_id = jwt.decode(req.headers['x-access-token']).id;
 
   userSerObject.getUserById(user_id, function(err, UserData) {
@@ -129,145 +201,190 @@ router.get('/verify', verifyToken, function(req, res) {
       })
     } else {
       if(UserData) {
-        if(UserData.receipt) {
-          SubscripationObject.VerifyReceipt(UserData, function(err, VerifyData) {
-            if(err) {
-              console.log(err)
-              res.send({
-                status: 404,
-                message: "something went wrong"
-              })
-            } else {
-              if(VerifyData) {
-                    let date2 = current_datetime.format(new Date, 'YYYY-MM-DD HH:mm:ss', true);
-                    let date1 = new Date(UserData.expiry_time);
-                    date2 = new Date(date2);
-                    if(date2.getTime() < date1.getTime()) {
-                      res.send({
-                        status: 200,
-                        message: "Your Plan is Active!",
-                        result: VerifyData
-                      })
-                    } else {
-                      userSerObject.getPartnerById(user_id, function(err, PatnerData) {
-                        if(err) {
-                          res.send({
-                            status: 404,
-                            message: "something went wrong"
-                          })
-                        } else {
-                          if(PatnerData) {
-                            if(PatnerData.receipt) {
-                              SubscripationObject.VerifyReceipt(PatnerData, function(err, VerifyData) {
-                                if(err) {
-                                  res.send({
-                                    status: 404,
-                                    message: "something went wrong"
-                                  })
-                                } else {
-                                  if(VerifyData) {
-                                        if(VerifyData.data.expire_at) {
-                                          let currentDate = current_datetime.format(new Date, 'YYYY-MM-DD HH:mm:ss', true);
-                                          let expiryDate = new Date(VerifyData.expiryTimeMillis);
-                                          currentDate = new Date(currentDate);
-                                          if(currentDate.getTime() < expiryDate.getTime()) {
-                                            res.send({
-                                              status: 200,
-                                              message: "You and Your Patner's plan are Active!"
-                                            })
+        if(UserData.stage >= 4) {
+          if(UserData.receipt) {
+            SubscripationObject.VerifyReceipt(UserData, function(err, VerifyData) {
+              if(err) {
+                res.send({
+                  status: 404,
+                  message: "something went wrong"
+                })
+              } else {
+                if(VerifyData) {
+                  if(VerifyData.data.expire_at) {
+                    let currentDate = current_datetime.format(new Date, 'YYYY-MM-DD HH:mm:ss', true);
+                    let expiryDate = current_datetime.format(new Date(parseInt(VerifyData.data.expire_at)), 'YYYY-MM-DD HH:mm:ss', true);
+                    currentDate = new Date(currentDate);
+                    expiryDate = new Date(expiryDate);
+
+                    if(currentDate.getTime() < expiryDate.getTime()) {
+                        res.send({
+                          status: 200,
+                          message: "Your Plan is Active!",
+                          result: VerifyData,
+                          payment: 1
+                        })
+                      } else {
+                        userSerObject.getPartnerById(user_id, function(err, PatnerData) {
+                          if(err) {
+                            res.send({
+                              status: 404,
+                              message: "something went wrong"
+                            })
+                          } else {
+                            if(PatnerData) {
+                              if(PatnerData.receipt) {
+                                SubscripationObject.VerifyReceipt(PatnerData, function(err, VerifiesData) {
+                                  if(err) {
+                                    res.send({
+                                      status: 404,
+                                      message: "something went wrong"
+                                    })
+                                  } else {
+                                    if(VerifiesData) {
+                                          if(VerifiesData.data.expire_at) {
+                                            let currentDate = current_datetime.format(new Date, 'YYYY-MM-DD HH:mm:ss', true);
+                                            let expiryDate = current_datetime.format(new Date(parseInt(VerifiesData.data.expire_at)), 'YYYY-MM-DD HH:mm:ss', true);
+                                            currentDate = new Date(currentDate);
+                                            expiryDate = new Date(expiryDate);
+
+                                            if(currentDate.getTime() < expiryDate.getTime()) {
+                                              res.send({
+                                                status: 200,
+                                                message: "You and Your Patner's plan are Active!",
+                                                payment: 1
+                                              })
+                                            } else {
+                                              res.send({
+                                                status: 200,
+                                                message: "You and Your Patner's plan are expired!",
+                                                payment: 0
+                                              })
+                                            }
                                           } else {
                                             res.send({
                                               status: 200,
-                                              message: "You and Your Patner's plan are expired!"
+                                              message: "Pleases Buy subscripation",
+                                              payment: 0
                                             })
                                           }
-                                        } else {
-                                          res.send({
-                                            status: 200,
-                                            message: "Please Buy subscripation"
-                                          })
-                                        }
-                                  } else {
+                                    } else {
+                                      res.send({
+                                        status: 404,
+                                        message: "Your Plan is expired, Please Buy subscripation!",
+                                        payment:0
+                                      })
+                                    }
                                   }
-                                }
-                              })
-                            } else {
-                              res.send({
-                                status: 200,
-                                message: "Please Buy subscripation"
-                              })
-                            }
-                          } else {
-                            res.send({
-                              status: 504,
-                              message: "Patner is not found"
-                            })
-                          }
-                        }
-                      })
-                    }
-              } else {
-
-              }
-            }
-          })
-        } else {
-          userSerObject.getPartnerById(user_id, function(err, PatnerData) {
-            if(err) {
-              res.send({
-                status: 404,
-                message: "something went wrong"
-              })
-            } else {
-              if(PatnerData) {
-                if(PatnerData.receipt) {
-                  SubscripationObject.VerifyReceipt(PatnerData, function(err, VerifyData) {
-                    if(err) {
-                      res.send({
-                        status: 404,
-                        message: "something went wrong"
-                      })
-                    } else {
-                      if(VerifyData) {
-                            if(PatnerData.expiry_time) {
-                              let date2 = current_datetime.format(new Date, 'YYYY-MM-DD HH:mm:ss', true);
-                              let date1 = new Date(PatnerData.expiry_time);
-                              date2 = new Date(date2);
-                              if(date2.getTime() < date1.getTime()) {
-                                res.send({
-                                  status: 200,
-                                  message: "Your partner Plan is Active!"
                                 })
                               } else {
                                 res.send({
                                   status: 200,
-                                  message: "Your patner Plan is expired!"
+                                  message: "You and Your Patner's plan are expired!",
+                                  payment: 0
                                 })
                               }
                             } else {
                               res.send({
-                                status: 400,
-                                message: "Please Buy subscripation"
+                                status: 504,
+                                message: "Patner is not found",
+                                payment: 2
                               })
                             }
-                      } else {
-
+                          }
+                        })
                       }
-                    }
-                  })
+                  } else {
+                    res.send({
+                      status: 200,
+                      message: "Please Buy subscripation",
+                      payment: 0
+                    })
+                  }
                 } else {
                   res.send({
-                    status: 200,
-                    message: "Please Buy subscripation"
+                    status: 400,
+                    message: "Plan is not active!",
+                    payment: 0
                   })
                 }
-              } else {
-                res.send({
-                  status: 504,
-                  message: "Patner is not found"
-                })
               }
-            }
+            })
+          } else {
+            userSerObject.getPartnerById(user_id, function(err, PatnerData) {
+              if(err) {
+                res.send({
+                  status: 404,
+                  message: "something went wrong"
+                })
+              } else {
+                if(PatnerData) {
+                  if(PatnerData.receipt) {
+                    SubscripationObject.VerifyReceipt(PatnerData, function(err, VerifyData) {
+                      if(err) {
+                        res.send({
+                          status: 404,
+                          message: "something went wrong"
+                        })
+                      } else {
+                        if(VerifyData) {
+                          if(VerifyData.data.expire_at) {
+                            let currentDate = current_datetime.format(new Date, 'YYYY-MM-DD HH:mm:ss', true);
+                            let expiryDate = current_datetime.format(new Date(parseInt(VerifyData.data.expire_at)), 'YYYY-MM-DD HH:mm:ss', true);
+                            currentDate = new Date(currentDate);
+                            expiryDate = new Date(expiryDate);
+
+                            if(currentDate.getTime() < expiryDate.getTime()) {
+                                  res.send({
+                                    status: 200,
+                                    message: "Your partner Plan is Active!",
+                                    payment: 1
+                                  })
+                                } else {
+                                  res.send({
+                                    status: 200,
+                                    message: "Your patner Plan is expired!",
+                                    payment: 0
+                                  })
+                                }
+                              } else {
+                                res.send({
+                                  status: 400,
+                                  message: "Please Buy subscripation",
+                                  payment: 0
+                                })
+                              }
+                        } else {
+                          res.send({
+                            status: 400,
+                            message: "Please Buy subscripation",
+                            payment: 0
+                          })
+                        }
+                      }
+                    })
+                  } else {
+                    res.send({
+                      status: 200,
+                      message: "Please Buy subscripation",
+                      payment: 0
+                    })
+                  }
+                } else {
+                  res.send({
+                    status: 504,
+                    message: "Patner is not found",
+                    payment: 2
+                  })
+                }
+              }
+            })
+          }
+        } else {
+          res.send({
+            status: 404,
+            message: "Paring is not avaliable",
+            payment: 2
           })
         }
       } else {
@@ -325,8 +442,8 @@ router.get('/faild', verifyToken, function(req, res) {
         let updateStage = {
           user_id: user_id,
           partner_id: partnerData.id,
-          stage: 7,
-          removeStage: 8
+          stage: 5,
+          removeStage: 6
         }
         userSerObject.updateBothPartnerStageByFaild(updateStage, function(err, updatedData) {
           if(err) {
@@ -352,4 +469,5 @@ router.get('/faild', verifyToken, function(req, res) {
     }
   })
 })
+
 module.exports = router;
