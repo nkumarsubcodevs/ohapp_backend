@@ -204,7 +204,7 @@ class UserService
 						  [Op.eq]: 1
 					  }
 					},
-				]	
+				]
 		}});
 		if(partnerResponse[0].partner_one_id==id)	
 		{
@@ -353,6 +353,16 @@ class UserService
 			return callback(null, response)
 		} else {
 			return this.updateUserStage(stage, id, callback)
+		}
+	}
+
+	async updatePaymentStage(stage, id, callback) {
+		await userObject.update({ paymentStage: stage }, { where: { id: id}});
+		const response = await userObject.findOne({ where: { id: id } });
+		if(response.paymentStage == stage) {
+			return callback(null, response)
+		} else {
+			return this.updatePaymentStage(stage, id, callback)
 		}
 	}
 
