@@ -91,9 +91,8 @@ router.get('/getgoalsettings', verifyToken, function(req, res, next) {
 });
 
 // Get user setting detail
-router.get('/getgoalsettingsanswer/:goal_id', verifyToken, function(req, res, next) {
+router.get('/getgoalsettingsanswer', verifyToken, function(req, res, next) {
 	let user_id = jwt.decode(req.headers['x-access-token']).id;
-	let goal_id = req.params.goal_id;
 	goalSerObject.getGoalSettings(function(err, settingData)
 	{
 		if(err)
@@ -107,7 +106,7 @@ router.get('/getgoalsettingsanswer/:goal_id', verifyToken, function(req, res, ne
 		{
 			if(settingData)
 			{
-				goalSerObject.getGoalSettingsAnswer(user_id, goal_id,function(err, GetquestionWithOption) {
+				goalSerObject.getGoalSettingsAnswer(user_id, function(err, GetquestionWithOption) {
 					if(err) {
 						res.send({
 							status: 404,
@@ -137,6 +136,71 @@ router.get('/getgoalsettingsanswer/:goal_id', verifyToken, function(req, res, ne
 			}
 		}
 	});
+});
+
+// Get partner user setting detail
+router.get('/getpartnergoalsettingsanswer', verifyToken, function(req, res, next) {
+	let user_id = jwt.decode(req.headers['x-access-token']).id;
+	userSerObject.getPartnerById(user_id, function(err, partnerData) {
+		if(err) {
+			res.send({
+				status: 400,
+				message: "something went wrong"
+			})
+		} else {
+			if(partnerData) {
+				goalSerObject.getGoalSettings(function(err, settingData)
+				{
+					if(err)
+					{
+						res.send({
+							status: 500,
+							message: 'There was a problem finding the user setting.',
+						});
+					}	
+					else
+					{
+						if(settingData)
+						{
+							goalSerObject.getGoalSettingsAnswer(partnerData.id, function(err, GetquestionWithOption) {
+								if(err) {
+									res.send({
+										status: 404,
+										message: "something went wrong"
+									})
+								} else {
+									if(GetquestionWithOption) {
+										
+										res.send({
+											status: 200,
+											settings: GetquestionWithOption,
+										});
+									} else {
+										res.send({
+											status: 504,
+											message: "Quetionaries is not avaliable."
+										})
+									}
+								}
+							})
+						}
+						else
+						{
+							res.send({
+								status: 404,
+								message: 'Question is not found.',
+							});
+						}
+					}
+				});
+			} else {
+				res.send({
+					status: 504,
+					messgae: "Patner is not found"
+				})
+			}
+		}
+	})
 });
 
 // Save user setting detail

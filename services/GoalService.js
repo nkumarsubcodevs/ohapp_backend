@@ -54,7 +54,7 @@ class GoalService
 	}
 
 	// Get Goal Setting Answer
-	async getGoalSettingsAnswer(user_id,goal_id, callback){
+	async getGoalSettingsAnswer(user_id, callback){
 		goalSettingsObject.hasMany(questionOptionsObject, {foreignKey: 'question_id'});
 		goalSettingAnswerObject.belongsTo(goalSettingsObject, {foreignKey: 'question_id'});
 		const goal_settings = await goalSettingAnswerObject.findAll({
@@ -65,7 +65,7 @@ class GoalService
 					}]
 				}
 			],
-			where: {user_id: user_id, goal_id: goal_id}
+			where: {user_id: user_id}
 		});
 		callback(null,goal_settings);
 	}

@@ -101,7 +101,9 @@ router.post('/', verifyToken, function(req, res) {
                                           message: "Plan save successfully",
                                           result: responseData,
                                           partnerFCMToken: PartnersData.fcmid,
-                                          userFCMToken: UserData.fcmid
+                                          userFCMToken: UserData.fcmid,
+                                          userStage:UserData.stage,
+                                          partnerStage:PartnersData.stage
                                         })
                                       } else {
                                         res.send({
@@ -141,7 +143,9 @@ router.post('/', verifyToken, function(req, res) {
                                           message: "Plan save successfully",
                                           result: responseData,
                                           partnerFCMToken: PartnersData.fcmid,
-                                          userFCMToken: UserData.fcmid
+                                          userFCMToken: UserData.fcmid,
+                                          userStage:UserData.stage,
+                                          partnerStage:PartnersData.stage
                                         })
                                       } else {
                                         res.send({
@@ -212,11 +216,11 @@ router.get('/verify', verifyToken, function(req, res) {
               } else {
                 if(VerifyData) {
                   if(VerifyData.data.expire_at) {
+                    let exDate = VerifyData.data.expire_at.replace(" Etc/GMT","");                  
                     let currentDate = current_datetime.format(new Date, 'YYYY-MM-DD HH:mm:ss', true);
-                    let expiryDate = current_datetime.format(new Date(parseInt(VerifyData.data.expire_at)), 'YYYY-MM-DD HH:mm:ss', true);
+                    let expiryDate = new Date(exDate).toISOString();                  
                     currentDate = new Date(currentDate);
-                    expiryDate = new Date(expiryDate);
-
+                    expiryDate = new Date(expiryDate);                  
                     if(currentDate.getTime() < expiryDate.getTime()) {
                         res.send({
                           status: 200,
@@ -243,11 +247,11 @@ router.get('/verify', verifyToken, function(req, res) {
                                   } else {
                                     if(VerifiesData) {
                                           if(VerifiesData.data.expire_at) {
+                                            let partnerExDate = VerifiesData.data.expire_at.replace(" Etc/GMT","");
                                             let currentDate = current_datetime.format(new Date, 'YYYY-MM-DD HH:mm:ss', true);
-                                            let expiryDate = current_datetime.format(new Date(parseInt(VerifiesData.data.expire_at)), 'YYYY-MM-DD HH:mm:ss', true);
+                                            let expiryDate = new Date(partnerExDate).toISOString();
                                             currentDate = new Date(currentDate);
                                             expiryDate = new Date(expiryDate);
-
                                             if(currentDate.getTime() < expiryDate.getTime()) {
                                               res.send({
                                                 status: 200,
@@ -329,11 +333,13 @@ router.get('/verify', verifyToken, function(req, res) {
                       } else {
                         if(VerifyData) {
                           if(VerifyData.data.expire_at) {
+                            let partnerExDate = VerifyData.data.expire_at.replace(" Etc/GMT","");
+                            
                             let currentDate = current_datetime.format(new Date, 'YYYY-MM-DD HH:mm:ss', true);
-                            let expiryDate = current_datetime.format(new Date(parseInt(VerifyData.data.expire_at)), 'YYYY-MM-DD HH:mm:ss', true);
+                            let expiryDate = new Date(partnerExDate).toISOString();
                             currentDate = new Date(currentDate);
                             expiryDate = new Date(expiryDate);
-
+                            
                             if(currentDate.getTime() < expiryDate.getTime()) {
                                   res.send({
                                     status: 200,
