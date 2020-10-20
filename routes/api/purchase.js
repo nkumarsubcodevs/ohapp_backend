@@ -216,11 +216,16 @@ router.get('/verify', verifyToken, function(req, res) {
               } else {
                 if(VerifyData) {
                   if(VerifyData.data.expire_at) {
-                    let exDate = VerifyData.data.expire_at.replace(" Etc/GMT","");                  
+                    let expiryDate;
+                    if(UserData.device_name === "ios"){
+                      let exDate = VerifyData.data.expire_at.replace(" Etc/GMT","");
+                      expiryDate = new Date(exDate).toISOString();
+                    }else if(UserData.device_name === "android"){
+                      expiryDate = new Date(VerifyData.data.expire_at);
+                    }
                     let currentDate = current_datetime.format(new Date, 'YYYY-MM-DD HH:mm:ss', true);
-                    let expiryDate = new Date(exDate).toISOString();                  
                     currentDate = new Date(currentDate);
-                    expiryDate = new Date(expiryDate);                  
+                    expiryDate = new Date(expiryDate);    
                     if(currentDate.getTime() < expiryDate.getTime()) {
                         res.send({
                           status: 200,
@@ -247,9 +252,14 @@ router.get('/verify', verifyToken, function(req, res) {
                                   } else {
                                     if(VerifiesData) {
                                           if(VerifiesData.data.expire_at) {
-                                            let partnerExDate = VerifiesData.data.expire_at.replace(" Etc/GMT","");
+                                            let expiryDate;
+                                            if(PatnerData.device_name === "ios"){
+                                              let partnerExDate = VerifiesData.data.expire_at.replace(" Etc/GMT","");
+                                              expiryDate = new Date(partnerExDate).toISOString();
+                                            }else if(PatnerData.device_name === "android"){
+                                              expiryDate = new Date(VerifiesData.data.expire_at);
+                                            }
                                             let currentDate = current_datetime.format(new Date, 'YYYY-MM-DD HH:mm:ss', true);
-                                            let expiryDate = new Date(partnerExDate).toISOString();
                                             currentDate = new Date(currentDate);
                                             expiryDate = new Date(expiryDate);
                                             if(currentDate.getTime() < expiryDate.getTime()) {
@@ -333,33 +343,33 @@ router.get('/verify', verifyToken, function(req, res) {
                       } else {
                         if(VerifyData) {
                           if(VerifyData.data.expire_at) {
-                            let partnerExDate = VerifyData.data.expire_at.replace(" Etc/GMT","");
-                            
-                            let currentDate = current_datetime.format(new Date, 'YYYY-MM-DD HH:mm:ss', true);
-                            let expiryDate = new Date(partnerExDate).toISOString();
-                            currentDate = new Date(currentDate);
-                            expiryDate = new Date(expiryDate);
-                            
+                            let expiryDate;
+                            if(PatnerData.device_name === "ios"){
+                              let partnerExDate = VerifyData.data.expire_at.replace(" Etc/GMT","");
+                              expiryDate = new Date(partnerExDate).toISOString();
+                            }else if(PatnerData.device_name === "android"){
+                              expiryDate = new Date(VerifyData.data.expire_at);
+                            }
                             if(currentDate.getTime() < expiryDate.getTime()) {
-                                  res.send({
-                                    status: 200,
-                                    message: "Your partner Plan is Active!",
-                                    payment: 1
-                                  })
-                                } else {
-                                  res.send({
-                                    status: 200,
-                                    message: "Your patner Plan is expired!",
-                                    payment: 0
-                                  })
-                                }
-                              } else {
-                                res.send({
-                                  status: 400,
-                                  message: "Please Buy subscripation",
-                                  payment: 0
-                                })
-                              }
+                              res.send({
+                                status: 200,
+                                message: "Your partner Plan is Active!",
+                                payment: 1
+                              })
+                            } else {
+                              res.send({
+                                status: 200,
+                                message: "Your patner Plan is expired!",
+                                payment: 0
+                              })
+                            }
+                          } else {
+                            res.send({
+                              status: 400,
+                              message: "Please Buy subscripation",
+                              payment: 0
+                            })
+                          }
                         } else {
                           res.send({
                             status: 400,

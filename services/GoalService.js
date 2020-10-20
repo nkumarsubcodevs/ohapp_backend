@@ -118,34 +118,52 @@ class GoalService
 	async updatesetting(updatedData, callback) {
 		const now = new Date();
 		await goalSettingAnswerObject.update({
-			goal_id: updatedData.goal_id,
+			// goal_id: updatedData.goal_id,
 			question_id: updatedData.question_id,
 			answer: updatedData.answer,
 			user_id: updatedData.user_id,
-			patner_mapping_id: updatedData.patner_mapping_id,
+			// patner_mapping_id: updatedData.patner_mapping_id,
 			custom_answer: updatedData.custom_answer,
 			status: 1,
 			update_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss')
 		},
-		{ where: { id: updatedData.id }})
-		const response = await goalSettingAnswerObject.findOne({ where: { id: updatedData.id } });
-		callback(null, response);
+		{ where: { id: updatedData.id }}).then(async (res) => {
+			let response = await goalSettingAnswerObject.findOne({where: {id: updatedData.id}});
+			callback(null, response);
+		}).catch(err => {
+			callback(err.message, null)
+		})
 	}
 	// Save Goal Setting
 	async saveSettings(goalSettingData, callback){
 
+		const fetch = await goalSettingAnswerObject.findAll({where: {question_id: goalSettingData.question_id,user_id: goalSettingData.user_id}});
 		const now = new Date();
-		let settingData = new goalSettingAnswerObject({
-			question_id: goalSettingData.question_id,
-			answer: goalSettingData.answer,
-			user_id: goalSettingData.user_id,
-			custom_answer: goalSettingData.custom_answer,
-			status: 1,
-			create_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss'),
-			update_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss')
-		});
-
-		callback(null,settingData.save());
+		let settingData;
+		if(fetch.length){
+			settingData = await goalSettingAnswerObject.update({
+				question_id: goalSettingData.question_id,
+				answer: goalSettingData.answer,
+				user_id: goalSettingData.user_id,
+				custom_answer: goalSettingData.custom_answer,
+				status: 1,
+				update_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss')
+			}, { where: { question_id: goalSettingData.question_id, user_id: goalSettingData.user_id }});
+			let response = await goalSettingAnswerObject.findOne({where: {question_id: goalSettingData.question_id, user_id: goalSettingData.user_id}});
+			callback(null, response);
+		} else {
+			settingData = new goalSettingAnswerObject({
+				question_id: goalSettingData.question_id,
+				answer: goalSettingData.answer,
+				user_id: goalSettingData.user_id,
+				custom_answer: goalSettingData.custom_answer,
+				status: 1,
+				create_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss'),
+				update_time: current_datetime.format(now, 'YYYY-MM-DD hh:mm:ss')
+			});
+			let saveResponse = await settingData.save();
+			callback(null,saveResponse);
+		}
 	}
 
 	// Create partner mapping
