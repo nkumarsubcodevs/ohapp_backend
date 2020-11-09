@@ -116,7 +116,7 @@ router.get('/getuserdetail/:user_id', verifyToken, function(req, res, next) {
 					'email': userData.email,
 					'role_id': userData.role_id,
 					'gender': userData.gender,
-					'image_profile': userData.image_profile,
+					'image_profile': userData.profile_image,
 					'status': userData.status
 				};
 
@@ -1164,7 +1164,7 @@ router.post('/profileimageupload', verifyToken, (req, res, next) => {
 		else
 		{
 			let upload_file  = req.file;
-			let user_id  = req.body.user_id;
+			let user_id  = req.id;
 
 			if(!user_id) 
 			{
@@ -1187,7 +1187,7 @@ router.post('/profileimageupload', verifyToken, (req, res, next) => {
 				'upload_file': upload_file.filename,
 			};
 
-			userSerObject.getUserById(req.body.user_id, function(err, userData)
+			userSerObject.getUserById(user_id, function(err, userData)
 			{
 				if(err)
 				{
