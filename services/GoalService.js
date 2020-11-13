@@ -537,6 +537,17 @@ class GoalService
 		}
 		return result;
 	}
+
+	async CheckRecipt(recipt, userid, callback) {
+		const GetOption = await userObject.findAll({where : {receipt:recipt, id: userid}});
+		console.log(GetOption.length)
+		if(GetOption.length === 0) {
+			callback('stop',null);
+		} else {
+			callback(null,'continue');
+
+		}
+	}
 }
 
 module.exports = GoalService;
