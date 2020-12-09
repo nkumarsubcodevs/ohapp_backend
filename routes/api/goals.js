@@ -376,13 +376,13 @@ router.post('/checkuseruniquecode', verifyToken, function(req, res) {
 		{
 			res.send({
 				status: 500,
-				message: 'something went wrong',
+				message: 'something went wrong',    
 			});
 		}
 		else
 		{
 			if(userData) 
-			{
+			{  
 				// Check security code exists or not
 				userSerObject.checkUniqueCode(unique_code, function(err, uniqueCodeData) 
 				{
