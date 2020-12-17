@@ -17,7 +17,7 @@ class subscripationService {
     var date = new Date();
     if (quickyData.subscripation_plan == "yearly") {
       date = current_datetime.addYears(now, 1);
-    }
+    }  
     if (quickyData.subscripation_plan == "monthly") {
       date = current_datetime.addDays(now, 30);
     }
