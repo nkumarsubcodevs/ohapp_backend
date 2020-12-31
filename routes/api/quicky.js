@@ -261,16 +261,13 @@ router.put("/updateQuicky/:id", verifyToken, function (req, res) {
                                       );
 
                                       let timeout = current_datetime.subtract(before15, now).toMilliseconds();
-                                      console.log(timeout);
-                                      console.log(before15);
-                                      console.log(now);
                                       let timeout1 = current_datetime.subtract(final, now).toMilliseconds();
                                       let statusCheck = customHelper.check_notification_Mute(
                                         userData.notification_mute_start,
                                         userData.notification_mute_end
                                       );
                                       console.log("Status", statusCheck);
-                                      if (statusCheck) {
+                                       if (statusCheck) {
                                         res.send({
                                           status: 400,
                                           message: "Notificaiton is mute for some time.",
@@ -300,6 +297,29 @@ router.put("/updateQuicky/:id", verifyToken, function (req, res) {
                                             }
                                           );
                                         }, timeout);
+                                        setTimeout(() => {
+                                          let data = {
+                                            title: "Congratulations on scheduling a connection!",
+                                            message: `It’s ${userData.first_name}'s turn to initiate.`,
+                                            type: "Reminder",
+                                            quicky_id: quicky_id,
+                                          };
+                                          notificationObject.Sendnotification(
+                                            partnerResponse.fcmid,
+                                            data,
+                                            function (err, response) {
+                                              console.log("err", err);
+                                            }
+                                          );
+                                          notificationObject.Sendnotification(
+                                            userData.fcmid,
+                                            data,
+                                            function (err, response) {
+                                              console.log("err", err);
+                                              console.log("response", response);
+                                            }
+                                          );
+                                        }, timeout1);
                                       }
                                     } else {
                                       res.send({

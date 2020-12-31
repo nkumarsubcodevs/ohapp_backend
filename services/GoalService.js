@@ -476,13 +476,7 @@ class GoalService {
   }
 
   // Set Question Options
-  async setQuestionOptions(
-    title,
-    question_id,
-    q_title,
-    q_descripation,
-    callback
-  ) {
+  async setQuestionOptions(title, question_id, q_title, q_descripation, callback) {
     const now = new Date();
     let data = await Promise.all(
       title &&
@@ -677,8 +671,7 @@ class GoalService {
   // Create Unique Id
   makeid(length) {
     var result = "";
-    var characters =
-      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    var characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     var charactersLength = characters.length;
     for (var i = 0; i < length; i++) {
       result += characters.charAt(Math.floor(Math.random() * charactersLength));
@@ -690,11 +683,11 @@ class GoalService {
     const GetOption = await userObject.findAll({
       where: { receipt: recipt, id: userid },
     });
-    console.log(GetOption.length);
+    console.log("recipt", recipt);
     if (GetOption.length === 0) {
-      callback("stop", null);
-    } else {
       callback(null, "continue");
+    } else {
+      callback("stop", null);
     }
   }
 }

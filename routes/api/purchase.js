@@ -400,7 +400,7 @@ router.get("/verify", verifyToken, function (req, res) {
                         res.send({
                           status: 404,
                           message: "something went wrong",
-                        });
+                        }); 
                       } else {
                         if (VerifyData) {
                           if (VerifyData.data.expire_at) {

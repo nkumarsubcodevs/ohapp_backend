@@ -1649,6 +1649,7 @@ router.post("/updatemonthlygoal/:goal_id", verifyToken, function (req, res) {
         message: "something went wrong",
       });
     } else {
+      console.log("getGoalById", getGoalById);
       if (goalData) {
         userSerObject.getPartnerById(user_id, function (err, partnerResponse) {
           if (err) {
@@ -1657,6 +1658,7 @@ router.post("/updatemonthlygoal/:goal_id", verifyToken, function (req, res) {
               message: "something went wrong",
             });
           } else {
+            console.log("getPartnerById", getPartnerById);
             if (partnerResponse) {
               if (goalData.status) {
                 let monthlyGoalData = {
@@ -1680,8 +1682,9 @@ router.post("/updatemonthlygoal/:goal_id", verifyToken, function (req, res) {
                       message: "something went wrong.",
                     });
                   } else {
+                    console.log("updateMonthlyGoal", updateMonthlyGoal);
                     if (monthlyGoalDataSaved) {
-                      schedules.stop();
+                      //schedules.stop();
                       userSerObject.getUserById(partnerResponse.id, function (err, GetpatnerData) {
                         if (err) {
                           return res.send({
@@ -1715,6 +1718,7 @@ router.post("/updatemonthlygoal/:goal_id", verifyToken, function (req, res) {
                                   if (day <= 0) {
                                     day = 1;
                                   }
+                                  console.log("usersData", usersData);
                                   schedules = cron.schedule(`${parseInt(minutes)} ${hours} */${day} * *`, () => {
                                     // cron.schedule(`* * * * *`, (err, ress) => {
                                     let statusCheck = customHelper.check_notification_Mute(
@@ -1727,6 +1731,7 @@ router.post("/updatemonthlygoal/:goal_id", verifyToken, function (req, res) {
                                         message: "Notificaiton is mute for some time.",
                                       });
                                     } else {
+                                      console.log("abcabc");
                                       goalSerObject.getGoalDetails(
                                         usersData.id,
                                         GetpatnerData.id,
@@ -2909,7 +2914,7 @@ router.post("/createNewmonthlygoal", verifyToken, function (req, res) {
                 }
 
                 if (user_checker == 0) {
-                     res({
+                  return res({
                     status: 400,
                     message: "Invalid partner id provided",
                   });

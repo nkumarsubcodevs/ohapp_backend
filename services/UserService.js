@@ -104,7 +104,7 @@ class UserService {
             var htmlToSend = template(replacements);
             let mailOptions = {
               to: newUser.email,
-              from: '"OH Team" <' + config.from_email + ">",
+              from: "OH Team <" + config.from_email + ">",
               subject: "OH :: SignUp Email",
               html: htmlToSend,
             };
@@ -224,7 +224,7 @@ class UserService {
       var htmlToSend = template(replacements);
 
       var mailOptions = {
-        from: '"OH Team" <' + config.from_email + ">",
+        from: "OH Team <" + config.from_email + ">",
         to: userData.email,
         subject: "OH :: Forgot Password Email",
         html: htmlToSend,
