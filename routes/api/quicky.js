@@ -297,29 +297,29 @@ router.put("/updateQuicky/:id", verifyToken, function (req, res) {
                                             }
                                           );
                                         }, timeout);
-                                        setTimeout(() => {
-                                          let data = {
-                                            title: "Congratulations on scheduling a connection!",
-                                            message: `It’s ${userData.first_name}'s turn to initiate.`,
-                                            type: "Reminder",
-                                            quicky_id: quicky_id,
-                                          };
-                                          notificationObject.Sendnotification(
-                                            partnerResponse.fcmid,
-                                            data,
-                                            function (err, response) {
-                                              console.log("err", err);
-                                            }
-                                          );
-                                          notificationObject.Sendnotification(
-                                            userData.fcmid,
-                                            data,
-                                            function (err, response) {
-                                              console.log("err", err);
-                                              console.log("response", response);
-                                            }
-                                          );
-                                        }, timeout1);
+                                        // setTimeout(() => {
+                                        //   let data = {
+                                        //     title: "Congratulations on scheduling a connection! n2",
+                                        //     message: `It’s ${userData.first_name}'s turn to initiate.`,
+                                        //     type: "Reminder",
+                                        //     quicky_id: quicky_id,
+                                        //   };
+                                        //   notificationObject.Sendnotification(
+                                        //     partnerResponse.fcmid,
+                                        //     data,
+                                        //     function (err, response) {
+                                        //       console.log("err", err);
+                                        //     }
+                                        //   );
+                                        //   notificationObject.Sendnotification(
+                                        //     userData.fcmid,
+                                        //     data,
+                                        //     function (err, response) {
+                                        //       console.log("err", err);
+                                        //       console.log("response", response);
+                                        //     }
+                                        //   );
+                                        // }, timeout1);
                                       }
                                     } else {
                                       res.send({

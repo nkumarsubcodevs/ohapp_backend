@@ -12,15 +12,24 @@ const config = require('../config/config');
 const User = require("../models/user");
 const now = new Date();
 class subscripationService {
-  // get all pages list
+  // get all pages lists
   async saveSubscripation(quickyData, callback) {
     var date = new Date();
-    if (quickyData.subscripation_plan == "yearly") {
+    if (
+      quickyData.subscripation_plan == "com.oh.yearly" ||
+      quickyData.subscripation_plan == "oneyear.subscription.oh.com" ||
+      quickyData.subscripation_plan == "yearly"
+    ) {
       date = current_datetime.addYears(now, 1);
     }  
-    if (quickyData.subscripation_plan == "monthly") {
+    if (
+      quickyData.subscripation_plan == "com.oh.monthly" ||
+      quickyData.subscripation_plan == "monthly.subscription.oh.com" ||
+      quickyData.subscripation_plan == "monthly"
+    ) {
       date = current_datetime.addDays(now, 30);
     }
+    console.log("curret subscription date", date);
     let saverecord = new SubscripationObject({
       user_id: quickyData.user_id,
       partner_mapping_id: quickyData.partner_mapping_id,

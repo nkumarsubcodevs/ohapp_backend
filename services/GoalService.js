@@ -481,14 +481,16 @@ class GoalService {
     let data = await Promise.all(
       title &&
         title.map(async (element) => {
+          let title = element[0].toUpperCase() + element.slice(1);
           if (element) {
             let Questiona_option = new questionOptionsObject({
-              title: element,
+              title: title,
               status: 1,
               question_id: question_id,
               create_time: current_datetime.format(now, "YYYY-MM-DD hh:mm:ss"),
               update_time: current_datetime.format(now, "YYYY-MM-DD hh:mm:ss"),
             });
+            // console.log(Questiona_option);
             goalSettingsObject.update(
               {
                 question_title: q_title,

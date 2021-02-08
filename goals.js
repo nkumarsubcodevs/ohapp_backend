@@ -1649,7 +1649,6 @@ router.post("/updatemonthlygoal/:goal_id", verifyToken, function (req, res) {
         message: "something went wrong",
       });
     } else {
-      console.log("getGoalById", getGoalById);
       if (goalData) {
         userSerObject.getPartnerById(user_id, function (err, partnerResponse) {
           if (err) {
@@ -2232,197 +2231,189 @@ router.put("/updateCompletedGoal/:id", verifyToken, function (req, res) {
       });
     } else {
       if (partner_data) {
-        goalSerObject.getGoalDetails(user_id, partner_data.id, function (err, monthly_goal_data) {
-          if (err) {
-            return res({
-              status: 400,
-              message: "something went wrong!",
-            });
-          } else {
-            if (monthly_goal_data) {
-              goalSerObject.getPartnerData(user_id, function (err, patner_mapping_data) {
-                if (err) {
-                  res.sendF({
-                    status: 400,
-                    message: "something went wrong",
-                  });
-                } else {
-                  if (patner_mapping_data) {
-                    if (answer1 === "true") {
-                      if (!answer2) {
-                        return res.send({
-                          status: 400,
-                          message: "Please select an option for continue.",
-                        });
-                      }
-                      let userID;
-                      if (answer2 === "true") {
-                        userID = user_id;
-                      } else {
-                        userID = partner_data.id;
-                      }
-                      quickynObject.getSingleQuickyRecord(quicky_id, function (err, QuickyData) {
-                        if (err) {
-                          return res({
-                            status: 400,
-                            message: "Something Went Wrong!",
-                          });
-                        } else {
-                          if (QuickyData) {
-                            let updateQuickyData = {
-                              partner1_answer1: QuickyData.user_id == user_id ? answer1 : QuickyData.partner1_answer1,
-                              partner1_answer2: QuickyData.user_id == user_id ? answer2 : QuickyData.partner1_answer2,
-                              partner2_answer1: QuickyData.user_id == user_id ? QuickyData.partner2_answer1 : answer1,
-                              partner2_answer2: QuickyData.user_id == user_id ? QuickyData.partner2_answer2 : answer2,
-                              quicky_id: quicky_id,
-                            };
-                            quickynObject.updatePartnerDatainQuicky(updateQuickyData, function (err, UpdateData) {
+        goalSerObject.getGoalDetails(
+          user_id,
+          partner_data.id,
+          function (err, monthly_goal_data) {
+            if (err) {
+              return res({
+                status: 400,
+                message: "something went wrong!",
+              });
+            } else {
+              if (monthly_goal_data) {
+                goalSerObject.getPartnerData(
+                  user_id,
+                  function (err, patner_mapping_data) {
+                    if (err) {
+                      res.sendF({
+                        status: 400,
+                        message: "something went wrong",
+                      });
+                    } else {
+                      if (patner_mapping_data) {
+                        if (answer1 === "true") {
+                          if (!answer2) {
+                            return res.send({
+                              status: 400,
+                              message: "Please select an option for continue.",
+                            });
+                          }
+                          let userID;
+                          if (answer2 === "true") {
+                            userID = user_id;
+                          } else {
+                            userID = partner_data.id;
+                          }
+                          quickynObject.getSingleQuickyRecord(
+                            quicky_id,
+                            function (err, QuickyData) {
                               if (err) {
                                 return res({
                                   status: 400,
                                   message: "Something Went Wrong!",
                                 });
                               } else {
-                                if (UpdateData) {
-                                  if (UpdateData.partner1_answer2 != null && UpdateData.partner2_answer2 != null) {
-                                    quickynObject.Addcontribution(quicky_id, function (err, ContributionData) {
+                                if (QuickyData) {
+                                  let updateQuickyData = {
+                                    partner1_answer1:
+                                      QuickyData.user_id == user_id
+                                        ? answer1
+                                        : QuickyData.partner1_answer1,
+                                    partner1_answer2:
+                                      QuickyData.user_id == user_id
+                                        ? answer2
+                                        : QuickyData.partner1_answer2,
+                                    partner2_answer1:
+                                      QuickyData.user_id == user_id
+                                        ? QuickyData.partner2_answer1
+                                        : answer1,
+                                    partner2_answer2:
+                                      QuickyData.user_id == user_id
+                                        ? QuickyData.partner2_answer2
+                                        : answer2,
+                                    quicky_id: quicky_id,
+                                  };
+                                  quickynObject.updatePartnerDatainQuicky(
+                                    updateQuickyData,
+                                    function (err, UpdateData) {
                                       if (err) {
                                         return res({
                                           status: 400,
                                           message: "Something Went Wrong!",
                                         });
                                       } else {
-                                        if (ContributionData) {
-                                          if (ContributionData.partner1_answer2 != ContributionData.partner2_answer2) {
-                                            let comepletion_goal = {
-                                              user_id: userID,
-                                              goal_id: monthly_goal_data.id,
-                                              partner_mapping_id: patner_mapping_data.id,
-                                              didYouConnectLastNight: answer1,
-                                              WhoInitiative: answer2,
-                                            };
-                                            let completeData = {
-                                              id: monthly_goal_data.id,
-                                              complete_count: parseInt(monthly_goal_data.complete_count) + 1,
-                                              contribution1:
-                                                monthly_goal_data.user_id === user_id
-                                                  ? parseInt(monthly_goal_data.contribution1) + 1
-                                                  : parseInt(monthly_goal_data.contribution1),
-                                              contribution2:
-                                                monthly_goal_data.user_id === user_id
-                                                  ? parseInt(monthly_goal_data.contribution2)
-                                                  : parseInt(monthly_goal_data.contribution2) + 1,
-                                            };
-                                            goalSerObject.updateCompleteCount(
-                                              completeData,
-                                              function (err, update_monthly_data) {
+                                        if (UpdateData) {
+                                          if (
+                                            UpdateData.partner1_answer2 !=
+                                              null &&
+                                            UpdateData.partner2_answer2 != null
+                                          ) {
+                                            quickynObject.Addcontribution(
+                                              quicky_id,
+                                              function (err, ContributionData) {
                                                 if (err) {
                                                   return res({
                                                     status: 400,
-                                                    message: err,
+                                                    message:
+                                                      "Something Went Wrong!",
                                                   });
                                                 } else {
-                                                  if (update_monthly_data) {
-                                                    completionSerObject.saveCompletionGoal(
-                                                      comepletion_goal,
-                                                      function (err, save_data) {
-                                                        if (err) {
-                                                          return res({
-                                                            status: 504,
-                                                            message: "something Went Wrong",
-                                                          });
-                                                        } else {
-                                                          if (save_data) {
-                                                            return res({
-                                                              status: 200,
-                                                              message: "Update successfully 1",
-                                                            });
-                                                          } else {
-                                                            return res({
-                                                              status: 504,
-                                                              message: "something Went Wrong",
-                                                            });
-                                                          }
-                                                        }
-                                                      }
-                                                    );
-                                                  } else {
-                                                    return res({
-                                                      status: 504,
-                                                      message: "something Went Wrong",
-                                                    });
-                                                  }
-                                                }
-                                              }
-                                            );
-                                          } else {
-                                            return res({
-                                              status: 200,
-                                              message: "Both Partner answer are same",
-                                            });
-                                          }
-                                        }
-                                      }
-                                    });
-                                  } else {
-                                    setTimeout(() => {
-                                      quickynObject.getSingleQuickyRecord(quicky_id, function (err, quickyData) {
-                                        if (err) {
-                                          return res({
-                                            status: 400,
-                                            message: "Something Went Wrong!",
-                                          });
-                                        } else {
-                                          if (quickyData) {
-                                            if (quickyData.contribution != 1 && quickyData.partner2_answer1 != false) {
-                                              let comepletion_goal = {
-                                                user_id: userID,
-                                                goal_id: monthly_goal_data.id,
-                                                partner_mapping_id: patner_mapping_data.id,
-                                                didYouConnectLastNight: answer1,
-                                                WhoInitiative: answer2,
-                                              };
-
-                                              let completeData = {
-                                                id: monthly_goal_data.id,
-                                                complete_count: parseInt(monthly_goal_data.complete_count) + 1,
-                                                contribution1:
-                                                  monthly_goal_data.user_id === user_id
-                                                    ? parseInt(monthly_goal_data.contribution1) + 1
-                                                    : parseInt(monthly_goal_data.contribution1),
-                                                contribution2:
-                                                  monthly_goal_data.user_id === user_id
-                                                    ? parseInt(monthly_goal_data.contribution2)
-                                                    : parseInt(monthly_goal_data.contribution2) + 1,
-                                              };
-                                              goalSerObject.updateCompleteCount(
-                                                completeData,
-                                                function (err, update_monthly_data) {
-                                                  if (err) {
-                                                    return res({
-                                                      status: 400,
-                                                      message: err,
-                                                    });
-                                                  } else {
-                                                    if (update_monthly_data) {
-                                                      completionSerObject.saveCompletionGoal(
-                                                        comepletion_goal,
-                                                        function (err, save_data) {
+                                                  if (ContributionData) {
+                                                    if (
+                                                      ContributionData.partner1_answer2 !=
+                                                      ContributionData.partner2_answer2
+                                                    ) {
+                                                      let comepletion_goal = {
+                                                        user_id: userID,
+                                                        goal_id:
+                                                          monthly_goal_data.id,
+                                                        partner_mapping_id:
+                                                          patner_mapping_data.id,
+                                                        didYouConnectLastNight: answer1,
+                                                        WhoInitiative: answer2,
+                                                      };
+                                                      let completeData = {
+                                                        id:
+                                                          monthly_goal_data.id,
+                                                        complete_count:
+                                                          parseInt(
+                                                            monthly_goal_data.complete_count
+                                                          ) + 1,
+                                                        contribution1:
+                                                          monthly_goal_data.user_id ===
+                                                          user_id
+                                                            ? parseInt(
+                                                                monthly_goal_data.contribution1
+                                                              ) + 1
+                                                            : parseInt(
+                                                                monthly_goal_data.contribution1
+                                                              ),
+                                                        contribution2:
+                                                          monthly_goal_data.user_id ===
+                                                          user_id
+                                                            ? parseInt(
+                                                                monthly_goal_data.contribution2
+                                                              )
+                                                            : parseInt(
+                                                                monthly_goal_data.contribution2
+                                                              ) + 1,
+                                                      };
+                                                      goalSerObject.updateCompleteCount(
+                                                        completeData,
+                                                        function (
+                                                          err,
+                                                          update_monthly_data
+                                                        ) {
                                                           if (err) {
                                                             return res({
-                                                              status: 504,
-                                                              message: "something Went Wrong",
+                                                              status: 400,
+                                                              message: err,
                                                             });
                                                           } else {
-                                                            if (save_data) {
-                                                              return res({
-                                                                status: 200,
-                                                                message: "Update successfully 2",
-                                                              });
+                                                            if (
+                                                              update_monthly_data
+                                                            ) {
+                                                              completionSerObject.saveCompletionGoal(
+                                                                comepletion_goal,
+                                                                function (
+                                                                  err,
+                                                                  save_data
+                                                                ) {
+                                                                  if (err) {
+                                                                    return res({
+                                                                      status: 504,
+                                                                      message:
+                                                                        "something Went Wrong",
+                                                                    });
+                                                                  } else {
+                                                                    if (
+                                                                      save_data
+                                                                    ) {
+                                                                      return res(
+                                                                        {
+                                                                          status: 200,
+                                                                          message:
+                                                                            "Update successfully 1",
+                                                                        }
+                                                                      );
+                                                                    } else {
+                                                                      return res(
+                                                                        {
+                                                                          status: 504,
+                                                                          message:
+                                                                            "something Went Wrong",
+                                                                        }
+                                                                      );
+                                                                    }
+                                                                  }
+                                                                }
+                                                              );
                                                             } else {
                                                               return res({
                                                                 status: 504,
-                                                                message: "something Went Wrong",
+                                                                message:
+                                                                  "something Went Wrong",
                                                               });
                                                             }
                                                           }
@@ -2430,251 +2421,494 @@ router.put("/updateCompletedGoal/:id", verifyToken, function (req, res) {
                                                       );
                                                     } else {
                                                       return res({
-                                                        status: 504,
-                                                        message: "something Went Wrong",
+                                                        status: 200,
+                                                        message:
+                                                          "Both Partner answer are same",
                                                       });
                                                     }
                                                   }
                                                 }
-                                              );
-                                            } else {
-                                              return res({
-                                                status: 200,
-                                                message: "Contribution is alredy added",
-                                              });
-                                            }
+                                              }
+                                            );
                                           } else {
-                                            return res({
-                                              status: 500,
-                                              message: "Quicky is not found!",
-                                            });
-                                          }
-                                        }
-                                      });
-                                    }, 21600000);
+                                            setTimeout(() => {
+                                              quickynObject.getSingleQuickyRecord(
+                                                quicky_id,
+                                                function (err, quickyData) {
+                                                  if (err) {
+                                                    return res({
+                                                      status: 400,
+                                                      message:
+                                                        "Something Went Wrong!",
+                                                    });
+                                                  } else {
+                                                    if (quickyData) {
+                                                      if (
+                                                        quickyData.contribution !=
+                                                          1 &&
+                                                        quickyData.partner2_answer1 !=
+                                                          false
+                                                      ) {
+                                                        let comepletion_goal = {
+                                                          user_id: userID,
+                                                          goal_id:
+                                                            monthly_goal_data.id,
+                                                          partner_mapping_id:
+                                                            patner_mapping_data.id,
+                                                          didYouConnectLastNight: answer1,
+                                                          WhoInitiative: answer2,
+                                                        };
 
-                                    userSerObject.getUserById(user_id, function (err, userData) {
-                                      if (err) {
-                                        return res({
-                                          status: 400,
-                                          message: "something went wrong.",
-                                        });
-                                      } else {
-                                        if (userData) {
-                                          userSerObject.getPartnerById(user_id, function (err, partnerData) {
-                                            if (err) {
-                                              return res({
-                                                status: 400,
-                                                message: "something went wrong.",
-                                              });
-                                            } else {
-                                              goalSerObject.getGoalDetails(
-                                                user_id,
-                                                partner_data.id,
-                                                function (err, monthly_goal_data) {
-                                                  const monthend = new Date(monthly_goal_data.month_end);
-                                                  const diffTime = Math.abs(new Date() - monthend);
-                                                  const REMAININGDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-                                                  const remainingConnections =
-                                                    monthly_goal_data.connect_number - monthly_goal_data.complete_count;
-                                                  const final = Math.ceil(REMAININGDays / remainingConnections);
-
-                                                  {
-                                                    if (monthly_goal_data) {
-                                                      const [
-                                                        time,
-                                                        modifier,
-                                                      ] = monthly_goal_data.intimate_request_time.split(" ");
-                                                      let [hours, minutes] = time.split(":");
-                                                      if (hours === "12") {
-                                                        hours = "00";
-                                                      }
-                                                      if (modifier === "PM") {
-                                                        hours = parseInt(hours, 10) + 12;
-                                                      }
-                                                      var now = new Date();
-                                                      var night = new Date(
-                                                        now.getFullYear(),
-                                                        now.getMonth(),
-                                                        now.getDate(),
-                                                        hours,
-                                                        minutes,
-                                                        0
-                                                      );
-
-                                                      // var month = date.getMonth() + 1;
-                                                      // var year = date.getFullYear();
-                                                      var month = current_datetime.format(night, "MM", true);
-                                                      var year = current_datetime.format(night, "YYYY", true);
-                                                      minutes = current_datetime.format(night, "mm");
-                                                      hours = current_datetime.format(night, "HH");
-                                                      let day = parseInt(
-                                                        new Date(year, month, 0).getDate() /
-                                                          monthly_goal_data.connect_number
-                                                      );
-                                                      if (day <= 0) {
-                                                        day = 1;
-                                                      }
-
-                                                      cron.schedule(
-                                                        `${parseInt(minutes)} ${hours} */${final} * *`,
-                                                        () => {
-                                                          // cron.schedule(`* * * * *`, (err, ress) => {
-                                                          let statusCheck = customHelper.check_notification_Mute(
-                                                            userData.notification_mute_start,
-                                                            userData.notification_mute_end
-                                                          );
-                                                          if (statusCheck) {
-                                                            return res({
-                                                              status: 400,
-                                                              message: "Notificaiton is mute for some time.",
-                                                            });
-                                                          } else {
-                                                            goalSerObject.getGoalDetails(
-                                                              userData.id,
-                                                              partnerData.id,
-                                                              function (err, monthlyGoal_data) {
-                                                                if (err) {
-                                                                  return res({
-                                                                    status: 404,
-                                                                    message: "Something went wrong!",
-                                                                  });
-                                                                } else {
-                                                                  if (monthlyGoal_data) {
-                                                                    // var date = new Date();
-                                                                    // var lastDay = new Date(
-                                                                    //   date.getFullYear(),
-                                                                    //   date.getMonth() + 1,
-                                                                    //   0
-                                                                    // ).getDate();
-                                                                    // var current_date = date.getDate();
-                                                                    // let remaing = lastDay - current_date;
-                                                                    // let PR;
-                                                                    // if (monthlyGoal_data.complete_count == 0) {
-                                                                    //   PR = 0;
-                                                                    // } else {
-                                                                    //   PR =
-                                                                    //     (monthlyGoal_data.complete_count /
-                                                                    //       monthlyGoal_data.connect_number) *
-                                                                    //     100;
-                                                                    // }
-                                                                    const monthend = new Date(
-                                                                      monthly_goal_data.month_end
-                                                                    );
-                                                                    const diffTime = Math.abs(new Date() - monthend);
-                                                                    const REMAININGDays = Math.ceil(
-                                                                      diffTime / (1000 * 60 * 60 * 24)
-                                                                    );
-
-                                                                    const remainingConnections =
-                                                                      monthly_goal_data.connect_number -
-                                                                      monthly_goal_data.complete_count;
-                                                                    const final = Math.ceil(
-                                                                      REMAININGDays / remainingConnections
-                                                                    );
-
-                                                                    let Notificationmessage = {
-                                                                      PR: final,
-                                                                      remaing_days: diffTime,
-                                                                    };
-
-                                                                    notificationObject.notification(
-                                                                      userData.fcmid,
-                                                                      Notificationmessage,
-                                                                      function (err, response) {
-                                                                        let notification1 = {
-                                                                          user_id: userData.id,
-                                                                          goal_id: monthly_goal_data.id,
-                                                                          device_id: userData.fcmid,
-                                                                          notification_id:
-                                                                            response.results[0].message_id,
-                                                                        };
-                                                                        notificationObject.saveNotification(
-                                                                          notification1,
-                                                                          function (err, response) {}
+                                                        let completeData = {
+                                                          id:
+                                                            monthly_goal_data.id,
+                                                          complete_count:
+                                                            parseInt(
+                                                              monthly_goal_data.complete_count
+                                                            ) + 1,
+                                                          contribution1:
+                                                            monthly_goal_data.user_id ===
+                                                            user_id
+                                                              ? parseInt(
+                                                                  monthly_goal_data.contribution1
+                                                                ) + 1
+                                                              : parseInt(
+                                                                  monthly_goal_data.contribution1
+                                                                ),
+                                                          contribution2:
+                                                            monthly_goal_data.user_id ===
+                                                            user_id
+                                                              ? parseInt(
+                                                                  monthly_goal_data.contribution2
+                                                                )
+                                                              : parseInt(
+                                                                  monthly_goal_data.contribution2
+                                                                ) + 1,
+                                                        };
+                                                        goalSerObject.updateCompleteCount(
+                                                          completeData,
+                                                          function (
+                                                            err,
+                                                            update_monthly_data
+                                                          ) {
+                                                            if (err) {
+                                                              return res({
+                                                                status: 400,
+                                                                message: err,
+                                                              });
+                                                            } else {
+                                                              if (
+                                                                update_monthly_data
+                                                              ) {
+                                                                completionSerObject.saveCompletionGoal(
+                                                                  comepletion_goal,
+                                                                  function (
+                                                                    err,
+                                                                    save_data
+                                                                  ) {
+                                                                    if (err) {
+                                                                      return res(
+                                                                        {
+                                                                          status: 504,
+                                                                          message:
+                                                                            "something Went Wrong",
+                                                                        }
+                                                                      );
+                                                                    } else {
+                                                                      if (
+                                                                        save_data
+                                                                      ) {
+                                                                        return res(
+                                                                          {
+                                                                            status: 200,
+                                                                            message:
+                                                                              "Update successfully 2",
+                                                                          }
+                                                                        );
+                                                                      } else {
+                                                                        return res(
+                                                                          {
+                                                                            status: 504,
+                                                                            message:
+                                                                              "something Went Wrong",
+                                                                          }
                                                                         );
                                                                       }
-                                                                    );
-                                                                    notificationObject.notification(
-                                                                      partnerData.fcmid,
-                                                                      Notificationmessage,
-                                                                      function (err, response) {
-                                                                        let notification1 = {
-                                                                          user_id: partnerData.id,
-                                                                          goal_id: monthly_goal_data.id,
-                                                                          device_id: partnerData.fcmid,
-                                                                          notification_id:
-                                                                            response.results[0].message_id,
-                                                                        };
-                                                                        notificationObject.saveNotification(
-                                                                          notification1,
-                                                                          function (err, response) {}
-                                                                        );
-                                                                      }
-                                                                    );
+                                                                    }
                                                                   }
-                                                                }
+                                                                );
+                                                              } else {
+                                                                return res({
+                                                                  status: 504,
+                                                                  message:
+                                                                    "something Went Wrong",
+                                                                });
                                                               }
-                                                            );
+                                                            }
                                                           }
-                                                        }
-                                                      );
+                                                        );
+                                                      } else {
+                                                        return res({
+                                                          status: 200,
+                                                          message:
+                                                            "Contribution is alredy added",
+                                                        });
+                                                      }
                                                     } else {
                                                       return res({
                                                         status: 500,
-                                                        message: "Partner is not found.",
+                                                        message:
+                                                          "Quicky is not found!",
                                                       });
                                                     }
                                                   }
                                                 }
                                               );
-                                            }
-                                          });
+                                            }, 21600000);
+
+                                            userSerObject.getUserById(
+                                              user_id,
+                                              function (err, userData) {
+                                                if (err) {
+                                                  return res({
+                                                    status: 400,
+                                                    message:
+                                                      "something went wrong.",
+                                                  });
+                                                } else {
+                                                  if (userData) {
+                                                    userSerObject.getPartnerById(
+                                                      user_id,
+                                                      function (
+                                                        err,
+                                                        partnerData
+                                                      ) {
+                                                        if (err) {
+                                                          return res({
+                                                            status: 400,
+                                                            message:
+                                                              "something went wrong.",
+                                                          });
+                                                        } else {
+                                                          goalSerObject.getGoalDetails(
+                                                            user_id,
+                                                            partner_data.id,
+                                                            function (
+                                                              err,
+                                                              monthly_goal_data
+                                                            ) {
+                                                              const monthend = new Date(
+                                                                monthly_goal_data.month_end
+                                                              );
+                                                              const diffTime = Math.abs(
+                                                                new Date() -
+                                                                  monthend
+                                                              );
+                                                              const REMAININGDays = Math.ceil(
+                                                                diffTime /
+                                                                  (1000 *
+                                                                    60 *
+                                                                    60 *
+                                                                    24)
+                                                              );
+
+                                                              const remainingConnections =
+                                                                monthly_goal_data.connect_number -
+                                                                monthly_goal_data.complete_count;
+                                                              const final = Math.ceil(
+                                                                REMAININGDays /
+                                                                  remainingConnections
+                                                              );
+
+                                                              {
+                                                                if (
+                                                                  monthly_goal_data
+                                                                ) {
+                                                                  const [
+                                                                    time,
+                                                                    modifier,
+                                                                  ] = monthly_goal_data.intimate_request_time.split(
+                                                                    " "
+                                                                  );
+                                                                  let [
+                                                                    hours,
+                                                                    minutes,
+                                                                  ] = time.split(
+                                                                    ":"
+                                                                  );
+                                                                  if (
+                                                                    hours ===
+                                                                    "12"
+                                                                  ) {
+                                                                    hours =
+                                                                      "00";
+                                                                  }
+                                                                  if (
+                                                                    modifier ===
+                                                                    "PM"
+                                                                  ) {
+                                                                    hours =
+                                                                      parseInt(
+                                                                        hours,
+                                                                        10
+                                                                      ) + 12;
+                                                                  }
+                                                                  var now = new Date();
+                                                                  var night = new Date(
+                                                                    now.getFullYear(),
+                                                                    now.getMonth(),
+                                                                    now.getDate(),
+                                                                    hours,
+                                                                    minutes,
+                                                                    0
+                                                                  );
+
+                                                                  // var month = date.getMonth() + 1;
+                                                                  // var year = date.getFullYear();
+                                                                  var month = current_datetime.format(
+                                                                    night,
+                                                                    "MM",
+                                                                    true
+                                                                  );
+                                                                  var year = current_datetime.format(
+                                                                    night,
+                                                                    "YYYY",
+                                                                    true
+                                                                  );
+                                                                  minutes = current_datetime.format(
+                                                                    night,
+                                                                    "mm"
+                                                                  );
+                                                                  hours = current_datetime.format(
+                                                                    night,
+                                                                    "HH"
+                                                                  );
+                                                                  let day = parseInt(
+                                                                    new Date(
+                                                                      year,
+                                                                      month,
+                                                                      0
+                                                                    ).getDate() /
+                                                                      monthly_goal_data.connect_number
+                                                                  );
+                                                                  if (
+                                                                    day <= 0
+                                                                  ) {
+                                                                    day = 1;
+                                                                  }
+
+                                                                  cron.schedule(
+                                                                    `${parseInt(
+                                                                      minutes
+                                                                    )} ${hours} */${final} * *`,
+                                                                    () => {
+                                                                      // cron.schedule(`* * * * *`, (err, ress) => {
+                                                                      let statusCheck = customHelper.check_notification_Mute(
+                                                                        userData.notification_mute_start,
+                                                                        userData.notification_mute_end
+                                                                      );
+                                                                      if (
+                                                                        statusCheck
+                                                                      ) {
+                                                                        return res(
+                                                                          {
+                                                                            status: 400,
+                                                                            message:
+                                                                              "Notificaiton is mute for some time.",
+                                                                          }
+                                                                        );
+                                                                      } else {
+                                                                        goalSerObject.getGoalDetails(
+                                                                          userData.id,
+                                                                          partnerData.id,
+                                                                          function (
+                                                                            err,
+                                                                            monthlyGoal_data
+                                                                          ) {
+                                                                            if (
+                                                                              err
+                                                                            ) {
+                                                                              return res(
+                                                                                {
+                                                                                  status: 404,
+                                                                                  message:
+                                                                                    "Something went wrong!",
+                                                                                }
+                                                                              );
+                                                                            } else {
+                                                                              if (
+                                                                                monthlyGoal_data
+                                                                              ) {
+                                                                                // var date = new Date();
+                                                                                // var lastDay = new Date(
+                                                                                //   date.getFullYear(),
+                                                                                //   date.getMonth() + 1,
+                                                                                //   0
+                                                                                // ).getDate();
+                                                                                // var current_date = date.getDate();
+                                                                                // let remaing = lastDay - current_date;
+                                                                                // let PR;
+                                                                                // if (monthlyGoal_data.complete_count == 0) {
+                                                                                //   PR = 0;
+                                                                                // } else {
+                                                                                //   PR =
+                                                                                //     (monthlyGoal_data.complete_count /
+                                                                                //       monthlyGoal_data.connect_number) *
+                                                                                //     100;
+                                                                                // }
+                                                                                const monthend = new Date(
+                                                                                  monthly_goal_data.month_end
+                                                                                );
+                                                                                const diffTime = Math.abs(
+                                                                                  new Date() -
+                                                                                    monthend
+                                                                                );
+                                                                                const REMAININGDays = Math.ceil(
+                                                                                  diffTime /
+                                                                                    (1000 *
+                                                                                      60 *
+                                                                                      60 *
+                                                                                      24)
+                                                                                );
+
+                                                                                const remainingConnections =
+                                                                                  monthly_goal_data.connect_number -
+                                                                                  monthly_goal_data.complete_count;
+                                                                                const final = Math.ceil(
+                                                                                  REMAININGDays /
+                                                                                    remainingConnections
+                                                                                );
+
+                                                                                let Notificationmessage = {
+                                                                                  PR: final,
+                                                                                  remaing_days: diffTime,
+                                                                                };
+
+                                                                                notificationObject.notification(
+                                                                                  userData.fcmid,
+                                                                                  Notificationmessage,
+                                                                                  function (
+                                                                                    err,
+                                                                                    response
+                                                                                  ) {
+                                                                                    let notification1 = {
+                                                                                      user_id:
+                                                                                        userData.id,
+                                                                                      goal_id:
+                                                                                        monthly_goal_data.id,
+                                                                                      device_id:
+                                                                                        userData.fcmid,
+                                                                                      notification_id:
+                                                                                        response
+                                                                                          .results[0]
+                                                                                          .message_id,
+                                                                                    };
+                                                                                    notificationObject.saveNotification(
+                                                                                      notification1,
+                                                                                      function (
+                                                                                        err,
+                                                                                        response
+                                                                                      ) {}
+                                                                                    );
+                                                                                  }
+                                                                                );
+                                                                                notificationObject.notification(
+                                                                                  partnerData.fcmid,
+                                                                                  Notificationmessage,
+                                                                                  function (
+                                                                                    err,
+                                                                                    response
+                                                                                  ) {
+                                                                                    let notification1 = {
+                                                                                      user_id:
+                                                                                        partnerData.id,
+                                                                                      goal_id:
+                                                                                        monthly_goal_data.id,
+                                                                                      device_id:
+                                                                                        partnerData.fcmid,
+                                                                                      notification_id:
+                                                                                        response
+                                                                                          .results[0]
+                                                                                          .message_id,
+                                                                                    };
+                                                                                    notificationObject.saveNotification(
+                                                                                      notification1,
+                                                                                      function (
+                                                                                        err,
+                                                                                        response
+                                                                                      ) {}
+                                                                                    );
+                                                                                  }
+                                                                                );
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        );
+                                                                      }
+                                                                    }
+                                                                  );
+                                                                } else {
+                                                                  return res({
+                                                                    status: 500,
+                                                                    message:
+                                                                      "Partner is not found.",
+                                                                  });
+                                                                }
+                                                              }
+                                                            }
+                                                          );
+                                                        }
+                                                      }
+                                                    );
+                                                  }
+                                                }
+                                              }
+                                            );
+
+                                            return res({
+                                              status: 200,
+                                              message: "Update successfully 3",
+                                            });
+                                          }
+                                        } else {
+                                          console.log("Quicky update error");
                                         }
                                       }
-                                    });
-
-                                    return res({
-                                      status: 200,
-                                      message: "Update successfully 3",
-                                    });
-                                  }
+                                    }
+                                  );
                                 } else {
-                                  console.log("Quicky update error");
+                                  return res({
+                                    status: 200,
+                                    message: "some thing wrong with quickie !",
+                                  });
                                 }
                               }
-                            });
-                          } else {
-                            return res({
-                              status: 200,
-                              message: "some thing wrong with quickie !",
-                            });
-                          }
+                            }
+                          );
+                        } else {
+                          return res({
+                            status: 200,
+                            message: "You did not connect last night",
+                          });
                         }
-                      });
-                    } else {
-                      return res({
-                        status: 200,
-                        message: "You did not connect last night",
-                      });
+                      } else {
+                        return res({
+                          status: 504,
+                          message: "Something went wrong! please try again.",
+                        });
+                      }
                     }
-                  } else {
-                    return res({
-                      status: 504,
-                      message: "Something went wrong! please try again.",
-                    });
                   }
-                }
-              });
-            } else {
-              return res({
-                status: 400,
-                message: "Goal is not found. please setup a goal first.",
-              });
+                );
+              } else {
+                return res({
+                  status: 400,
+                  message: "Goal is not found. please setup a goal first.",
+                });
+              }
             }
           }
-        });
+        );
       } else {
         return res({
           status: 504,

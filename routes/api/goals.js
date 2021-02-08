@@ -1051,7 +1051,7 @@ router.post("/CheckingStage", verifyToken, function (req, res) {
                                                         userSerObject.getPartnerById(
                                                           user_id,
                                                           function (err, userPartnerData) {
-                                                            // if(userPartnerData.stage == 5) {
+                                                            if(userPartnerData.stage == 5) {
                                                             let updateStage = {
                                                               user_id: user_id,
                                                               partner_id: partnerMappingData.partner_two_id,
@@ -1061,7 +1061,7 @@ router.post("/CheckingStage", verifyToken, function (req, res) {
                                                               updateStage,
                                                               function (err, updatedStage) {}
                                                             );
-                                                            // }
+                                                            }
                                                           }
                                                         );
                                                       }, 300000);
@@ -1113,7 +1113,7 @@ router.post("/CheckingStage", verifyToken, function (req, res) {
                                     userSerObject.updateUserStage(5, user_id, function (err, updatestageData) {
                                       setTimeout(() => {
                                         userSerObject.getPartnerById(user_id, function (err, userPartnerData) {
-                                          // if(userPartnerData.stage == 5) {
+                                          if(userPartnerData.stage == 5) {
                                           let updateStage = {
                                             user_id: user_id,
                                             partner_id: partnerMappingData.partner_two_id,
@@ -1123,7 +1123,7 @@ router.post("/CheckingStage", verifyToken, function (req, res) {
                                             updateStage,
                                             function (err, updatedStage) {}
                                           );
-                                          // }
+                                          }
                                         });
                                       }, 300000);
                                       if (updatestageData) {
@@ -1176,14 +1176,14 @@ router.post("/CheckingStage", verifyToken, function (req, res) {
                       } else {
                         setTimeout(() => {
                           userSerObject.getPartnerById(user_id, function (err, userPartnerData) {
-                            // if(userPartnerData.stage == 5) {
+                            if(userPartnerData.stage == 5) {
                             let updateStage = {
                               user_id: user_id,
                               partner_id: partnerMappingData.partner_two_id,
                               stage: 4,
                             };
                             userSerObject.updateBothPartnerStage(updateStage, function (err, updatedStage) {});
-                            // }
+                            }
                           });
                         }, 300000);
                         userSerObject.updateUserStage(5, user_id, function (err, updatestageData) {
@@ -1439,7 +1439,7 @@ router.post("/CheckingStage", verifyToken, function (req, res) {
                                       if (updatestageData) {
                                         setTimeout(() => {
                                           userSerObject.getPartnerById(user_id, function (err, userPartnerData) {
-                                            // if(userPartnerData.stage == 5) {
+                                            if(userPartnerData.stage == 5) {
                                             let updateStage = {
                                               user_id: user_id,
                                               partner_id: partnerMappingData.partner_two_id,
@@ -1449,7 +1449,7 @@ router.post("/CheckingStage", verifyToken, function (req, res) {
                                               updateStage,
                                               function (err, updatedStage) {}
                                             );
-                                            // }
+                                            }
                                           });
                                         }, 300000);
                                         return res.send({

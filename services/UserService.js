@@ -561,10 +561,18 @@ class UserService {
   async UpdateSubscripation(UpdateData, callback) {
     const now = new Date();
     var date = new Date();
-    if (UpdateData.subscripation_plan == "yearly") {
+    if (
+      UpdateData.subscripation_plan == "com.oh.yearly" ||
+      UpdateData.subscripation_plan == "oneyear.subscription.oh.com" ||
+      UpdateData.subscripation_plan == "yearly"
+    ) {
       date = current_datetime.addYears(now, 1);
     }
-    if (UpdateData.subscripation_plan == "monthly") {
+    if (
+      UpdateData.subscripation_plan == "com.oh.monthly" ||
+      UpdateData.subscripation_plan == "monthly.subscription.oh.com" ||
+      UpdateData.subscripation_plan == "monthly"
+    ) {
       date = current_datetime.addDays(now, 30);
     }
     await userObject

@@ -1207,44 +1207,56 @@ router.delete("/removeAccount", verifyToken, function (req, res) {
                       if (removeableData) {
                         userSerObject.updateUserStage(1, partnerData.id, function (err, updatedStage) {
                           if (updatedStage) {
-                            userSerObject.RemoveAccount(user_id, function (err, removeAccountData) {
-                              if (err) {
-                                res.send({
-                                  status: 400,
-                                  message: "Something went wrong",
-                                });
-                              } else {
-                                if (removeAccountData) {
-                                  feedbackObject.RemoveFeedback(user_id, function (err, removeFeedbackdata) {
-                                    if (err) {
-                                      res.send({
-                                        status: 400,
-                                        message: "Something went wrong",
-                                      });
-                                    } else {
-                                      if (removeFeedbackdata) {
-                                        res.send({
-                                          status: 200,
-                                          message: "Account deleted successfully",
-                                          patner_fcmid: updatedStage.fcmid,
-                                        });
-                                      }
-                                    }
-                                  });
-                                } else {
-                                  res.send({
-                                    status: 404,
-                                    message: "User is not found",
-                                  });
-                                }
-                              }
-                            });
-                          } else {
-                            res.send({
-                              status: 400,
-                              message: "Something Went worng",
-                            });
-                          }
+                            userSerObject.updateUserStage(1, user_id, function (err, userupdatedStage) {
+                             if (userupdatedStage) {
+                                 userSerObject.RemoveAccount(
+                                   user_id,
+                                   function (err, removeAccountData) {
+                                     if (err) {
+                                       res.send({
+                                         status: 400,
+                                         message: "Something went wrong",
+                                       });
+                                     } else {
+                                   
+                                       if (removeAccountData) {
+                                         feedbackObject.RemoveFeedback(
+                                           user_id,
+                                           function (err, removeFeedbackdata) {
+                                             if (err) {
+                                               res.send({
+                                                 status: 400,
+                                                 message:
+                                                   "Something went wrong",
+                                               });
+                                             } else {
+                                                 res.send({
+                                                   status: 200,
+                                                   message:
+                                                     "Account deleted successfully",
+                                                   patner_fcmid:
+                                                     updatedStage.fcmid,
+                                                 });
+                                             }
+                                           }
+                                         );
+                                       } else {
+                                         res.send({
+                                           status: 404,
+                                           message: "User is not found",
+                                         });
+                                       }
+                                     }
+                                   }
+                                 );
+                               } else {
+                                 res.send({
+                                   status: 400,
+                                   message: "Something Went worng",
+                                 });
+                               }
+                              });
+                            }
                         });
                       } else {
                         res.send({
