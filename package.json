@@ -26,7 +26,7 @@
     "express-session": "^1.17.0",
     "express-validator": "*",
     "fcm-node": "^1.5.2",
-    "handlebars": "^4.7.2",
+    "handlebars": "^4.7.7",
     "helmet": "^3.21.1",
     "icheck": "^1.0.2",
     "icheck-2": "^2.0.0",
