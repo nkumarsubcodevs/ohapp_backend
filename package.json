@@ -41,7 +41,7 @@
     "multer": "^1.4.2",
     "node-cron": "^2.0.3",
     "nodejs-base64": "^1.0.3",
-    "nodemailer": "^6.3.1",
+    "nodemailer": "^6.4.16",
     "nodemon": "^1.19.4",
     "passport": "*",
     "passport-http": "*",
