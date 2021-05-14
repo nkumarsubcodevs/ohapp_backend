@@ -1,0 +1,340 @@
+.error{
+  color:red !important;
+  font-weight: normal;
+}
+
+.Verified-Order {
+  background: rgb(58, 137, 201) none repeat scroll 0 0;
+  border-radius: 12px;
+  color: #fff;
+  display: block;
+  font-size: 11px;
+  margin: 5px 0 !important;
+  padding: 0;
+  width: 96px;
+  text-align: center;
+}
+
+.Unverified-Order {
+  background: rgb(210, 85, 26) none repeat scroll 0 0;
+  border-radius: 10px;
+  color: #fff;
+  display: block;
+  font-size: 11px;
+  margin: 5px 0 !important;
+  padding: 0;
+  width: 130px;
+  text-align: center;
+  vertical-align: middle;
+  padding-bottom: 10px;
+}
+
+.loading {
+  background: rgba(27, 25, 25, 0.68) url("../img/LoaderIcon.gif") no-repeat scroll 50% 50%;
+  bottom: 0;
+  display: none;
+  height: 80px;
+  left: 45%;
+  position: fixed;
+  right: 0;
+  top: 40%;
+  width: 80px;
+  z-index: 1000;
+  height: 100%;
+  left: 0;
+  margin: 0;
+  overflow: auto;
+  padding: 0;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 7371832;
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1050;
+  display: none;
+  overflow: hidden;
+  -webkit-overflow-scrolling: touch;
+  outline: 0;
+}
+
+.fade {
+  opacity: 0;
+  -webkit-transition: opacity .15s linear;
+  -o-transition: opacity .15s linear;
+  transition: opacity .15s linear;
+}
+
+#myOrderBox.modal {
+  overflow: auto;
+}
+
+#myOrderBox .modal-header {
+  background: #565555 none repeat scroll 0 0;
+  border-bottom: 1px solid #e5e5e5;
+  color: #fff;
+  min-height: 16.4286px;
+  padding: 15px;
+}
+
+#myOrderBox h4.modal-title {
+  font-family: "Open Sans", Arial, sans-serif;
+  color: #fff;
+  font-size: 20px;
+}
+
+.modal-title {
+  margin: 0;
+  line-height: 1.42857143;
+}
+
+#myOrderBox.modal h2 {
+  background: #d92727 none repeat scroll 0 0;
+  color: #fff;
+  font-family: arial;
+  font-size: 14px;
+  font-weight: bold;
+  margin: 5px 0 0 0;
+  padding: 8px 0;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+#myOrderBox.modal .detail-div p {
+  margin: 0px 0px 3px 0px;
+  font-family: arial;
+  color: #6b6b6b;
+  font-size: 15px;
+  line-height: 20px;
+  clear: both;
+  width: 100%;
+  display: inline-block;
+  padding: 3px 0px;
+  background: #f7f7f7 none repeat scroll 0 0;
+}
+
+#myOrderBox.modal .detail-div p b {
+  color: #2f353b;
+  display: block;
+  float: left;
+  font-size: 13px;
+  margin-right: 5px;
+  width: 150px;
+  text-align: right;
+  font-family: arial;
+}
+
+.add-div {
+  width: 48%;
+  float: left;
+  margin-left: 0px;
+}
+
+#myOrderBox.modal h1 {
+  background: #f2f2f2 none repeat scroll 0 0;
+  border-bottom: 3px solid #eeeeee;
+  color: #d92727;
+  font-size: 20px;
+  font-weight: 400;
+  margin: 10px 0;
+  padding: 8px 0;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.customfrmclass-normal {
+  font-family: verdana,geneva,sans-serif !important;
+  font-size: 11px !important;
+}
+
+.add-div p {
+  margin: 0px 0px 3px 0px;
+  font-family: arial;
+  color: #6b6b6b;
+  font-size: 13px;
+  line-height: 20px;
+  padding: 0px 0px 2px 0px;
+}
+
+#btnordercomments {
+  background: #d7d7d7 none repeat scroll 0 0;
+  color: #4a4a4a;
+  font-size: 13px;
+  line-height: 15px;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.add-div h3 {
+  margin: 0px 0px 5px 0px;
+  padding: 0px 0px 3px 0px;
+  font-size: 16px;
+  font-family: inherit;
+  color: #149545;
+  font-weight: normal;
+  line-height: 25px;
+  border-bottom: 1px solid #ededed;
+}
+.btn-primary:hover {
+  color: #fff;
+  background-color: #286090;
+  border-color: #204d74;
+}
+
+#myOrderBox.modal table.product-table thead th {
+  border-bottom: 2px solid #ffebeb;
+  color: #d92727;
+  font-family: arial;
+  font-size: 14px;
+  font-weight: normal;
+  padding: 8px 5px 8px 0;
+  text-transform: uppercase;
+}
+
+#myOrderBox.modal table.product-table tbody td {
+  font-size: 13px;
+  padding: 8px 15px 8px 0px;
+  color: #3d3c3c;
+  border-bottom: 1px solid #eaeaea;
+  font-family: arial;
+}
+#btnupdateprice{
+  background-color: #e74e28;
+  color: #fff;
+  font-family: 'OpenSans-Semibold';
+  font-size: 12px;
+  text-transform: uppercase;
+  transition: all 0.25s ease-in-out 0s;
+  padding: 5px 12px;
+}
+
+#btnupdateorderemail{
+  background-color: #e74e28;
+  color: #fff;
+  font-family: 'OpenSans-Semibold';
+  font-size: 12px;
+  text-transform: uppercase;
+  transition: all 0.25s ease-in-out 0s;
+  padding: 5px 12px;
+  margin-top: 26px;
+}
+
+.product-total {
+  clear: both;
+  width: 100%;
+  margin-top: 0px;
+  font-family: arial;
+  overflow: auto;
+  margin-bottom: 15px;
+}
+
+.product-total ul {
+  width: 271px;
+  float: right;
+  margin: 0px 10px 0px 0px;
+  padding: 0px 0px 0px 0px;
+  border: 0px solid #efefef;
+      border-top-color: rgb(239, 239, 239);
+      border-top-style: solid;
+      border-top-width: 0px;
+  border-top: 0px;
+  line-height: 25px;
+  text-align: right;
+}
+
+.product-total ul li span {
+  display: block;
+  float: right;
+  margin-right: 5px;
+  text-align: right;
+  width: 57px;
+}
+
+.product-total ul li {
+  clear: both;
+  width: 100%;
+  list-style: none;
+  display: inline-block;
+  font-weight: normal;
+  margin: 0;
+  padding: 0px 0px 2px 0px;
+  color: #6b6b6b;
+  border-bottom: 1px solid #ebebeb;
+  font-size: 14px;
+}
+
+.product-total ul li b {
+  color: #575757;
+  display: block;
+  float: right;
+  font-size: 14px;
+  margin-right: 0;
+  padding-right: 10px;
+  text-align: right;
+  width: 140px;
+}
+
+.a-btn-div {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.amn-btn {
+  display: inline-block;
+  background-color: #2a3e27;
+  color: #fff;
+  font-family: 'OpenSans-Semibold';
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+  transition: 0.5s all;
+  -webkit-transition: 0.5s all;
+  -moz-transition: 0.5s all;
+  -o-transition: 0.5s all;
+  -ms-transition: 0.5s all;
+  padding: 4px 10px;
+  margin-right: 10px;
+}
+
+#myOrderBox .modal-header .close:hover {
+  color: #222;
+  -webkit-transition: color 1s ease;
+  -moz-transition: color 1s ease;
+  transition: color 1s ease;
+}
+
+#myOrderBox .modal-header .close {
+  line-height: 1;
+  font-size: 1.5em;
+  position: absolute;
+  top: 20px;
+  right: 2%;
+  text-decoration: none;
+  color: #ffffff;
+  opacity: 0.45;
+  font-weight: normal;
+}
+
+.tableStyle {
+  margin-left: 215px;
+}
+
+.customePanel {
+    color: #000 !important;
+    background-color: #fff !important;
+    border-color: #fff !important;
+}
+
+ .panelCustom{
+   height: 100%;
+ }
+
+  .sidebarCustom {
+   height: 562px !important;
+ } 

@@ -1,0 +1,62 @@
+<% include ../partials/leftpart %> 
+<% include ../partials/header %> 
+
+
+<div class="content-wrapper">
+<section class="content-header">
+		  <h1>Update Page</h1>
+		  <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-dashboard"></i> Home</a></li>
+        <li class="active">Dashboard</li>
+		  </ol>
+    </section>
+       
+   
+		<section class="content">
+    
+     <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary"  style="margin: auto; width:50%">
+                    <div class="box-header with-border">
+                      <h3 class="box-title">Update Question</h3>
+                    </div>
+                     <form role="form" method="POST" action="/pages/update">
+                     <input type="hidden" name="page_id" value="<%=pageValue[0]['id']%>"/>
+                        <div class="box-body">
+                          <div class="form-group">
+                            <label for="exampleInputEmail1" style="font-size: 15px;">Title</label>
+                            <input type="text" class="form-control" name="title" value="<%=pageValue[0]['question_title']%>"/>
+                          </div>
+                          <div class="form-group">
+                            <label for="exampleInputEmail1" style="font-size: 15px;">descripation</label>
+                            <input type="text" class="form-control" name="descripation" value="<%=pageValue[0]['question_descripation']%>"/>
+                          </div>
+                          <div class="row">
+                          <% for(var i=0; i < option.length; i++) { %>
+                            <div class="form-group col-md-6" >
+                              <label for="exampleInputEmail1" style="font-size: 15px;">Option<%=i +1%></label>
+                              <input type="text" class="form-control" name="Option" value="<%=option[i].title%>"/>
+                            </div>
+                         <% } %>
+                          </div>
+                          <div class="form-group">
+                            <label for="exampleInputPassword1" style="font-size: 15px;">Status</label>
+                            <select class="form-control" name="status">
+                                <option value="1" <% if(pageValue[0]['status']==1) { %> selected <% } %>>Active</option>
+                                <option value="0" <% if(pageValue[0]['status']==0) { %> selected <% } %>>Inactive</option>
+                            </select>
+                            </div>
+                        </div>
+                        <div class="box-footer" style="justify-content:space-evenly; display: flex;">
+                          <button type="submit" class="btn btn-primary">Submit</button>
+                          <a class="btn btn-secondary" href="/pages/1" style="color: white">Cancel</a>
+                        </div>
+                     </form>
+                </div>
+            </div>
+        </div>
+ </section>
+</div>
+<% include ../partials/footer %> 
+
+

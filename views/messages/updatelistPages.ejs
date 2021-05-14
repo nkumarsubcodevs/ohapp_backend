@@ -1,0 +1,53 @@
+<% include ../partials/leftpart %> 
+<% include ../partials/header %> 
+
+
+<div class="content-wrapper">
+<section class="content-header">
+		  <h1>Update Info Messages</h1>
+		  <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-dashboard"></i> Home</a></li>
+        <li class="active">Dashboard</li>
+		  </ol>
+    </section>
+
+		<section class="content">
+
+     <div class="row">
+            <div class="col-md-12">
+                <div class="box box-primary"  style="margin: auto; width:50%">
+                    <div class="box-header with-border">
+                      <h3 class="box-title">Update Info Messages
+                      </h3>
+                    </div>
+                     <form role="form" method="POST" action="/messages/update">
+                     <input type="hidden" name="page_id" value="<%=pageValue['id']%>"/>
+                        <div class="box-body">
+                          <div class="form-group">
+                            <label for="exampleInputEmail1" style="font-size: 15px;">Title</label>
+                            <input type="text" class="form-control" name="title" value="<%=pageValue['title']%>"/>
+                          </div>
+                          <div class="form-group">
+                            <label for="exampleInputEmail1" style="font-size: 15px;">descripation</label>
+                            <textarea class="form-control" name="descripation" id="descripation" ><%=pageValue['description']%></textarea>
+                          <div class="form-group">
+                            <label for="exampleInputPassword1" style="font-size: 15px;">Status</label>
+                            <select class="form-control" name="status">
+                                <option value="1" <% if(pageValue['status']==1) { %> selected <% } %>>Active</option>
+                                <option value="0" <% if(pageValue['status']==0) { %> selected <% } %>>Inactive</option>
+                            </select>
+                            </div>
+                        </div>
+                        <div class="box-footer" style="justify-content:space-evenly; display: flex;">
+                          <button type="submit" class="btn btn-primary">Submit</button>
+                          <a class="btn btn-secondary" href="/messages/1" style="color: white">Cancel</a>
+                        </div>
+                      </form>
+                </div>
+            </div>
+        </div>
+ </section>
+</div>
+<% include ../partials/footer %> 
+
+

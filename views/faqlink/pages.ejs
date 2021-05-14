@@ -1,0 +1,107 @@
+<% include ../partials/header %>
+    <% include ../partials/leftpart %>
+        <%= console.log('test') %>
+
+            <div class="content-wrapper">
+                <section class="content-header">
+                    <h1>
+                        FAQLINK LIST
+                    </h1>
+                    <ol class="breadcrumb">
+                        <li><a href="/"><i class="fa fa-dashboard"></i>Home</a></li>
+                        <li class="active"> FAQLINK LIST</li>
+                    </ol>
+                </section>
+
+                <% if(typeof pageDataValue !='undefined' ) { pageDataValue.forEach(function(item) { %>
+                    <div class="modal fade " id="exampleModal" tabindex="-1" role="dialog"
+                        aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-sm" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabel">FAQ</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <form>
+                                        <div class="form-group">
+
+                                            <h2>Are You sure?</h2>
+
+                                            <h3>Once deleted, you will not be able to recover this Data!</h3>
+                                        </div>
+
+                                    </form>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    <a class="btn btn-danger" href="/faqlink/delete/<%=item.id%>">OK</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <% }); } %>
+                        <section class="content">
+                            <% include ../partials/messagebox %>
+                                <div class="row">
+                                    <div class="col-xs-12">
+                                        <div class="box">
+
+                                            <div class="box-body">
+                                                <table class="table table-bordered table-striped table-hover">
+                                                    <tbody>
+                                                        <tr>
+                                                            <th style="width: 10px">ID</th>
+                                                            <th>TITLE</th>
+                                                            <th>Link</th>
+                                                            <th>Update Time</th>
+                                                            <th style="text-align: center;">ACTION</th>
+                                                        </tr>
+
+                                                        <% if(typeof pageDataValue !='undefined' ) {
+                                                            pageDataValue.forEach(function(item) { %>
+                                                            <tr>
+                                                                <td>
+                                                                    <%=item.id%>
+                                                                </td>
+                                                                <td>
+                                                                    <%=item.title%>
+                                                                </td>
+                                                                <td style="width: 50%;">
+                                                                    <%=item.link%>
+                                                                </td>
+
+
+                                                                <td>
+                                                                    <%=
+                                                                        custom_helper.h_convertDateTimeInTimeStamp(item.update_time)%>
+                                                                </td>
+                                                                <td class="text-center">
+                                                                    <a class="btn btn-success"
+                                                                        href="/faqlink/edit/<%=item.id%>">Edit</a>
+
+                                                                    <button type="button"
+                                                                        class="btn btn-danger text-center"
+                                                                        data-toggle="modal" data-target="#exampleModal"
+                                                                        data-whatever="@getbootstrap">
+                                                                        Delete</a></button>
+
+                                                                </td>
+                                                            </tr>
+                                                            <% }); } %>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <div class="box-footer clearfix">
+                                                <% include ../partials/paginate %>
+                                            </div>
+                                        </div>
+
+
+                                    </div>
+                                </div>
+                        </section>
+            </div>
+            <% include ../partials/footer %>
